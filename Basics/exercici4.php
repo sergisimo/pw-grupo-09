@@ -1,15 +1,18 @@
 <?php
-
-  $words = array();
-
-  for ($i = 0; $i < $argc - 1; $i++) {
-    if ($words[$argv[$i + 1]] == NULL) $words[$argv[$i + 1]] = 1;
-    else $words[$argv[$i + 1]]++;
+  if ($argc !== 2) {
+    echo "No se han pasado los argumentos correctamente.";
+    exit(1);
   }
 
-  echo nl2br("\n");
+  $tmp = explode(" ", $argv[1]);
+  $words = array();
 
-  foreach($words as $key => $value) echo nl2br($key . " té les següents aparicions: " . $value . "\n");
+  for ($i = 0; $i < count($tmp); $i++) {
+    if ($words[$tmp[$i]] == NULL) $words[$tmp[$i]] = 1;
+    else $words[$tmp[$i]]++;
+  }
 
-  echo nl2br("\n\n" . count($words) . " paraules\n");
+  foreach($words as $key => $value) echo ($key . " té les següents aparicions: " . $value . "\n");
+
+  echo ("\n" . count($words) . " paraules\n");
 ?>
