@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <script>
+    function postData(data) {
+      var xmlhttp = new XMLHttpRequest();
+      console.log(data);
+      xmlhttp.open("GET", "formulari.php?" + data, true);
+      xmlhttp.send();
+    }
+  </script>
+  <form action="postData(hola)" method="POST">
+    Name: <input type="text" name="username"/>
+    Email: <input type="text" name="email" />
+    Edat: <input type="text" name="age" />
+    <input type="submit" name="submit" value="Enviar" />
+  </form>
+
+</html>
