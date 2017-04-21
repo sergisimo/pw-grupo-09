@@ -1,0 +1,21 @@
+{
+    "name": "projectesweb/newsilex",
+    "authors": [
+        {
+            "name": "Esteve",
+            "email": "isestevegf@gmail.com"
+        }
+    ],
+    "require": {
+        "silex/silex": "~2.0",
+        "twig/twig": "^2.3",
+        "symfony/asset": "^3.2",
+        "symfony/twig-bridge": "^3.2",
+        "doctrine/dbal": "~2.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "SilexApp\\":"src/"
+        }
+    }
+}
