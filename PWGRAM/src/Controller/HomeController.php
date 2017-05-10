@@ -21,7 +21,8 @@ class HomeController {
             'app' => [
                 'name' => $app['app.name']
             ],
-            'page' => 'Home'
+            'page' => 'Home',
+            'sectionTitle' => 'Last Posts'
         ));
 
         $response = new Response();
