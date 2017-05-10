@@ -6,11 +6,7 @@
  * Time: 19:10
  */
 
-$app->get('/hello/{name}','SilexApp\\Controller\\HelloController::indexAction');
-$app->get('/add/{num1}/{num2}','SilexApp\\Controller\\HelloController::addAction');
-
-$app->get('/users/get/{id}','SilexApp\\Controller\\UserController::getAction');
-$app->get('/users/add/','SilexApp\\Controller\\UserController::postAction');
+$app->get('/','SilexApp\\Controller\\HomeController::indexAction');
 
 
 

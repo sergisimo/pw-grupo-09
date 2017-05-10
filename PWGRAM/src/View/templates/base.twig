@@ -1,22 +1,82 @@
 <!DOCTYPE html>
 <html>
-<head>
-    {% block head %}
-        <link rel = "stylesheet" type = "text/css" href = "{{  asset('/styles.css', 'css')}}">
-        <title>{% block title %}{% endblock %} - My Webpage </title>
-    {% endblock %}
+    <head>
+        {% block head %}
+            <meta charset="utf-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <meta name="description" content="PWGRAM BES Company">
+            <meta name="author" content="BES Company">
 
-</head>
-<body>
-<div id="content">{% block content %}{% endblock %}</div>
-<div id="footer">
+            {% block styles %}
+                <link rel = "stylesheet" type = "text/css" href = "{{  asset('main.css', 'css')}}">
+            {% endblock %}
+
+            <title>{% block title %}{{ page }}{% endblock %} - PWGRAM </title>
+
+            <!-- bootstrap css -->
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+            <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet"/>
+        {% endblock %}
+    </head>
+    <body id="home" data-spy="scroll" data-target=".navbar" data-offset="95">
+        <!-- navbar -->
+        <nav class="navbar fixed-top navbar-toggleable-sm navbar-inverse bg-primary">
+            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <a class="navbar-brand" href="#home">B.E.S</a>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#home">Home</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#portfolio">Portfolio</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <!-- /navbar -->
+
+        <div class="container">
+            <h1 id="lastPosts" class="display-4 my-4 text-muted">Last Posts</h1>
+            {% block content %}
+
+            {% endblock %}
+        </div>
+    </body>
+
     {% block footer %}
-        Copyright 2017 © - {{ app.name }}
+        <footer>
+            <div class="container pt-2">
+                <hr>
+                <div class="pt-3 pb-4">
+                    <div class="col-12 text-center">
+                        <small>Copyright &copy; 2017 B.E.S Company</small>
+                    </div>
+                </div>
+            </div>
+        </footer>
     {% endblock %}
-</div>
-{% block scripts %}
-    <script src = "{{ asset('/app.js', 'js') }}" type = "text/javascript" charset = "utf-8"></script>
-{%  endblock %}
 
-</body>
+    {% block scripts %}
+        <!-- bootstrap js -->
+        <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script src = "{{ asset('/app.js', 'js') }}" type = "text/javascript" charset = "utf-8"></script>
+    {%  endblock %}
 </html>
