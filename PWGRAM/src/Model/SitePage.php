@@ -19,4 +19,5 @@ abstract class SitePage {
     const MyPosts = 5;
     const MyComments = 6;
     const Notifications = 7;
+    const MyProfile = 8;
 }

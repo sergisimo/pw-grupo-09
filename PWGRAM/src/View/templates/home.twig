@@ -14,7 +14,7 @@
     <div id="login" class="modal fade">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header text-white secondaryColor">
+                <div class="modal-header text-white bg-info">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -46,7 +46,7 @@
     <div id="register" class="modal fade">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header text-white secondaryColor">
+                <div class="modal-header text-white bg-info">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -60,7 +60,10 @@
                         </div>
 
                         <div class="form-control-file text-center mt-3 mb-3">
-                            <input type="file" class="btn btn-outline-primary btn-sm" id="selectImageButton">
+                            <label class="btn btn-outline-primary btn-sm fileContainer pl-2 pr-2 pt-1 pb-1">
+                                Upload profile image
+                                <input type="file" id="selectImageButton"/>
+                            </label>
                         </div>
 
                         <div class="form-group" id="registerUsernameGroup">

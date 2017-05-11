@@ -16,15 +16,25 @@ class UserController extends BaseController {
 
     public function myProfileAction(Application $app) {
 
-        $content = $app['twig']->render('404.twig', array(
+        /*$content = $app['twig']->render('404.twig', array(
             'app' => [
                 'name' => $app['app.name']
             ],
-            'page' => 'Error 404',
+            'page' => 'Error 403',
             'navs' => parent::createNavLinks(SitePage::NotFound),
             'brandText' => 'PWGram',
             'brandSrc' => 'assets/images/brand.png',
             'message' => 'You must be authenticated in order to access to your profile page'
+        ));*/
+
+        $content = $app['twig']->render('myProfile.twig', array(
+            'app' => [
+                'name' => $app['app.name']
+            ],
+            'page' => 'My profile',
+            'navs' => parent::createNavLinks(SitePage::MyProfile),
+            'brandText' => 'PWGram',
+            'brandSrc' => 'assets/images/brand.png'
         ));
 
         $response = new Response();
@@ -37,15 +47,25 @@ class UserController extends BaseController {
 
     public function addPostAction(Application $app) {
 
-        $content = $app['twig']->render('404.twig', array(
+        /*$content = $app['twig']->render('404.twig', array(
             'app' => [
                 'name' => $app['app.name']
             ],
-            'page' => 'Error 404',
+            'page' => 'Error 403',
             'navs' => parent::createNavLinks(SitePage::NotFound),
             'brandText' => 'PWGram',
             'brandSrc' => 'assets/images/brand.png',
             'message' => 'You must be authenticated in order to add a new post'
+        ));*/
+
+        $content = $app['twig']->render('addPost.twig', array(
+            'app' => [
+                'name' => $app['app.name']
+            ],
+            'page' => 'Add post',
+            'navs' => parent::createNavLinks(SitePage::AddPost),
+            'brandText' => 'PWGram',
+            'brandSrc' => 'assets/images/brand.png'
         ));
 
         $response = new Response();
@@ -62,7 +82,7 @@ class UserController extends BaseController {
             'app' => [
                 'name' => $app['app.name']
             ],
-            'page' => 'Error 404',
+            'page' => 'Error 403',
             'navs' => parent::createNavLinks(SitePage::NotFound),
             'brandText' => 'PWGram',
             'brandSrc' => 'assets/images/brand.png',
@@ -93,7 +113,7 @@ class UserController extends BaseController {
             'app' => [
                 'name' => $app['app.name']
             ],
-            'page' => 'Error 404',
+            'page' => 'Error 403',
             'navs' => parent::createNavLinks(SitePage::NotFound),
             'brandText' => 'PWGram',
             'brandSrc' => 'assets/images/brand.png',

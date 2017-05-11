@@ -24,9 +24,7 @@ const REGISTER_CONFIRM_PASSWORD_INPUT = 'registerConfirmPasswordInput';
 const REGISTER_EMAIL_GROUP = 'registerEmailGroup';
 const REGISTER_EMAIL_INPUT = 'registerEmailInput';
 
-var profileImageHref = 'assets/images/defaultProfile.png';
-
-var RegistrationErrorCode = {
+const RegistrationErrorCode = {
     ErrorCodeUsername : 0,
     ErrorCodeBirthdate : 1,
     ErrorCodePassword : 2,
@@ -34,10 +32,12 @@ var RegistrationErrorCode = {
     ErrorCodeEmail : 4
 }
 
-var LoginErrorCode = {
+const LoginErrorCode = {
     ErrorCodeUsername : 0,
     ErrorCodePassword: 1
 }
+
+var profileImageHref = 'assets/images/defaultProfile.png';
 
 /**
  * Singleton object with methods for accessing web elements

@@ -6,7 +6,9 @@
  * Time: 19:10
  */
 
-    use Silex\Application;
-    $app = new Application();
-    $app['app.name'] = 'SilexApp';
-    return $app;
+use Silex\Application;
+
+$app = new Application();
+$app['app.name'] = 'SilexApp';
+
+return $app;

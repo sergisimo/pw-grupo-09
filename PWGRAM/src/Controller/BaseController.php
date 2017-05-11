@@ -85,6 +85,10 @@ class BaseController {
                 unset($links['login']);
                 unset($links['register']);
                 break;
+            case SitePage::MyProfile:
+                unset($links['login']);
+                unset($links['register']);
+                break;
         }
 
         return $links;
