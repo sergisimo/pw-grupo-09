@@ -14,4 +14,5 @@ abstract class SitePage {
     const Home = 0;
     const Register = 1;
     const Login = 2;
+    const NotFound = 3;
 }

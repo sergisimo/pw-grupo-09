@@ -7,6 +7,6 @@
  */
 
 $app->get('/','SilexApp\\Controller\\HomeController::indexAction');
-
+$app->get('/myProfile','SilexApp\\Controller\\UserController::myProfileAction');
 
 

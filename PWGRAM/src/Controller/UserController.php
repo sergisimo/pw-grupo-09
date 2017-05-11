@@ -1,9 +1,9 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Esteve Genovart
- * Date: 03/04/2017
- * Time: 15:59
+ * User: borjaperez
+ * Date: 11/5/17
+ * Time: 16:37
  */
 
 namespace SilexApp\Controller;
@@ -13,20 +13,20 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use SilexApp\Model\SitePage;
 
-class HomeController extends BaseController {
+class UserController extends BaseController {
 
-    public function indexAction(Application $app, Request $request) {
+    public function myProfileAction(Application $app) {
 
-        //$name = $request->query->get('name');
-        $content = $app['twig']->render('home.twig', array(
+        $content = $app['twig']->render('404.twig', array(
             'app' => [
                 'name' => $app['app.name']
             ],
-            'page' => 'Home',
-            'sectionTitle' => 'Last Posts',
-            'navs' => parent::createNavLinks(SitePage::Home),
+            'page' => '404 not found',
+            'navs' => parent::createNavLinks(SitePage::NotFound),
             'brandText' => 'PWGram',
-            'brandSrc' => 'assets/images/brand.png'
+            'brandSrc' => 'assets/images/brand.png',
+            'title' => 'Access denied',
+            'message' => 'You must log in before accessing to your profile page'
         ));
 
         $response = new Response();

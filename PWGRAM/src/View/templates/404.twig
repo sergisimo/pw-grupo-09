@@ -1,0 +1,10 @@
+{%  extends 'base.twig' %}
+
+{% block content %}
+    {{ parent() }}
+    <div class="container text-center">
+        <h1 class="display-1 text-danger">Error 404</h1>
+        <h1 class="display-3 text-muted">{{ title }}</h1>
+        <h5 class="text-muted">{{ message }}</h5>
+    </div>
+{% endblock %}
