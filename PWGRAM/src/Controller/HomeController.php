@@ -9,15 +9,13 @@
 namespace SilexApp\Controller;
 
 use Silex\Application;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use SilexApp\Model\SitePage;
 
 class HomeController extends BaseController {
 
-    public function indexAction(Application $app, Request $request) {
+    public function indexAction(Application $app) {
 
-        //$name = $request->query->get('name');
         $content = $app['twig']->render('home.twig', array(
             'app' => [
                 'name' => $app['app.name']

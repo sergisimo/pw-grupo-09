@@ -15,4 +15,8 @@ abstract class SitePage {
     const Register = 1;
     const Login = 2;
     const NotFound = 3;
+    const AddPost = 4;
+    const MyPosts = 5;
+    const MyComments = 6;
+    const Notifications = 7;
 }

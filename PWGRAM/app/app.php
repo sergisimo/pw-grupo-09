@@ -9,7 +9,4 @@
     use Silex\Application;
     $app = new Application();
     $app['app.name'] = 'SilexApp';
-    $app['calc'] = function (){
-        return new \SilexApp\Model\Services\Calculator();
-    };
     return $app;
