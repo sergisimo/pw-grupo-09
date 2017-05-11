@@ -1,66 +1,66 @@
 <!DOCTYPE html>
 <html>
     <head>
-        {% block head %}
-            <meta charset="utf-8">
-            <meta http-equiv="X-UA-Compatible" content="IE=edge">
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <meta name="description" content="PWGRAM BES Company">
-            <meta name="author" content="BES Company">
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="PWGRAM BES Company">
+        <meta name="author" content="BES Company">
 
-            {% block styles %}
-                <link rel = "stylesheet" type = "text/css" href = "{{  asset('main.css', 'css')}}">
-            {% endblock %}
+        <title>
+            {% block title %}
+                {{ page }}
+            {% endblock %} - PWGram
+        </title>
 
-            <title>
-                {% block title %}
-                    {{ page }}
-                {% endblock %} - PWGRAM
-            </title>
+        {% block styles %}
+            <link rel = "stylesheet" type = "text/css" href = "{{  asset('main.css', 'css')}}">
 
             <!-- bootstrap css -->
             <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
             <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet"/>
         {% endblock %}
     </head>
-    <body id="home" data-spy="scroll" data-target=".navbar" data-offset="95">
+    <body id="home" data-target=".navbar">
         <!-- navbar -->
         <nav class="navbar fixed-top navbar-toggleable-sm navbar-inverse bg-primary">
             <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <a class="navbar-brand" href="/">B.E.S</a>
+            <a class="navbar-brand" href="#">
+                <img src={{ brandSrc }} width="30" height="30" class="d-inline-block align-top mr-2" alt="">{{ brandText }}
+            </a>
 
-            {%  block header %}
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ml-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/">Home</a>
-                        </li>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    {%  block header %}
+                        {% for nav in navs %}
+                            <li class="nav-item">
+                                {% if nav.currentPage == true %}
+                                    {% if nav.dataTarget is defined %}
+                                        <a class='nav-link active' data-target={{ nav.dataTarget }} data-toggle="modal" href="">{{ nav.name }}</a>
+                                    {% else %}
+                                        <a class='nav-link active' href={{ nav.href }}>{{ nav.name }}</a>
+                                    {% endif %}
 
-                        <li class="nav-item">
-                            <a class="nav-link" href="#portfolio">Portfolio</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="#about">About</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="#contact">Contact</a>
-                        </li>
-                    </ul>
-                </div>
-            {%  endblock %}
+                                {% else %}
+                                    {% if nav.dataTarget is defined %}
+                                        <a class='nav-link' data-target={{ nav.dataTarget }} data-toggle="modal" href="">{{ nav.name }}</a>
+                                    {% else %}
+                                        <a class='nav-link' href={{ nav.href }}>{{ nav.name }}</a>
+                                    {% endif %}
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    {%  endblock %}
+                </ul>
+            </div>
         </nav>
         <!-- /navbar -->
 
-        <div class="container">
+        <div class="container pt-4">
             {% block content %}
-                <h1 id="sectionTitle" class="display-4 my-4 text-muted">{{ sectionTitle }}</h1>
-
-                <div class="container" id="/"></div>
             {% endblock %}
         </div>
     </body>
@@ -71,7 +71,7 @@
                 <hr>
                 <div class="pt-3 pb-4">
                     <div class="col-12 text-center">
-                        <small>Copyright &copy; 2017 B.E.S Company</small>
+                        <small>Copyright &copy; 2017 B.E.S Company; Borja Pérez, Esteve Genovard & Sergi Simó</small>
                     </div>
                 </div>
             </div>

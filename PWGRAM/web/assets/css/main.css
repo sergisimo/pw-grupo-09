@@ -12,28 +12,10 @@ body {
     padding-top: 65px;
 }
 
-.mainColor {
-    background-color: #21304f;
-    color: #FFF;
-}
-
-/* Background */
-.mainBgColor {
-    background-color: rgba(222, 239, 245, .55);
-    color: #FFF;
-}
-
-.secondaryBgColor {
+.secondaryColor {
     background-color: #40d2c7;
-    color: #FFF;
+    color: #fff;
 }
-
-
-/* Title */
-.mainTitle {
-    color: #21304f;
-}
-
 
 /* Navbar */
 .navbar .navbar-brand {
@@ -42,50 +24,4 @@ body {
 
 .navbar-brand {
     font-family: sf_ui_displaythin;
-}
-
-
-/* Jumbotron */
-.jumbotron {
-    background-color: #ffffff;
-}
-
-.jumbotron h1, .jumbotron p {
-    color: #FFF;
-}
-
-
-/* Card */
-.card-header {
-    font-size: 110%;
-    border-bottom: none;
-}
-
-.badge {
-    position: absolute;
-    right: 15px;
-    text-align: right;
-    font-size: 85%;
-}
-
-.card-link {
-    color: #21304f;
-}
-
-/* Button */
-.btn, #linkedInButton, .active {
-    transition: .4s;
-}
-
-.btn:hover {
-    background-color: #40d2c7;
-}
-
-#linkedInButton {
-    background-color: #007BB6;
-    color: #fff;
-}
-
-#linkedInButton:hover {
-    background-color: #005d98;
 }
