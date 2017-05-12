@@ -21,24 +21,26 @@
                     </label>
                 </div>
 
-                <img class="card-img-top img-fluid" src="assets/images/defaultImage.png" alt="..." id="postImage">
+                <div class="text-center">
+                    <img class="card-img-top img-fluid" src={{ user.profileImage }} alt="..." id="postImage">
+                </div>
             </div>
         </div>
 
         <div class="col-lg-7 col-xl-7 col-md-6 col-sm-12">
             <div class="form-group" id="usernameGroup">
                 <label for="titleInput">Username:</label>
-                <input type="email" class="form-control" id="usernameInput" aria-describedby="emailHelp" placeholder="Current username">
+                <input type="email" class="form-control" id="usernameInput" aria-describedby="emailHelp" value={{ user.username }}>
             </div>
 
             <div class="form-group" id="birthdateGroup">
                 <label for="titleInput">Birthdate:</label>
-                <input type="email" class="form-control" id="birthdateInput" aria-describedby="emailHelp" placeholder="Current birthdate">
+                <input type="email" class="form-control" id="birthdateInput" aria-describedby="emailHelp" value={{ user.birthdate }}>
             </div>
 
             <div class="form-group" id="passwordGroup">
                 <label for="titleInput">Password:</label>
-                <input type="email" class="form-control" id="passwordInput" aria-describedby="emailHelp" placeholder="Current password">
+                <input type="password" class="form-control" id="passwordInput" aria-describedby="emailHelp" value={{ user.password }}>
             </div>
 
             <button type="submit" class="btn btn-primary btn-md" id="postButton">
@@ -52,4 +54,5 @@
 {% block scripts %}
     {{ parent() }}
     <script src = "{{ asset('/myProfile.js', 'js') }}" type = "text/javascript" charset = "utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
 {% endblock %}

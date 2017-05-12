@@ -335,7 +335,7 @@ function createLoginErrorsForCodes(errorCodes) {
         if (WebManager.sharedInstance().loginUsernameGroup.childElementCount == 2) {
             var small = document.createElement('small');
             small.className = 'form-text text-danger';
-            small.innerHTML = 'This field cannot be empty';
+            small.innerHTML = 'This field cannot be left empty';
 
             WebManager.sharedInstance().loginUsernameGroup.appendChild(small);
         }
@@ -357,7 +357,7 @@ function createLoginErrorsForCodes(errorCodes) {
         if (WebManager.sharedInstance().loginPasswordGroup.childElementCount == 2) {
             var small = document.createElement('small');
             small.className = 'form-text text-danger';
-            small.innerHTML = 'This field cannot be empty';
+            small.innerHTML = 'This field cannot be left empty';
 
             WebManager.sharedInstance().loginPasswordGroup.appendChild(small);
         }

@@ -168,7 +168,10 @@ function createPostErrorsForCodes(errorCodes) {
 
 window.onload = function() {
 
-    Listener.add(WebManager.sharedInstance().radioButton, "change", Listener.eventChangePrivacy, true);
-    Listener.add(WebManager.sharedInstance().postImageButton, "click", Listener.eventPostImage, true);
-    Listener.add(WebManager.sharedInstance().selectImageButton, "change", Listener.eventSelectImage, true);
+    try {
+        Listener.add(WebManager.sharedInstance().radioButton, "change", Listener.eventChangePrivacy, true);
+        Listener.add(WebManager.sharedInstance().selectImageButton, "change", Listener.eventSelectImage, true);
+        Listener.add(WebManager.sharedInstance().postImageButton, "click", Listener.eventPostImage, true);
+    }
+    catch (err) {}
 };

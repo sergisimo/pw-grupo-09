@@ -1,0 +1,110 @@
+{%  extends 'base.twig' %}
+
+{% block styles %}
+    {{ parent() }}
+    <link rel = "stylesheet" type = "text/css" href = "{{  asset('addPost.css', 'css')}}">
+{% endblock %}
+
+{% block content %}
+    {{ parent() }}
+
+    {% if image is defined and image.editable == 'true' %}
+        <h1 id="sectionTitle" class="display-4 my-4 text-muted">Edit post</h1>
+    {% elseif image is defined and image.editable == 'false' %}
+        <h1 id="sectionTitle" class="display-4 my-4 text-muted">Post details</h1>
+    {% else %}
+        <h1 id="sectionTitle" class="display-4 my-4 text-muted">Add post</h1>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-5 col-md-7 col-sm-12 mb-3" id="imageGroup">
+            <div class="card">
+                <div class="card-header card-info text-white">
+                    {% if image is not defined %}
+                        <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input mr-1" id="privateCheck">
+                            Private post
+
+                            <label class="btn btn-outline-white btn-sm fileContainer">
+                                Select image
+                                <input type="file" id="selectImageButton"/>
+                            </label>
+                        </label>
+                    {% elseif image is defined and image.editable == 'true' %}
+                        <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input mr-1" id="privateCheck" {% if image.private == 'true' %} checked {% endif %}>
+                            Private post
+
+                            <label class="btn btn-outline-white btn-sm fileContainer">
+                                Select image
+                                <input type="file" id="selectImageButton"/>
+                            </label>
+                        </label>
+                    {% else %}
+                        <h7>{{ image.title }}</h7>
+                    {% endif %}
+                </div>
+
+                <div class="text-center">
+                    {% if image is defined %}
+                        <img class="card-img-top img-fluid" src={{ image.src }} alt="..." id="postImage">
+                    {% else %}
+                        <img class="card-img-top img-fluid" src="assets/images/defaultImage.png" alt="..." id="postImage">
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if image is defined and image.editable == 'false' %}
+                <div class="text-left mt-2">
+                    <p>Posted by <h7 class="font-weight-bold text-primary"><a href="/myProfile">{{ image.username }}</a></h7> {{ image.days }} days ago</p>
+                </div>
+                <div class="text-left">
+                    <p class="text-muted">{{ image.likes }} likes<br>{{ image.visits }} visits</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-7 col-md-5 col-sm-12">
+            {% if image is not defined or image is defined and image.editable == 'true' %}
+                <div class="form-group" id="titleGroup">
+                    <label for="titleInput">Post title</label>
+                    <input type="text" class="form-control" id="titleInput" aria-describedby="emailHelp" placeholder="Enter title" {% if image is defined %} value={{ image.title }} {% endif %}>
+                    <small id="emailHelp" class="form-text text-muted">Choose a title that best describes your image.</small>
+                </div>
+            {% else %}
+                <div id="commentsGroup">
+                    {% if image.comments is defined %}
+                        <div class="bs-callout bs-callout-info">
+                            <h4>Comments</h4>
+                            <hr>
+                            {% for comment in image.comments %}
+                                <div class="text-left mb-2">
+                                    <h7 class="font-weight-bold text-muted">{{ comment.username }}</h7>
+                                    <q>{{ comment.content }}</q>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning" role="alert">
+                            No comments have been added yet.
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% if image is defined %}
+                {% if image.editable == 'true' %}
+                    <button type="submit" class="btn btn-primary btn-lg" id="postButton">Update</button>
+                {% endif %}
+            {% else %}
+                <button type="submit" class="btn btn-primary btn-lg" id="postButton">Post</button>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src = "{{ asset('/addPost.js', 'js') }}" type = "text/javascript" charset = "utf-8"></script>
+{% endblock %}

@@ -11,6 +11,7 @@ namespace SilexApp\Controller;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Response;
 use SilexApp\Model\SitePage;
+use Symfony\Component\HttpFoundation\Request;
 
 class UserController extends BaseController {
 
@@ -27,6 +28,13 @@ class UserController extends BaseController {
             'message' => 'You must be authenticated in order to access to your profile page'
         ));*/
 
+        $user = array(
+            'username' => 'bperezme',
+            'password' => '12345aA',
+            'birthdate' => '1995-10-03',
+            'profileImage' => 'assets/images/defaultProfile.png'
+        );
+
         $content = $app['twig']->render('myProfile.twig', array(
             'app' => [
                 'name' => $app['app.name']
@@ -34,7 +42,8 @@ class UserController extends BaseController {
             'page' => 'My profile',
             'navs' => parent::createNavLinks(SitePage::MyProfile),
             'brandText' => 'PWGram',
-            'brandSrc' => 'assets/images/brand.png'
+            'brandSrc' => 'assets/images/brand.png',
+            'user' => $user
         ));
 
         $response = new Response();
@@ -58,7 +67,7 @@ class UserController extends BaseController {
             'message' => 'You must be authenticated in order to add a new post'
         ));*/
 
-        $content = $app['twig']->render('addPost.twig', array(
+        $content = $app['twig']->render('post.twig', array(
             'app' => [
                 'name' => $app['app.name']
             ],
