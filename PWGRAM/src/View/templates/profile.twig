@@ -1,0 +1,118 @@
+{%  extends 'base.twig' %}
+
+{% block styles %}
+    {{ parent() }}
+    <link rel = "stylesheet" type = "text/css" href = "{{  asset('profile.css', 'css')}}">
+{% endblock %}
+
+{% block content %}
+    {{ parent() }}
+    {% if user.selfUser is defined %}
+        <h1 id="sectionTitle" class="display-4 my-4 text-muted">My profile</h1>
+    {% else %}
+        <h1 id="sectionTitle" class="display-4 my-4 text-muted">{{ user.username }}</h1>
+    {% endif %}
+
+    {% if user.selfUser is defined %}
+        <div class="row">
+            <div class="col-lg-5 col-xl-4 col-md-6 col-sm-12 mb-3" id="imageGroup">
+                <div class="card">
+                    <div class="card-header card-info text-white">
+                        <label class="form-check-label">
+                            <label class="btn btn-outline-white btn-sm fileContainer">
+                                Change image
+                                <input type="file" id="selectImageButton"/>
+                            </label>
+                        </label>
+                    </div>
+
+                    <div class="text-center">
+                        <img class="card-img-top img-fluid" src={{ user.profileImage }} alt="..." id="postImage">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7 col-xl-7 col-md-6 col-sm-12">
+                <div class="form-group" id="usernameGroup">
+                    <label for="titleInput">Username:</label>
+                    <input type="email" class="form-control" id="usernameInput" aria-describedby="emailHelp" value={{ user.username }}>
+                </div>
+
+                <div class="form-group" id="birthdateGroup">
+                    <label for="titleInput">Birthdate:</label>
+                    <input type="email" class="form-control" id="birthdateInput" aria-describedby="emailHelp" value={{ user.birthdate }}>
+                </div>
+
+                <div class="form-group" id="passwordGroup">
+                    <label for="titleInput">Password:</label>
+                    <input type="password" class="form-control" id="passwordInput" aria-describedby="emailHelp">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-md" id="postButton">
+                    Save changes
+                </button>
+            </div>
+        </div>
+    {% else %}
+        <div class="bs-callout bs-callout-info">
+            <div class="row">
+                <div class="col-xl-10 col-lg-9 col-md-9 col-sm-8 col-xs-12">
+                    <h4>Interactions</h4>
+                </div>
+                <div class="col-xl-2 col-lg-3 col-md-3 col-sm-4 col-xs-12 float-left">
+                    {% if user.posts is defined %}
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Sort posts by
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="" id="sort-0">Likes count</a>
+                                <a class="dropdown-item" href="" id="sort-1">Comments count</a>
+                                <a class="dropdown-item" href="" id="sort-2">View count</a>
+                                <a class="dropdown-item" href="" id="sort-3">Creation date</a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <hr>
+            <div class="text-left mb-2">
+                <h7 class="text-muted">{{ user.postsAmount }} posted image(s)</h7>
+            </div>
+            <div class="text-left">
+                <h7 class="text-muted">{{ user.commentsAmount }} written comment(s)</h7>
+            </div>
+        </div>
+
+        {% if user.posts is not defined %}
+            <div class="alert alert-warning mt-4" role="alert">
+                This user hasn't posted anything yet.
+            </div>
+        {% else %}
+            <h4 id="sortTitle" class="text-muted mt-5">Posts by creation date</h4>
+
+            <div class="row mt-4">
+                {% for post in user.posts %}
+                    <div class="col-md-6 col-lg-4 col-sm-6">
+                        <div class="card mb-3">
+                            <div class="card-header card-info text-white">
+                                <h7><a href={{ post.postPage }}>{{ post.title }}</a></h7>
+                            </div>
+
+                            <div class="text-center">
+                                <img class="card-img-top img-fluid" src={{ post.src }} alt="..." id="postImage">
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src = "{{ asset('/profile.js', 'js') }}" type = "text/javascript" charset = "utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+{% endblock %}

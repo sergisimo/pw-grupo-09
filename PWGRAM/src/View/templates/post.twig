@@ -2,7 +2,7 @@
 
 {% block styles %}
     {{ parent() }}
-    <link rel = "stylesheet" type = "text/css" href = "{{  asset('addPost.css', 'css')}}">
+    <link rel = "stylesheet" type = "text/css" href = "{{  asset('post.css', 'css')}}">
 {% endblock %}
 
 {% block content %}
@@ -56,7 +56,7 @@
 
             {% if image is defined and image.editable == 'false' %}
                 <div class="text-left mt-2">
-                    <p>Posted by <h7 class="font-weight-bold text-primary"><a href="/myProfile">{{ image.username }}</a></h7> {{ image.days }} days ago</p>
+                    <p>Posted by <h7 class="font-weight-bold text-primary"><a href={{ image.userProfile }}>{{ image.username }}</a></h7> {{ image.days }} days ago</p>
                 </div>
                 <div class="text-left">
                     <p class="text-muted">{{ image.likes }} likes<br>{{ image.visits }} visits</p>
@@ -106,5 +106,5 @@
 
 {% block scripts %}
     {{ parent() }}
-    <script src = "{{ asset('/addPost.js', 'js') }}" type = "text/javascript" charset = "utf-8"></script>
+    <script src = "{{ asset('/post.js', 'js') }}" type = "text/javascript" charset = "utf-8"></script>
 {% endblock %}

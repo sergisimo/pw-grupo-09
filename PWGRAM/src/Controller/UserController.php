@@ -17,25 +17,14 @@ class UserController extends BaseController {
 
     public function myProfileAction(Application $app) {
 
-        /*$content = $app['twig']->render('404.twig', array(
-            'app' => [
-                'name' => $app['app.name']
-            ],
-            'page' => 'Error 403',
-            'navs' => parent::createNavLinks(SitePage::NotFound),
-            'brandText' => 'PWGram',
-            'brandSrc' => 'assets/images/brand.png',
-            'message' => 'You must be authenticated in order to access to your profile page'
-        ));*/
-
         $user = array(
             'username' => 'bperezme',
-            'password' => '12345aA',
             'birthdate' => '1995-10-03',
-            'profileImage' => 'assets/images/defaultProfile.png'
+            'profileImage' => 'assets/images/defaultProfile.png',
+            'selfUser' => 'true'
         );
 
-        $content = $app['twig']->render('myProfile.twig', array(
+        $content = $app['twig']->render('profile.twig', array(
             'app' => [
                 'name' => $app['app.name']
             ],
@@ -54,27 +43,47 @@ class UserController extends BaseController {
         return $response;
     }
 
-    public function addPostAction(Application $app) {
+    public function publicProfileAction(Application $app, Request $request) {
 
-        /*$content = $app['twig']->render('404.twig', array(
+        $profileId = $request->get('id');
+
+        $posts = array(
+            array(
+                'src' => '../assets/images/test.JPG',
+                'title' => 'Pussy distroyer',
+                'postPage' => '/post/view/1'
+            ),
+            array(
+                'src' => '../assets/images/test.JPG',
+                'title' => 'Pussy distroyer',
+                'postPage' => '/post/view/1'
+            ),
+            array(
+                'src' => '../assets/images/test.JPG',
+                'title' => 'Pussy distroyer',
+                'postPage' => '/post/view/1'
+            )
+        );
+
+        $user = array(
+            'username' => 'bperezme',
+            'birthdate' => '1995-10-03',
+            'profileImage' => '../assets/images/defaultProfile.png',
+            'userId' => $profileId,
+            'commentsAmount' => 1,
+            'postsAmount' => 3,
+            'posts' => $posts
+        );
+
+        $content = $app['twig']->render('profile.twig', array(
             'app' => [
                 'name' => $app['app.name']
             ],
-            'page' => 'Error 403',
-            'navs' => parent::createNavLinks(SitePage::NotFound),
+            'page' => $user['username'],
+            'navs' => parent::createNavLinks(SitePage::MyProfile),
             'brandText' => 'PWGram',
-            'brandSrc' => 'assets/images/brand.png',
-            'message' => 'You must be authenticated in order to add a new post'
-        ));*/
-
-        $content = $app['twig']->render('post.twig', array(
-            'app' => [
-                'name' => $app['app.name']
-            ],
-            'page' => 'Add post',
-            'navs' => parent::createNavLinks(SitePage::AddPost),
-            'brandText' => 'PWGram',
-            'brandSrc' => 'assets/images/brand.png'
+            'brandSrc' => '../assets/images/brand.png',
+            'user' => $user
         ));
 
         $response = new Response();
@@ -86,17 +95,6 @@ class UserController extends BaseController {
     }
 
     public function myPostsAction(Application $app) {
-
-        /*$content = $app['twig']->render('404.twig', array(
-            'app' => [
-                'name' => $app['app.name']
-            ],
-            'page' => 'Error 403',
-            'navs' => parent::createNavLinks(SitePage::NotFound),
-            'brandText' => 'PWGram',
-            'brandSrc' => 'assets/images/brand.png',
-            'message' => 'You must be authenticated in order to view your posts'
-        ));*/
 
         $content = $app['twig']->render('myPosts.twig', array(
             'app' => [
@@ -117,17 +115,6 @@ class UserController extends BaseController {
     }
 
     public function myCommentsAction(Application $app) {
-
-        /*$content = $app['twig']->render('404.twig', array(
-            'app' => [
-                'name' => $app['app.name']
-            ],
-            'page' => 'Error 403',
-            'navs' => parent::createNavLinks(SitePage::NotFound),
-            'brandText' => 'PWGram',
-            'brandSrc' => 'assets/images/brand.png',
-            'message' => 'You must be authenticated in order to view your comments'
-        ));*/
 
         $content = $app['twig']->render('myComments.twig', array(
             'app' => [

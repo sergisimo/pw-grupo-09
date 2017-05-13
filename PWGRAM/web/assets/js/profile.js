@@ -18,7 +18,12 @@ const UpdateErrorCode = {
     ErrorCodePassword : 2
 }
 
-var profileImageHref;
+var params = {
+    'username' : null,
+    'birthdate' : null,
+    'password' : null,
+    'imageSrc' : null
+};
 
 /**
  * Singleton object with methods for accessing web elements
@@ -84,7 +89,7 @@ var Listener = {
         }
 
         // validate password
-        if (passwordPattern.test(WebManager.sharedInstance().passwordInput.value) == false) {
+        if (WebManager.sharedInstance().passwordInput.value.length > 0 && passwordPattern.test(WebManager.sharedInstance().passwordInput.value) == false) {
             errorCodes.push(UpdateErrorCode.ErrorCodePassword);
         }
 
@@ -92,12 +97,9 @@ var Listener = {
 
         if (errorCodes.length > 0) return;
 
-        var params = {
-            'username' : WebManager.sharedInstance().usernameInput.value,
-            'birthdate' : WebManager.sharedInstance().birthdateInput.value,
-            'password' : WebManager.sharedInstance().passwordInput.value,
-            'profileImage' : profileImageHref
-        };
+        if (WebManager.sharedInstance().passwordInput.value.length > 0) {
+            params['password'] = WebManager.sharedInstance().passwordInput.value;
+        }
 
         console.log(params);
 
@@ -185,21 +187,32 @@ function createUpdateErrorsForCodes(errorCodes) {
         }
     }
 
-    if (errorCodes.indexOf(UpdateErrorCode.ErrorCodePassword) != -1) {
-        WebManager.sharedInstance().passwordInput.className = "form-control form-control-danger";
-        WebManager.sharedInstance().passwordGroup.className = "form-group has-danger";
+    if (WebManager.sharedInstance().passwordInput.value.length > 0) {
+        if (errorCodes.indexOf(UpdateErrorCode.ErrorCodePassword) != -1) {
+            WebManager.sharedInstance().passwordInput.className = "form-control form-control-danger";
+            WebManager.sharedInstance().passwordGroup.className = "form-group has-danger";
 
-        if (WebManager.sharedInstance().passwordGroup.childElementCount == 2) {
-            var small = document.createElement('small');
-            small.className = 'form-text text-danger';
-            small.innerHTML = 'Password must contain between 6 and 12 characters, both uppercase and lowercase letters and at least one number';
+            if (WebManager.sharedInstance().passwordGroup.childElementCount == 2) {
+                var small = document.createElement('small');
+                small.className = 'form-text text-danger';
+                small.innerHTML = 'Password must contain between 6 and 12 characters, both uppercase and lowercase letters and at least one number';
 
-            WebManager.sharedInstance().passwordGroup.appendChild(small);
+                WebManager.sharedInstance().passwordGroup.appendChild(small);
+            }
+        }
+        else {
+            WebManager.sharedInstance().passwordInput.className = "form-control form-control-success";
+            WebManager.sharedInstance().passwordGroup.className = "form-group has-success";
+
+            if (WebManager.sharedInstance().passwordGroup.childElementCount == 3) {
+                var childs = WebManager.sharedInstance().passwordGroup.childNodes;
+                WebManager.sharedInstance().passwordGroup.removeChild(childs[childs.length - 1]);
+            }
         }
     }
     else {
-        WebManager.sharedInstance().passwordInput.className = "form-control form-control-success";
-        WebManager.sharedInstance().passwordGroup.className = "form-group has-success";
+        WebManager.sharedInstance().passwordInput.className = "form-control";
+        WebManager.sharedInstance().passwordGroup.className = "form-group";
 
         if (WebManager.sharedInstance().passwordGroup.childElementCount == 3) {
             var childs = WebManager.sharedInstance().passwordGroup.childNodes;
@@ -210,8 +223,13 @@ function createUpdateErrorsForCodes(errorCodes) {
 
 window.onload = function() {
 
-    Listener.add(WebManager.sharedInstance().updateButton, "click", Listener.eventUpdateInfo, true);
-    Listener.add(WebManager.sharedInstance().imageButton, "change", Listener.eventSelectImage, true);
+    try {
+        Listener.add(WebManager.sharedInstance().updateButton, "click", Listener.eventUpdateInfo, true);
+        Listener.add(WebManager.sharedInstance().imageButton, "change", Listener.eventSelectImage, true);
 
-    profileImageHref = WebManager.sharedInstance().profileImage.src;
+        params['username'] = WebManager.sharedInstance().usernameInput.value;
+        params['birthdate'] = WebManager.sharedInstance().birthdateInput.value;
+        params['imageSrc'] = WebManager.sharedInstance().profileImage.src;
+    }
+    catch (err) {}
 };

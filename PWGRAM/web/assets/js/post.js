@@ -15,9 +15,11 @@ const AddPostErrorCode = {
     ErrorCodeTitle: 1
 }
 
-var profileImageHref = null;
-
-var private = false;
+var params = {
+    'title' : null,
+    'imageSrc' : null,
+    'private' : null
+};
 
 /**
  * Singleton object with methods for accessing web elements
@@ -66,17 +68,11 @@ var Listener = {
         // validate username
         if (WebManager.sharedInstance().titleInput.value.length == 0) errorCodes.push(AddPostErrorCode.ErrorCodeTitle);
 
-        // validate image
-        if (profileImageHref == null) errorCodes.push(AddPostErrorCode.ErrorCodeImage);
-
         createPostErrorsForCodes(errorCodes);
 
         if (errorCodes.length > 0) return;
 
-        var params = {
-            'username' : WebManager.sharedInstance().loginUsernameInput.value,
-            'password' : WebManager.sharedInstance().loginPasswordInput.value
-        };
+        params['title'] = WebManager.sharedInstance().titleInput.value;
 
         console.log(params);
 
@@ -95,7 +91,7 @@ var Listener = {
 
         event.preventDefault();
 
-        private = !private;
+        params['private'] = !params['private'];
     },
 
     eventSelectImage: function(event) {
@@ -109,7 +105,7 @@ var Listener = {
         switch(val.substring(val.lastIndexOf('.') + 1).toLowerCase()) {
             case 'gif': case 'jpg': case 'png': {
             var oFReader = new FileReader();
-            profileImageHref = this.files[0];
+            params['imageSrc'] = this.files[0];
 
             oFReader.readAsDataURL(profileImageHref);
             oFReader.onload = function (oFREvent) {
@@ -174,4 +170,16 @@ window.onload = function() {
         Listener.add(WebManager.sharedInstance().postImageButton, "click", Listener.eventPostImage, true);
     }
     catch (err) {}
+
+    params['title'] = WebManager.sharedInstance().titleInput.value;
+    params['imageSrc'] = WebManager.sharedInstance().postImage.src;
+
+    try {
+        params['private'] = WebManager.sharedInstance().radioButton.checked;
+    }
+    catch (err) {
+        params['private'] = false;
+    }
+
+    console.log(params);
 };

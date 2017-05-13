@@ -8,9 +8,10 @@
 
 $app->get('/','SilexApp\\Controller\\HomeController::indexAction');
 $app->get('/myProfile','SilexApp\\Controller\\UserController::myProfileAction');
-$app->get('/addPost','SilexApp\\Controller\\UserController::addPostAction');
+$app->get('/profile/{id}','SilexApp\\Controller\\UserController::publicProfileAction');
 $app->get('/myPosts','SilexApp\\Controller\\UserController::myPostsAction');
 $app->get('/myComents','SilexApp\\Controller\\UserController::myCommentsAction');
 $app->get('/notifications','SilexApp\\Controller\\UserController::notificationsAction');
-$app->get('/post/edit/{id}','SilexApp\\Controller\\ImageController::editPostAction');
-$app->get('/post/view/{id}','SilexApp\\Controller\\ImageController::viewPostAction');
+$app->get('/post/edit/{id}','SilexApp\\Controller\\PostController::editPostAction');
+$app->get('/post/view/{id}','SilexApp\\Controller\\PostController::viewPostAction');
+$app->get('/addPost','SilexApp\\Controller\\PostController::addPostAction');
