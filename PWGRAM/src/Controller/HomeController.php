@@ -22,9 +22,9 @@ class HomeController extends BaseController {
             ],
             'page' => 'Home',
             'sectionTitle' => 'Last Posts',
-            'navs' => parent::createNavLinks(SitePage::Home),
-            'brandText' => 'PWGram',
-            'brandSrc' => 'assets/images/brand.png'
+            'navs' => parent::createNavLinks(SitePage::Home, $app),
+            'brandText' => parent::brandText($app),
+            'brandSrc' => parent::brandImage($app, SitePage::Home)
         ));
 
         $response = new Response();

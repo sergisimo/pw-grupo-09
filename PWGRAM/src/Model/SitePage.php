@@ -20,4 +20,6 @@ abstract class SitePage {
     const MyComments = 6;
     const Notifications = 7;
     const MyProfile = 8;
+    const SecondLevel = 9;
+    const ThirdLevel = 10;
 }

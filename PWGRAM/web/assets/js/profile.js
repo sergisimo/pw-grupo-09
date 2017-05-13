@@ -11,6 +11,8 @@ const BIRTHDATE_GROUP = 'birthdateGroup';
 const BIRTHDATE_INPUT = 'birthdateInput';
 const PASSWORD_GROUP = 'passwordGroup';
 const PASSWORD_INPUT = 'passwordInput';
+const SORT_DROPDOWN = 'sortDropDown';
+const SORT_TITLE = 'sortTitle';
 
 const UpdateErrorCode = {
     ErrorCodeUsername : 0,
@@ -18,12 +20,25 @@ const UpdateErrorCode = {
     ErrorCodePassword : 2
 }
 
+const SortType = {
+    SortTypeLikes : 0,
+    SortTypeComments : 1,
+    SortTypeViews : 2,
+    SortTypeDate : 3
+}
+
+const SORT_TITLES = ['Posts by likes count', 'Posts by comments count', 'Posts by view count','Posts by creation date'];
+
 var params = {
     'username' : null,
     'birthdate' : null,
     'password' : null,
     'imageSrc' : null
 };
+
+var sortParams = {
+    'sortType' : SortType.SortTypeDate
+}
 
 /**
  * Singleton object with methods for accessing web elements
@@ -42,6 +57,8 @@ var WebManager = (function() {
         this.birthdateInput = document.getElementById(BIRTHDATE_INPUT);
         this.passwordGroup = document.getElementById(PASSWORD_GROUP);
         this.passwordInput = document.getElementById(PASSWORD_INPUT);
+        this.dropdown = document.getElementById(SORT_DROPDOWN);
+        this.sortTitle = document.getElementById(SORT_TITLE);
     }
 
     return {
@@ -138,6 +155,16 @@ var Listener = {
                 alert("not an image");
                 break;
         }
+    },
+
+    eventChangeSortType: function(event) {
+
+        event.preventDefault();
+
+        var newSortType = event.srcElement.id.split('-')[1];
+        sortParams['sortType'] = newSortType;
+
+        WebManager.sharedInstance().sortTitle.innerHTML = SORT_TITLES[newSortType];
     }
 }
 
@@ -222,6 +249,16 @@ function createUpdateErrorsForCodes(errorCodes) {
 }
 
 window.onload = function() {
+
+    try {
+        for (var i = 0; i < WebManager.sharedInstance().dropdown.childElementCount; i++) {
+            var a = WebManager.sharedInstance().dropdown.children[i];
+            Listener.add(a, "click", Listener.eventChangeSortType, true);
+        }
+    }
+    catch (err) {
+        console.log(err);
+    }
 
     try {
         Listener.add(WebManager.sharedInstance().updateButton, "click", Listener.eventUpdateInfo, true);

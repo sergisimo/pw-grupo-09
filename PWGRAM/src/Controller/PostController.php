@@ -32,16 +32,18 @@ class PostController extends BaseController {
                 'name' => $app['app.name']
             ],
             'page' => 'Edit post',
-            'navs' => parent::createNavLinks(SitePage::MyProfile),
-            'brandText' => 'PWGram',
-            'brandSrc' => '../../assets/images/brand.png',
+            'navs' => parent::createNavLinks(SitePage::MyProfile, $app),
+            'brandText' => parent::brandText($app),
+            'brandSrc' => parent::brandImage($app, SitePage::ThirdLevel),
             'image' => $image
         ));
 
         $response = new Response();
         $response->setStatusCode($response::HTTP_OK);
         $response->headers->set('Content-Type','text/html');
-        $response->setContent($content);
+
+        if ($app['sessionActive']) $response->setContent($content);
+        else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to edit your posts', SitePage::ThirdLevel));
 
         return $response;
     }
@@ -80,16 +82,18 @@ class PostController extends BaseController {
                 'name' => $app['app.name']
             ],
             'page' => 'Post details',
-            'navs' => parent::createNavLinks(SitePage::MyProfile),
-            'brandText' => 'PWGram',
-            'brandSrc' => '../../assets/images/brand.png',
+            'navs' => parent::createNavLinks(SitePage::MyProfile, $app),
+            'brandText' => parent::brandText($app),
+            'brandSrc' => parent::brandImage($app, SitePage::ThirdLevel),
             'image' => $image
         ));
 
         $response = new Response();
         $response->setStatusCode($response::HTTP_OK);
         $response->headers->set('Content-Type','text/html');
-        $response->setContent($content);
+
+        if ($app['sessionActive'] || $image['private'] == 'false') $response->setContent($content);
+        else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to view private posts', SitePage::ThirdLevel));
 
         return $response;
     }
@@ -112,15 +116,19 @@ class PostController extends BaseController {
                 'name' => $app['app.name']
             ],
             'page' => 'Add post',
-            'navs' => parent::createNavLinks(SitePage::AddPost),
-            'brandText' => 'PWGram',
-            'brandSrc' => 'assets/images/brand.png'
+            'navs' => parent::createNavLinks(SitePage::AddPost, $app),
+            'brandText' => parent::brandText($app),
+            'brandSrc' => parent::brandImage($app, SitePage::AddPost)
         ));
 
         $response = new Response();
         $response->setStatusCode($response::HTTP_OK);
         $response->headers->set('Content-Type','text/html');
-        $response->setContent($content);
+
+        if ($app['sessionActive']) $response->setContent($content);
+
+        if ($app['sessionActive']) $response->setContent($content);
+        else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to add a post'), SitePage::AddPost);
 
         return $response;
     }

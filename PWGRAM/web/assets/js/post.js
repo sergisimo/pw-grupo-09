@@ -171,7 +171,11 @@ window.onload = function() {
     }
     catch (err) {}
 
-    params['title'] = WebManager.sharedInstance().titleInput.value;
+    try {
+        params['title'] = WebManager.sharedInstance().titleInput.value;
+    }
+    catch (err) {}
+
     params['imageSrc'] = WebManager.sharedInstance().postImage.src;
 
     try {

@@ -29,16 +29,18 @@ class UserController extends BaseController {
                 'name' => $app['app.name']
             ],
             'page' => 'My profile',
-            'navs' => parent::createNavLinks(SitePage::MyProfile),
-            'brandText' => 'PWGram',
-            'brandSrc' => 'assets/images/brand.png',
+            'navs' => parent::createNavLinks(SitePage::MyProfile, $app),
+            'brandText' => parent::brandText($app),
+            'brandSrc' => parent::brandImage($app, SitePage::MyProfile),
             'user' => $user
         ));
 
         $response = new Response();
         $response->setStatusCode($response::HTTP_OK);
         $response->headers->set('Content-Type','text/html');
-        $response->setContent($content);
+
+        if ($app['sessionActive']) $response->setContent($content);
+        else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to view your profile', SitePage::MyProfile));
 
         return $response;
     }
@@ -80,9 +82,9 @@ class UserController extends BaseController {
                 'name' => $app['app.name']
             ],
             'page' => $user['username'],
-            'navs' => parent::createNavLinks(SitePage::MyProfile),
-            'brandText' => 'PWGram',
-            'brandSrc' => '../assets/images/brand.png',
+            'navs' => parent::createNavLinks(SitePage::MyProfile, $app),
+            'brandText' => parent::brandText($app),
+            'brandSrc' => parent::brandImage($app, SitePage::SecondLevel),
             'user' => $user
         ));
 
@@ -101,15 +103,17 @@ class UserController extends BaseController {
                 'name' => $app['app.name']
             ],
             'page' => 'My posts',
-            'navs' => parent::createNavLinks(SitePage::MyPosts),
-            'brandText' => 'PWGram',
-            'brandSrc' => 'assets/images/brand.png'
+            'navs' => parent::createNavLinks(SitePage::MyPosts, $app),
+            'brandText' => parent::brandText($app),
+            'brandSrc' => parent::brandImage($app, SitePage::MyPosts)
         ));
 
         $response = new Response();
         $response->setStatusCode($response::HTTP_OK);
         $response->headers->set('Content-Type','text/html');
-        $response->setContent($content);
+
+        if ($app['sessionActive']) $response->setContent($content);
+        else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to view your posts', SitePage::MyPosts));
 
         return $response;
     }
@@ -121,46 +125,39 @@ class UserController extends BaseController {
                 'name' => $app['app.name']
             ],
             'page' => 'My comments',
-            'navs' => parent::createNavLinks(SitePage::MyComments),
-            'brandText' => 'PWGram',
-            'brandSrc' => 'assets/images/brand.png'
+            'navs' => parent::createNavLinks(SitePage::MyComments, $app),
+            'brandText' => parent::brandText($app),
+            'brandSrc' => parent::brandImage($app, SitePage::MyComments)
         ));
 
         $response = new Response();
         $response->setStatusCode($response::HTTP_OK);
         $response->headers->set('Content-Type','text/html');
-        $response->setContent($content);
+
+        if ($app['sessionActive']) $response->setContent($content);
+        else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to view your comments', SitePage::MyComments));
 
         return $response;
     }
 
     public function notificationsAction(Application $app) {
 
-        /*$content = $app['twig']->render('404.twig', array(
-            'app' => [
-                'name' => $app['app.name']
-            ],
-            'page' => 'Error 404',
-            'navs' => parent::createNavLinks(SitePage::NotFound),
-            'brandText' => 'PWGram',
-            'brandSrc' => 'assets/images/brand.png',
-            'message' => 'You must be authenticated in order to view your notifications'
-        ));*/
-
         $content = $app['twig']->render('notifications.twig', array(
             'app' => [
                 'name' => $app['app.name']
             ],
             'page' => 'Notifications',
-            'navs' => parent::createNavLinks(SitePage::Notifications),
-            'brandText' => 'PWGram',
-            'brandSrc' => 'assets/images/brand.png'
+            'navs' => parent::createNavLinks(SitePage::Notifications, $app),
+            'brandText' => parent::brandText($app),
+            'brandSrc' => parent::brandImage($app, SitePage::Notifications)
         ));
 
         $response = new Response();
         $response->setStatusCode($response::HTTP_OK);
         $response->headers->set('Content-Type','text/html');
-        $response->setContent($content);
+
+        if ($app['sessionActive']) $response->setContent($content);
+        else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to view your notifications', SitePage::Notifications));
 
         return $response;
     }

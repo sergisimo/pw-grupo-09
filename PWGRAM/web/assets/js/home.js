@@ -8,6 +8,7 @@ const USERNAME_GROUP = 'usernameGroup';
 const USERNAME_INPUT = 'usernameInput';
 const PASSWORD_GROUP = 'passwordGroup';
 const PASSWORD_INPUT = 'passwordInput';
+const LOGIN_MODAL = 'loginModal';
 
 // Register
 const REGISTER_BUTTON = 'registerButton';
@@ -34,7 +35,8 @@ const RegistrationErrorCode = {
 
 const LoginErrorCode = {
     ErrorCodeUsername : 0,
-    ErrorCodePassword: 1
+    ErrorCodePassword: 1,
+    ErrorCodeNotFound : 2
 }
 
 var profileImageHref = 'assets/images/defaultProfile.png';
@@ -52,6 +54,7 @@ var WebManager = (function() {
         this.loginUsernameInput = document.getElementById(USERNAME_INPUT);
         this.loginPasswordGroup = document.getElementById(PASSWORD_GROUP);
         this.loginPasswordInput = document.getElementById(PASSWORD_INPUT);
+        this.loginModal = document.getElementById(LOGIN_MODAL);
         this.registerButton = document.getElementById(REGISTER_BUTTON);
         this.registerImageButton = document.getElementById(REGISTER_IMAGE_BUTTON);
         this.registerProfileImage = document.getElementById(REGISTER_PROFILE_IMAGE);
@@ -113,11 +116,11 @@ var Listener = {
 
         /*$.ajax({
             data:  params,
-            url:   URL,
+            url:   '../validateLogin.php',
             type:  'POST',
 
             success: function (response) {
-                console.log(response);
+                createLoginErrorsForCodes(response);
             }
         })*/
     },
@@ -370,6 +373,36 @@ function createLoginErrorsForCodes(errorCodes) {
             var childs = WebManager.sharedInstance().loginPasswordGroup.childNodes;
             WebManager.sharedInstance().loginPasswordGroup.removeChild(childs[childs.length - 1]);
         }
+    }
+
+    if (errorCodes.indexOf(LoginErrorCode.ErrorCodeNotFound) != -1) {
+        var div = document.createElement('div');
+        div.className = 'alert alert-danger alert-dismissible fade show';
+        div.setAttribute('role', 'alert');
+        div.setAttribute("id", "loginAlert");
+
+        var button = document.createElement("button");
+        button.className = "close";
+        button.setAttribute("data-dismiss", "alert");
+        button.setAttribute("aria-label", "Close");
+
+        var span = document.createElement("span");
+        span.setAttribute("aria-hidden", "true");
+        span.innerHTML = "&times;";
+
+        var message = document.createElement('h7');
+        message.innerHTML = 'Invalid login credentials';
+
+        button.appendChild(span);
+        div.appendChild(button);
+        div.appendChild(message);
+
+        var modal = WebManager.sharedInstance().loginModal;
+        modal.insertBefore(div, modal.children[0]);
+
+        $("#loginAlert").fadeTo(3000, 500).slideUp(500, function(){
+            $("#loginAlert").slideUp(500);
+        });
     }
 }
 

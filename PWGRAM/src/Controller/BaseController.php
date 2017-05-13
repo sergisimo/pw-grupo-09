@@ -8,11 +8,12 @@
 
 namespace SilexApp\Controller;
 
+use Silex\Application;
 use SilexApp\Model\SitePage;
 
 class BaseController {
 
-    protected function createNavLinks($sourcePage) {
+    protected function createNavLinks($sourcePage, Application $app) {
 
         $links = [  'home' => array(
                         'name' => 'Home',
@@ -42,8 +43,8 @@ class BaseController {
                         'currentPage' => 0
                     ),
                     'myComents' => array(
-                        'name' => 'My coments',
-                        'href' => '/myComents',
+                        'name' => 'My comments',
+                        'href' => '/myComments',
                         'currentPage' => 0
                     ),
                     'notifications' => array(
@@ -56,6 +57,18 @@ class BaseController {
         switch ($sourcePage) {
             case SitePage::Home:
                 $links['home']['currentPage'] = 1;
+
+                if ($app['sessionActive']) {
+                    unset($links['login']);
+                    unset($links['register']);
+                }
+                else {
+                    unset($links['addPost']);
+                    unset($links['myComents']);
+                    unset($links['myPosts']);
+                    unset($links['notifications']);
+                }
+
                 break;
             case SitePage::NotFound:
                 unset($links['login']);
@@ -88,9 +101,57 @@ class BaseController {
             case SitePage::MyProfile:
                 unset($links['login']);
                 unset($links['register']);
+
+                if (!$app['sessionActive']) {
+                    unset($links['addPost']);
+                    unset($links['myPosts']);
+                    unset($links['myComents']);
+                    unset($links['notifications']);
+                }
+
                 break;
         }
 
         return $links;
+    }
+
+    protected function brandText(Application $app) {
+
+        if ($app['sessionActive']) return 'bperezme';
+        else return 'PWGram';
+    }
+
+    protected function brandImage(Application $app, $sourcePage) {
+
+        $noSessionBrandSource = 'assets/images/brand.png';
+        $sessionBrandSource = 'assets/images/defaultProfileBrand.png';
+
+        if ($sourcePage == SitePage::SecondLevel) {
+            $noSessionBrandSource = '../assets/images/brand.png';
+            $sessionBrandSource = '../assets/images/defaultProfileBrand.png';
+        }
+        else if ($sourcePage == SitePage::ThirdLevel) {
+            $noSessionBrandSource = '../../assets/images/brand.png';
+            $sessionBrandSource = '../../assets/images/defaultProfileBrand.png';
+        }
+
+        if ($app['sessionActive']) return $sessionBrandSource;
+        else return $noSessionBrandSource;
+    }
+
+    protected function deniedContent(Application $app, $message, $sourcePage) {
+
+        $content = $app['twig']->render('404.twig', array(
+            'app' => [
+                'name' => $app['app.name']
+            ],
+            'page' => 'Error 404',
+            'navs' => $this->createNavLinks(SitePage::NotFound, $app),
+            'brandText' => 'PWGram',
+            'brandSrc' => $this->brandImage($app, $sourcePage),
+            'message' => $message
+        ));
+
+        return $content;
     }
 }

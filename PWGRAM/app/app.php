@@ -10,5 +10,6 @@ use Silex\Application;
 
 $app = new Application();
 $app['app.name'] = 'SilexApp';
+$app['sessionActive'] = false;
 
 return $app;
