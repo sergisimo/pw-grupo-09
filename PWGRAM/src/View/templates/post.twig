@@ -8,9 +8,9 @@
 {% block content %}
     {{ parent() }}
 
-    {% if image is defined and image.editable == 'true' %}
+    {% if image is defined and image.editable == true %}
         <h1 id="sectionTitle" class="display-4 my-4 text-muted">Edit post</h1>
-    {% elseif image is defined and image.editable == 'false' %}
+    {% elseif image is defined and image.editable == false %}
         <h1 id="sectionTitle" class="display-4 my-4 text-muted">Post details</h1>
     {% else %}
         <h1 id="sectionTitle" class="display-4 my-4 text-muted">Add post</h1>
@@ -30,9 +30,9 @@
                                 <input type="file" id="selectImageButton"/>
                             </label>
                         </label>
-                    {% elseif image is defined and image.editable == 'true' %}
+                    {% elseif image is defined and image.editable == true %}
                         <label class="form-check-label">
-                            <input type="checkbox" class="form-check-input mr-1" id="privateCheck" {% if image.private == 'true' %} checked {% endif %}>
+                            <input type="checkbox" class="form-check-input mr-1" id="privateCheck" {% if image.private == true %} checked {% endif %}>
                             Private post
 
                             <label class="btn btn-outline-white btn-sm fileContainer">
@@ -54,10 +54,23 @@
                 </div>
             </div>
 
-            {% if image is defined and image.editable == 'false' %}
+            {% if image is defined and image.editable == false %}
                 <div class="text-left mt-2">
                     <p>Posted by <h7 class="font-weight-bold text-primary"><a href={{ image.userProfile }}>{{ image.username }}</a></h7> {{ image.days }} days ago</p>
                 </div>
+
+               {% if sessionActive == true %}
+                   {% if image.liked == true %}
+                       <div class="text-left mt-2">
+                           <p><a id="postLikedAction" class="ml-1" href=''><img class="mr-2" id='postLiked' src="../../assets/images/heart-selected.png" width="25"></a><span id="likeTitle">Dislike</span></p>
+                       </div>
+                   {% else %}
+                       <div class="text-left mt-2">
+                           <p><a id="postLikedAction" class="ml-1" href=''><img class="mr-2" id="postLiked" src="../../assets/images/heart.png" width="25"></a><span id="likeTitle">Like</span></p>
+                       </div>
+                   {% endif %}
+               {% endif %}
+
                 <div class="text-left">
                     <p class="text-muted">{{ image.likes }} likes<br>{{ image.visits }} visits</p>
                 </div>
@@ -65,7 +78,7 @@
         </div>
 
         <div class="col-lg-7 col-md-5 col-sm-12">
-            {% if image is not defined or image is defined and image.editable == 'true' %}
+            {% if image is not defined or image is defined and image.editable == true %}
                 <div class="form-group" id="titleGroup">
                     <label for="titleInput">Post title</label>
                     <input type="text" class="form-control" id="titleInput" aria-describedby="emailHelp" placeholder="Enter title" {% if image is defined %} value={{ image.title }} {% endif %}>
@@ -89,11 +102,25 @@
                             No comments have been added yet.
                         </div>
                     {% endif %}
+
+                    {% if sessionActive == true and image.userCanComment == true %}
+                        <div class="form-group mt-3" id="addCommentGroup">
+                            <label for="titleInput">Post new comment:</label>
+                            <div class="row">
+                                <div class="col-lg-10 col-md-12 col-sm-10 mb-2">
+                                    <input type="email" class="form-control" id="usernameInput" aria-describedby="emailHelp" placeholder="Type comment">
+                                </div>
+                                <div class="col-lg-2 col-md-2 col-sm-2 float-right">
+                                    <button type="submit" class="btn btn-primary btn-md" id="postCommentButton">Post</button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
             {% endif %}
 
             {% if image is defined %}
-                {% if image.editable == 'true' %}
+                {% if image.editable == true %}
                     <button type="submit" class="btn btn-primary btn-lg" id="postButton">Update</button>
                 {% endif %}
             {% else %}

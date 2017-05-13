@@ -1,13 +1,136 @@
 {%  extends 'base.twig' %}
 
+{% block styles %}
+    {{ parent() }}
+    <link rel = "stylesheet" type = "text/css" href = "{{  asset('home.css', 'css')}}">
+{% endblock %}
+
 {% block content %}
     {{ parent() }}
 
-    {% if posts is defined %}
-        <h1 id="sectionTitle" class="display-4 my-4 text-muted">{{ sectionTitle }}</h1>
-    {% else %}
+    {% if posts is not defined %}
         <div class="alert alert-warning" role="alert">
             No public pictures have been posted yet.
+        </div>
+    {% else %}
+        <h1 id="sectionTitle" class="display-4 my-4 text-muted">Most viewed posts</h1>
+
+        <div class="row mt-4">
+            {% for post in posts.mostViewed %}
+                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                    <div class="card mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <div class="card-header card-info text-white">
+                                    <h7><a href={{ post.postPage }}>{{ post.title }}</a></h7>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <img class="card-img-top img-fluid" src={{ post.src }} alt="..." id="postImage">
+                        </div>
+                    </div>
+
+                    <div class="text-left mt-2">
+                        <p>Posted by <h7 class="font-weight-bold text-primary"><a href={{ post.userProfile }}>{{ post.username }}</a></h7> on {{ post.postDate }}</p>
+                    </div>
+
+                    {% if sessionActive == true %}
+                        {% if post.liked == true %}
+                            <div class="text-left mt-2">
+                                <p><a id="postLikedAction" class="ml-1" href=''><img class="mr-2" id='postLiked' src="assets/images/heart-selected.png" width="25"></a><span id="likeTitle">Dislike</span></p>
+                            </div>
+                        {% else %}
+                            <div class="text-left mt-2">
+                                <p><a id="postLikedAction" class="ml-1" href=''><img class="mr-2" id="postLiked" src="assets/images/heart.png" width="25"></a><span id="likeTitle">Like</span></p>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+
+                    <div class="text-left">
+                        <p class="text-muted">{{ post.likes }} likes, {{ post.visits }} visits</p>
+                    </div>
+
+                    {% if sessionActive == true and post.userCanComment == true %}
+                        <hr>
+                        <div class="form-group mt-3" id="addCommentGroup">
+                            <div class="row">
+                                <div class="col-sm-9 mb-2">
+                                    <input type="email" class="form-control" id="usernameInput" aria-describedby="emailHelp" placeholder="Type comment">
+                                </div>
+                                <div class="col-sm-2 float-right">
+                                    <button type="submit" class="btn btn-primary btn-md" id="postCommentButton">Post</button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <h1 id="sectionTitle" class="display-4 my-4 text-muted">Most recent posts</h1>
+
+        <div class="row mt-4">
+            {% for post in posts.mostRecent %}
+                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                    <div class="card mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <div class="card-header card-info text-white">
+                                    <h7><a href={{ post.postPage }}>{{ post.title }}</a></h7>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <img class="card-img-top img-fluid" src={{ post.src }} alt="..." id="postImage">
+                        </div>
+                    </div>
+
+                    <div class="text-left mt-2">
+                        <p>Posted by <h7 class="font-weight-bold text-primary"><a href={{ post.userProfile }}>{{ post.username }}</a></h7> on {{ post.postDate }}</p>
+                    </div>
+
+                    {% if sessionActive == true %}
+                        {% if post.liked == true %}
+                            <div class="text-left mt-2">
+                                <p><a id="postLikedAction" class="ml-1" href=''><img class="mr-2" id='postLiked' src="assets/images/heart-selected.png" width="25"></a><span id="likeTitle">Dislike</span></p>
+                            </div>
+                        {% else %}
+                            <div class="text-left mt-2">
+                                <p><a id="postLikedAction" class="ml-1" href=''><img class="mr-2" id="postLiked" src="assets/images/heart.png" width="25"></a><span id="likeTitle">Like</span></p>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+
+                    <div class="text-left">
+                        <p class="text-muted">{{ post.visits }} visits</p>
+                    </div>
+
+                    {% if post.lastComment is defined %}
+                        <hr>
+                        <div class="text-left mb-2">
+                            <h7 class="font-weight-bold text-muted">{{ post.lastComment.username }}</h7>
+                            <q>{{ post.lastComment.content }}</q>
+                        </div>
+                    {% endif %}
+
+                    {% if sessionActive == true and post.userCanComment == true %}
+                        <hr>
+                        <div class="form-group mt-3" id="addCommentGroup">
+                            <div class="row">
+                                <div class="col-sm-9 mb-2">
+                                    <input type="email" class="form-control" id="usernameInput" aria-describedby="emailHelp" placeholder="Type comment">
+                                </div>
+                                <div class="col-sm-2 float-right">
+                                    <button type="submit" class="btn btn-primary btn-md" id="postCommentButton">Post</button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
         </div>
     {% endif %}
 

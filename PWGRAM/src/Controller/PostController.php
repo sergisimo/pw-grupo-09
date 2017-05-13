@@ -17,11 +17,13 @@ class PostController extends BaseController {
 
     public function editPostAction(Application $app, Request $request) {
 
+        // TODO: comprovar si id del usuari actiu coincideix amb id de usuari de la imatge. Si no coincideix, 403
+
         $imageId = $request->get('id');
 
         $image = array(
             'title' => 'Pussy-distroyer',
-            'private' => 'false',
+            'private' => false,
             'id' => $imageId,
             'src' => "../../assets/images/test.JPG",
             'editable' => 'true'
@@ -65,16 +67,18 @@ class PostController extends BaseController {
 
         $image = array(
             'title' => 'Pussy distroyer',
-            'private' => 'false',
+            'private' => false,
             'id' => $imageId,
             'src' => "../../assets/images/test.JPG",
-            'editable' => 'false',
+            'editable' => false,
             'days' => '3',
             'likes' => '1K',
             'visits' => '69',
             'username' => 'bperezme',
             'comments' => $comments,
-            'userProfile' => '/profile/1'
+            'userProfile' => '/profile/1',
+            'liked' => true,
+            'userCanComment' => true
         );
 
         $content = $app['twig']->render('post.twig', array(
@@ -85,31 +89,21 @@ class PostController extends BaseController {
             'navs' => parent::createNavLinks(SitePage::MyProfile, $app),
             'brandText' => parent::brandText($app),
             'brandSrc' => parent::brandImage($app, SitePage::ThirdLevel),
-            'image' => $image
+            'image' => $image,
+            'sessionActive' => $app['sessionActive']
         ));
 
         $response = new Response();
         $response->setStatusCode($response::HTTP_OK);
         $response->headers->set('Content-Type','text/html');
 
-        if ($app['sessionActive'] || $image['private'] == 'false') $response->setContent($content);
-        else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to view private posts', SitePage::ThirdLevel));
+        if ($image['private'] == false) $response->setContent($content);
+        else $response->setContent(parent::deniedContent($app, 'Only public posts can be viewed', SitePage::ThirdLevel));
 
         return $response;
     }
 
     public function addPostAction(Application $app) {
-
-        /*$content = $app['twig']->render('404.twig', array(
-            'app' => [
-                'name' => $app['app.name']
-            ],
-            'page' => 'Error 403',
-            'navs' => parent::createNavLinks(SitePage::NotFound),
-            'brandText' => 'PWGram',
-            'brandSrc' => 'assets/images/brand.png',
-            'message' => 'You must be authenticated in order to add a new post'
-        ));*/
 
         $content = $app['twig']->render('post.twig', array(
             'app' => [

@@ -9,6 +9,9 @@ const TITLE_INPUT = 'titleInput';
 const SELECT_IMAGE = 'selectImageButton';
 const POST_IMAGE_BUTTON = 'postButton';
 const IMAGE_GROUP = 'imageGroup';
+const POST_LIKED = 'postLiked';
+const POST_LIKED_ACTION = 'postLikedAction';
+const LIKE_TITLE = 'likeTitle';
 
 const AddPostErrorCode = {
     ErrorCodeImage : 0,
@@ -20,6 +23,8 @@ var params = {
     'imageSrc' : null,
     'private' : null
 };
+
+var postLiked = null;
 
 /**
  * Singleton object with methods for accessing web elements
@@ -36,6 +41,9 @@ var WebManager = (function() {
         this.selectImageButton = document.getElementById(SELECT_IMAGE);
         this.postImageButton = document.getElementById(POST_IMAGE_BUTTON);
         this.imageGroup = document.getElementById(IMAGE_GROUP);
+        this.postLikedImage = document.getElementById(POST_LIKED);
+        this.postLikedAction = document.getElementById(POST_LIKED_ACTION);
+        this.likeTitle = document.getElementById(LIKE_TITLE);
     }
 
     return {
@@ -107,7 +115,7 @@ var Listener = {
             var oFReader = new FileReader();
             params['imageSrc'] = this.files[0];
 
-            oFReader.readAsDataURL(profileImageHref);
+            oFReader.readAsDataURL(params['imageSrc']);
             oFReader.onload = function (oFREvent) {
                 WebManager.sharedInstance().postImage.src = oFREvent.target.result;
             };
@@ -117,6 +125,22 @@ var Listener = {
                 $(this).val('');
                 alert("not an image");
                 break;
+        }
+    },
+
+    eventLikePost: function(event) {
+
+        event.preventDefault();
+
+        postLiked = !postLiked;
+
+        if (postLiked) {
+            WebManager.sharedInstance().postLikedImage.src = '../../assets/images/heart-selected.png';
+            WebManager.sharedInstance().likeTitle.innerText = 'Dislike';
+        }
+        else {
+            WebManager.sharedInstance().postLikedImage.src = '../../assets/images/heart.png';
+            WebManager.sharedInstance().likeTitle.innerText = 'Like';
         }
     }
 }
@@ -173,6 +197,12 @@ window.onload = function() {
 
     try {
         params['title'] = WebManager.sharedInstance().titleInput.value;
+    }
+    catch (err) {}
+
+    try {
+        Listener.add(WebManager.sharedInstance().postLikedAction, "click", Listener.eventLikePost, true);
+        postLiked = WebManager.sharedInstance().postLikedImage.src == 'http://www.grup9.com/assets/images/heart.png'? false : true;
     }
     catch (err) {}
 

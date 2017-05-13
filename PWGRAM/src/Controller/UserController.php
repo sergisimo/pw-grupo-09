@@ -56,13 +56,13 @@ class UserController extends BaseController {
                 'postPage' => '/post/view/1'
             ),
             array(
-                'src' => '../assets/images/test.JPG',
-                'title' => 'Pussy distroyer',
+                'src' => '../assets/images/test2.png',
+                'title' => 'Els fotògrafs',
                 'postPage' => '/post/view/1'
             ),
             array(
-                'src' => '../assets/images/test.JPG',
-                'title' => 'Pussy distroyer',
+                'src' => '../assets/images/test3.png',
+                'title' => 'SalleFeeest',
                 'postPage' => '/post/view/1'
             )
         );
@@ -98,11 +98,30 @@ class UserController extends BaseController {
 
     public function myPostsAction(Application $app) {
 
+        $posts = array(
+            array(
+                'src' => '../assets/images/test.JPG',
+                'title' => 'Pussy distroyer',
+                'postPage' => '/post/edit/1'
+            ),
+            array(
+                'src' => '../assets/images/test2.png',
+                'title' => 'Els fotògrafs',
+                'postPage' => '/post/edit/1'
+            ),
+            array(
+                'src' => '../assets/images/test3.png',
+                'title' => 'SalleFeeeest',
+                'postPage' => '/post/edit/1'
+            )
+        );
+
         $content = $app['twig']->render('myPosts.twig', array(
             'app' => [
                 'name' => $app['app.name']
             ],
             'page' => 'My posts',
+            'posts' => $posts,
             'navs' => parent::createNavLinks(SitePage::MyPosts, $app),
             'brandText' => parent::brandText($app),
             'brandSrc' => parent::brandImage($app, SitePage::MyPosts)
