@@ -102,17 +102,20 @@ class UserController extends BaseController {
             array(
                 'src' => '../assets/images/test.JPG',
                 'title' => 'Pussy distroyer',
-                'postPage' => '/post/edit/1'
+                'postPage' => '/post/edit/1',
+                'id' => '1'
             ),
             array(
                 'src' => '../assets/images/test2.png',
                 'title' => 'Els fotògrafs',
-                'postPage' => '/post/edit/1'
+                'postPage' => '/post/edit/1',
+                'id' => '2'
             ),
             array(
                 'src' => '../assets/images/test3.png',
                 'title' => 'SalleFeeeest',
-                'postPage' => '/post/edit/1'
+                'postPage' => '/post/edit/1',
+                'id' => '3'
             )
         );
 
@@ -139,6 +142,19 @@ class UserController extends BaseController {
 
     public function myCommentsAction(Application $app) {
 
+        $comments = array(
+            array(
+                'imageSrc' => 'assets/images/test_thubnail.JPG',
+                'content' => 'Pff quin home més sexy!!!',
+                'id' => 0
+            ),
+            array(
+                'imageSrc' => 'assets/images/test2_thubnail.png',
+                'content' => 'Menys aula natura i més php',
+                'id' => 1
+            )
+        );
+
         $content = $app['twig']->render('myComments.twig', array(
             'app' => [
                 'name' => $app['app.name']
@@ -146,7 +162,8 @@ class UserController extends BaseController {
             'page' => 'My comments',
             'navs' => parent::createNavLinks(SitePage::MyComments, $app),
             'brandText' => parent::brandText($app),
-            'brandSrc' => parent::brandImage($app, SitePage::MyComments)
+            'brandSrc' => parent::brandImage($app, SitePage::MyComments),
+            'comments' => $comments
         ));
 
         $response = new Response();

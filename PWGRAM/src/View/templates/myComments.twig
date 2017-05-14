@@ -1,13 +1,87 @@
 {%  extends 'base.twig' %}
 
+{% block styles %}
+    {{ parent() }}
+    <link rel = "stylesheet" type = "text/css" href = "{{  asset('myComments.css', 'css')}}">
+{% endblock %}
+
 {% block content %}
     {{ parent() }}
 
-    {% if comments is defined %}
-        <h1 id="sectionTitle" class="display-4 my-4 text-muted">{{ sectionTitle }}</h1>
-    {% else %}
+    {% if comments is not defined %}
         <div class="alert alert-warning" role="alert">
             You haven't posted any comment yet.
         </div>
+    {% else %}
+        <h1 id="sectionTitle" class="display-4 my-4 text-muted">My comments</h1>
+
+        <div id="comments">
+            {% for comment in comments %}
+                <div class="media">
+                    <div class="media-left">
+                        <img class="rounded media-object" width="100" height="100" src={{ comment.imageSrc }} alt="...">
+                    </div>
+                    <div class="media-body ml-3 mt-2">
+                        <q class="media-heading">{{ comment.content }}</q>
+
+                        <div class="text-left">
+                            <div class="row ml-1 mt-2">
+                                <button type="button" id='edit-{{ comment.id }}' data-target='#editCommentModal' data-toggle="modal" class="btn btn-primary btn-sm mr-2">Edit</button>
+                                <button type="button" id='delete-{{ comment.id }}' data-target='#deleteCommentModal' data-toggle="modal" class="btn btn-danger btn-sm">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+            {% endfor %}
+        </div>
+
+        <div id="deleteCommentModal" class="modal fade">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-inverted">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h7 class="modal-title">Delete comment</h7>
+                    </div>
+
+                    <div class="modal-body" id="loginModal">
+                        <!-- login form -->
+                        <form id="form-group">
+                            <p>Are you sure you want to delete this comment? This action cannot be undone.</p>
+                            <button type="submit" class="btn btn-danger btn-md" id="deleteCommentButton">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="editCommentModal" class="modal fade">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-inverted">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h7 class="modal-title">Edit comment</h7>
+                    </div>
+
+                    <div class="modal-body" id="loginModal">
+                        <!-- login form -->
+                        <form id="form-group">
+                            <p>Are you sure you want to delete this comment? This action cannot be undone.</p>
+                            <button type="submit" class="btn btn-primary btn-md" id="editCommentButton">Update</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% endif %}
+{% endblock %}
+
+
+{% block scripts %}
+    {{ parent() }}
+    <script src = "{{ asset('/myComments.js', 'js') }}" type = "text/javascript" charset = "utf-8"></script>
 {% endblock %}

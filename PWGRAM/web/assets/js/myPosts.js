@@ -2,7 +2,9 @@
  * Created by borjaperez on 13/5/17.
  */
 
-const DELETE_BUTTON = 'removePostButton';
+const REMOVE_POST_BUTTON = 'removePostButton';
+
+var postToDelete = null;
 
 /**
  * Singleton object with methods for accessing web elements
@@ -12,7 +14,7 @@ var WebManager = (function() {
 
     function WebManager() {
 
-        this.removePostButton = document.getElementById(DELETE_BUTTON);
+        this.removePostButton = document.getElementById(REMOVE_POST_BUTTON);
     }
 
     return {
@@ -36,13 +38,22 @@ var Listener = {
 
         event.preventDefault();
 
-
-            $('#deletePostModal').modal('toggle');
-
+        $('#deletePostModal').modal('toggle');
+        removePost();
     }
+}
+
+function removePost() {
+
+    console.log('Removing post: ' + postToDelete);
 }
 
 window.onload = function() {
 
     Listener.add(WebManager.sharedInstance().removePostButton, "click", Listener.eventRemovePost, true);
+
+    $('#deletePostModal').on('show.bs.modal', function (e) {
+        var $invoker = $(e.relatedTarget);
+        postToDelete = $invoker[0].id.split('-')[1];
+    });
 }
