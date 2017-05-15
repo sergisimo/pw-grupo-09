@@ -30,9 +30,7 @@ class PostController extends BaseController {
         );
 
         $content = $app['twig']->render('post.twig', array(
-            'app' => [
-                'name' => $app['app.name']
-            ],
+            'app' => $app,
             'page' => 'Edit post',
             'navs' => parent::createNavLinks(SitePage::MyProfile, $app),
             'brandText' => parent::brandText($app),
@@ -44,7 +42,7 @@ class PostController extends BaseController {
         $response->setStatusCode($response::HTTP_OK);
         $response->headers->set('Content-Type','text/html');
 
-        if ($app['sessionActive']) $response->setContent($content);
+        if ($app['session']['active']) $response->setContent($content);
         else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to edit your posts', SitePage::ThirdLevel));
 
         return $response;
@@ -82,15 +80,13 @@ class PostController extends BaseController {
         );
 
         $content = $app['twig']->render('post.twig', array(
-            'app' => [
-                'name' => $app['app.name']
-            ],
+            'app' => $app,
             'page' => 'Post details',
             'navs' => parent::createNavLinks(SitePage::MyProfile, $app),
             'brandText' => parent::brandText($app),
             'brandSrc' => parent::brandImage($app, SitePage::ThirdLevel),
             'image' => $image,
-            'sessionActive' => $app['sessionActive']
+            'sessionActive' => $app['session']['active']
         ));
 
         $response = new Response();
@@ -106,9 +102,7 @@ class PostController extends BaseController {
     public function addPostAction(Application $app) {
 
         $content = $app['twig']->render('post.twig', array(
-            'app' => [
-                'name' => $app['app.name']
-            ],
+            'app' => $app,
             'page' => 'Add post',
             'navs' => parent::createNavLinks(SitePage::AddPost, $app),
             'brandText' => parent::brandText($app),
@@ -119,9 +113,7 @@ class PostController extends BaseController {
         $response->setStatusCode($response::HTTP_OK);
         $response->headers->set('Content-Type','text/html');
 
-        if ($app['sessionActive']) $response->setContent($content);
-
-        if ($app['sessionActive']) $response->setContent($content);
+        if ($app['session']['active']) $response->setContent($content);
         else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to add a post'), SitePage::AddPost);
 
         return $response;

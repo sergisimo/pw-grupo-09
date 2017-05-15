@@ -1,13 +1,53 @@
 {%  extends 'base.twig' %}
 
+{% block styles %}
+    {{ parent() }}
+    <link rel = "stylesheet" type = "text/css" href = "{{  asset('notifications.css', 'css')}}">
+{% endblock %}
+
 {% block content %}
     {{ parent() }}
 
-    {% if notifications is defined %}
-        <h1 id="sectionTitle" class="display-4 my-4 text-muted">{{ sectionTitle }}</h1>
-    {% else %}
+    {% if notifications is not defined %}
         <div class="alert alert-warning" role="alert">
             You don't have any unread notification.
         </div>
+    {% else %}
+        <h1 id="sectionTitle" class="display-4 my-4 text-muted">Notifications</h1>
+
+        <div id="notifications">
+            {% for notification in notifications %}
+                <div class="media">
+                    <div class="media-left">
+                        <img class="rounded media-object" src={{ notification.imageSrc }} alt="...">
+                    </div>
+                    <div class="media-body ml-3">
+                        {% if notification.comment is defined %}
+                            <div class="text-left">
+                                <p class="mb-2"><h7 class="font-weight-bold text-primary"><a href={{ notification.sourceUserProfile }}>{{ notification.sourceUsername }}</a></h7> commented on your post
+                                    <h7 class="font-weight-bold text-primary"><a href={{ notification.postPage }}>{{ notification.postName }}</a></h7></p>
+                                <q class="text-muted">{{ notification.comment }}</q>
+                            </div>
+
+                            <button type="button" id='seen-{{ notification.id }}' class="btn btn-primary btn-sm mt-2">Seen</button>
+                        {% else %}
+                            <div class="text-left">
+                                <p class="mb-2"><h7 class="font-weight-bold text-primary"><a href={{ notification.sourceUserProfile }}>{{ notification.sourceUsername }}</a></h7> liked your post
+                                    <h7 class="font-weight-bold text-primary"><a href={{ notification.postPage }}>{{ notification.postName }}</a></h7></p>
+                            </div>
+
+                            <button type="button" id='seen-{{ notification.id }}' class="btn btn-primary btn-sm">Seen</button>
+                        {% endif %}
+                    </div>
+                </div>
+                <hr>
+            {% endfor %}
+        </div>
     {% endif %}
+{% endblock %}
+
+
+{% block scripts %}
+    {{ parent() }}
+    <script src = "{{ asset('/notifications.js', 'js') }}" type = "text/javascript" charset = "utf-8"></script>
 {% endblock %}

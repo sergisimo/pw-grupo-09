@@ -32,7 +32,8 @@ class HomeController extends BaseController {
                         'username' => 'sanfe',
                         'content' => 'El terror de las nenas'
                     ),
-                    'userCanComment' => true
+                    'userCanComment' => true,
+                    'id' => 1
                 ),
                 array(
                     'src' => '../assets/images/test2.png',
@@ -48,7 +49,8 @@ class HomeController extends BaseController {
                         'username' => 'bperezme',
                         'content' => 'Menys aula natura i més php'
                     ),
-                    'userCanComment' => false
+                    'userCanComment' => false,
+                    'id' => 2
                 ),
                 array(
                     'src' => '../assets/images/test3.png',
@@ -60,7 +62,8 @@ class HomeController extends BaseController {
                     'liked' => false,
                     'likes' => '10',
                     'visits' => '23',
-                    'userCanComment' => true
+                    'userCanComment' => true,
+                    'id' => 3
                 )
             ),
             'mostRecent' => array (
@@ -78,7 +81,8 @@ class HomeController extends BaseController {
                         'username' => 'bperezme',
                         'content' => 'Menys aula natura i més php'
                     ),
-                    'userCanComment' => false
+                    'userCanComment' => false,
+                    'id' => 2
                 ),
                 array(
                     'src' => '../assets/images/test3.png',
@@ -90,7 +94,8 @@ class HomeController extends BaseController {
                     'liked' => false,
                     'likes' => '10',
                     'visits' => '23',
-                    'userCanComment' => true
+                    'userCanComment' => true,
+                    'id' => 3
                 ),
                 array(
                     'src' => '../assets/images/test.JPG',
@@ -106,22 +111,20 @@ class HomeController extends BaseController {
                         'username' => 'sanfe',
                         'content' => 'El terror de las nenas'
                     ),
-                    'userCanComment' => true
+                    'userCanComment' => true,
+                    'id' => 1
                 )
             )
         );
 
         $content = $app['twig']->render('home.twig', array(
-            'app' => [
-                'name' => $app['app.name']
-            ],
+            'app' => $app,
             'page' => 'Home',
             'sectionTitle' => 'Last Posts',
             'navs' => parent::createNavLinks(SitePage::Home, $app),
             'brandText' => parent::brandText($app),
             'brandSrc' => parent::brandImage($app, SitePage::Home),
-            'posts' => $posts,
-            'sessionActive' => $app['sessionActive']
+            'posts' => $posts
         ));
 
         $response = new Response();

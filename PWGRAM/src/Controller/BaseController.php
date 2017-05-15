@@ -58,7 +58,7 @@ class BaseController {
             case SitePage::Home:
                 $links['home']['currentPage'] = 1;
 
-                if ($app['sessionActive']) {
+                if ($app['session']['active']) {
                     unset($links['login']);
                     unset($links['register']);
                 }
@@ -102,7 +102,7 @@ class BaseController {
                 unset($links['login']);
                 unset($links['register']);
 
-                if (!$app['sessionActive']) {
+                if (!$app['session']['active']) {
                     unset($links['addPost']);
                     unset($links['myPosts']);
                     unset($links['myComents']);
@@ -117,7 +117,7 @@ class BaseController {
 
     protected function brandText(Application $app) {
 
-        if ($app['sessionActive']) return 'bperezme';
+        if ($app['session']['active']) return 'bperezme';
         else return 'PWGram';
     }
 
@@ -135,7 +135,7 @@ class BaseController {
             $sessionBrandSource = '../../assets/images/defaultProfileBrand.png';
         }
 
-        if ($app['sessionActive']) return $sessionBrandSource;
+        if ($app['session']['active']) return $sessionBrandSource;
         else return $noSessionBrandSource;
     }
 

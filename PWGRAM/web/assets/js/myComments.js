@@ -5,6 +5,8 @@
 const COMMENTS = 'comments';
 const DELETE_COMMENT_BUTTON = 'deleteCommentButton';
 const EDIT_COMMENT_BUTTON = 'editCommentButton';
+const COMMENT_TEXT_AREA = 'commentTextArea';
+const COMMENT_GROUP = 'commentGroup';
 
 var targetPost = null;
 
@@ -19,6 +21,8 @@ var WebManager = (function() {
         this.commentDiv = document.getElementById(COMMENTS);
         this.removeCommentButton = document.getElementById(DELETE_COMMENT_BUTTON);
         this.editCommentButton = document.getElementById(EDIT_COMMENT_BUTTON);
+        this.commentTextArea = document.getElementById(COMMENT_TEXT_AREA);
+        this.commentGroup = document.getElementById(COMMENT_GROUP);
     }
 
     return {
@@ -42,8 +46,16 @@ var Listener = {
 
         event.preventDefault();
 
-        $('#editCommentModal').modal('toggle');
-        editComment();
+        if (commentValidFormat()) {
+            var params = {
+                'content' : WebManager.sharedInstance().commentTextArea.value,
+                'id' : targetPost
+            };
+
+            console.log(params);
+
+            $('#editCommentModal').modal('toggle');
+        }
     },
 
     eventRemoveComment: function(event) {
@@ -61,9 +73,20 @@ function removeComment() {
 }
 
 
-function editComment() {
+function commentValidFormat() {
 
-    console.log('Editing comment: ' + targetPost);
+    if (WebManager.sharedInstance().commentTextArea.value.length == 0) {
+        WebManager.sharedInstance().commentTextArea.className = "form-control form-control-danger";
+        WebManager.sharedInstance().commentGroup.className = "form-group has-danger";
+
+        return false;
+    }
+    else {
+        WebManager.sharedInstance().commentTextArea.className = "form-control form-control-success";
+        WebManager.sharedInstance().commentGroup.className = "form-group has-success";
+
+        return true;
+    }
 }
 
 window.onload = function() {

@@ -24,19 +24,23 @@ const REGISTER_CONFIRM_PASSWORD_GROUP = 'registerConfirmPasswordGroup';
 const REGISTER_CONFIRM_PASSWORD_INPUT = 'registerConfirmPasswordInput';
 const REGISTER_EMAIL_GROUP = 'registerEmailGroup';
 const REGISTER_EMAIL_INPUT = 'registerEmailInput';
+const REGISTRATION_MODAL = 'registrationModal';
 
 const RegistrationErrorCode = {
     ErrorCodeUsername : 0,
     ErrorCodeBirthdate : 1,
     ErrorCodePassword : 2,
     ErrorCodeConfirmPassword : 3,
-    ErrorCodeEmail : 4
+    ErrorCodeEmail : 4,
+    ErrorCodeUsernameUnavailable : 5,
+    ErrorCodeEmailUnavailable : 6
 }
 
 const LoginErrorCode = {
     ErrorCodeUsername : 0,
     ErrorCodePassword: 1,
-    ErrorCodeNotFound : 2
+    ErrorCodeNotFound : 2,
+    ErrorCodeNotConfirmed : 3
 }
 
 var profileImageHref = 'assets/images/defaultProfile.png';
@@ -68,6 +72,7 @@ var WebManager = (function() {
         this.registerConfirmPasswordInput = document.getElementById(REGISTER_CONFIRM_PASSWORD_INPUT);
         this.registerEmailGroup = document.getElementById(REGISTER_EMAIL_GROUP);
         this.registerEmailInput = document.getElementById(REGISTER_EMAIL_INPUT);
+        this.registrationModal = document.getElementById(REGISTRATION_MODAL);
     }
 
     return {
@@ -107,12 +112,18 @@ var Listener = {
 
         if (errorCodes.length > 0) return;
 
+        createLoginErrorsForCodes(errorCodes);
+
+        if (errorCodes.length > 0) return;
+
         var params = {
             'username' : WebManager.sharedInstance().loginUsernameInput.value,
             'password' : WebManager.sharedInstance().loginPasswordInput.value
         };
 
         console.log(params);
+
+        $('#login').modal('toggle');
 
         /*$.ajax({
             data:  params,
@@ -327,6 +338,100 @@ function createRegistrationErrorsForCodes(errorCodes) {
             WebManager.sharedInstance().registerEmailGroup.removeChild(childs[childs.length - 1]);
         }
     }
+
+    if (errorCodes.length == 0) {
+        var div = document.createElement('div');
+        div.className = 'alert alert-success alert-dismissible fade show';
+        div.setAttribute('role', 'alert');
+        div.setAttribute("id", "registrationAlert");
+
+        var button = document.createElement("button");
+        button.className = "close";
+        button.setAttribute("data-dismiss", "alert");
+        button.setAttribute("aria-label", "Close");
+
+        var span = document.createElement("span");
+        span.setAttribute("aria-hidden", "true");
+        span.innerHTML = "&times;";
+
+        var strong = document.createElement('strong');
+        strong.innerHTML = 'Registration successful! ';
+
+        var message = document.createElement('h7');
+        message.innerHTML = 'An activation link has been sent to your email account. Click the link in order to have full access to PWGram.';
+
+        var span = document.createElement('span');
+        span.appendChild(strong);
+        span.appendChild(message);
+
+        button.appendChild(span);
+        div.appendChild(button);
+        div.appendChild(span);
+
+        var modal = WebManager.sharedInstance().registrationModal;
+        modal.insertBefore(div, modal.children[0]);
+
+        return;
+    }
+
+    if (errorCodes.indexOf(RegistrationErrorCode.ErrorCodeUsernameUnavailable) != -1) {
+        var div = document.createElement('div');
+        div.className = 'alert alert-danger alert-dismissible fade show';
+        div.setAttribute('role', 'alert');
+        div.setAttribute("id", "registrationAlert");
+
+        var button = document.createElement("button");
+        button.className = "close";
+        button.setAttribute("data-dismiss", "alert");
+        button.setAttribute("aria-label", "Close");
+
+        var span = document.createElement("span");
+        span.setAttribute("aria-hidden", "true");
+        span.innerHTML = "&times;";
+
+        var message = document.createElement('h7');
+        message.innerHTML = 'The username you choose is already in use.';
+
+        button.appendChild(span);
+        div.appendChild(button);
+        div.appendChild(message);
+
+        var modal = WebManager.sharedInstance().registrationModal;
+        modal.insertBefore(div, modal.children[0]);
+
+        $("#registrationAlert").fadeTo(4000, 500).slideUp(500, function(){
+            $("#registrationAlert").slideUp(500);
+        });
+    }
+    else if (errorCodes.indexOf(RegistrationErrorCode.ErrorCodeEmailUnavailable) != -1) {
+        var div = document.createElement('div');
+        div.className = 'alert alert-danger alert-dismissible fade show';
+        div.setAttribute('role', 'alert');
+        div.setAttribute("id", "registrationAlert");
+
+        var button = document.createElement("button");
+        button.className = "close";
+        button.setAttribute("data-dismiss", "alert");
+        button.setAttribute("aria-label", "Close");
+
+        var span = document.createElement("span");
+        span.setAttribute("aria-hidden", "true");
+        span.innerHTML = "&times;";
+
+        var message = document.createElement('h7');
+        message.innerHTML = 'The email you entered is already linked to another account.';
+
+        button.appendChild(span);
+        div.appendChild(button);
+        div.appendChild(message);
+
+        var modal = WebManager.sharedInstance().registrationModal;
+        modal.insertBefore(div, modal.children[0]);
+
+        $("#registrationAlert").fadeTo(4000, 500).slideUp(500, function(){
+            $("#registrationAlert").slideUp(500);
+        });
+    }
 }
 
 function createLoginErrorsForCodes(errorCodes) {
@@ -403,6 +508,31 @@ function createLoginErrorsForCodes(errorCodes) {
         $("#loginAlert").fadeTo(3000, 500).slideUp(500, function(){
             $("#loginAlert").slideUp(500);
         });
+    }
+    else if (errorCodes.indexOf(LoginErrorCode.ErrorCodeNotConfirmed) != -1) {
+        var div = document.createElement('div');
+        div.className = 'alert alert-warning alert-dismissible fade show';
+        div.setAttribute('role', 'alert');
+        div.setAttribute("id", "loginAlert");
+
+        var button = document.createElement("button");
+        button.className = "close";
+        button.setAttribute("data-dismiss", "alert");
+        button.setAttribute("aria-label", "Close");
+
+        var span = document.createElement("span");
+        span.setAttribute("aria-hidden", "true");
+        span.innerHTML = "&times;";
+
+        var message = document.createElement('h7');
+        message.innerHTML = 'You have not activated your account yet. Click the link sent to your email account in order to activate it.';
+
+        button.appendChild(span);
+        div.appendChild(button);
+        div.appendChild(message);
+
+        var modal = WebManager.sharedInstance().loginModal;
+        modal.insertBefore(div, modal.children[0]);
     }
 }
 
