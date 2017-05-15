@@ -2,7 +2,7 @@
  * Created by borjaperez on 10/5/17.
  */
 
-// Login
+/* ************* CONSTANTS ****************/
 const LOGIN_BUTTON = 'loginButton';
 const USERNAME_GROUP = 'usernameGroup';
 const USERNAME_INPUT = 'usernameInput';
@@ -10,7 +10,6 @@ const PASSWORD_GROUP = 'passwordGroup';
 const PASSWORD_INPUT = 'passwordInput';
 const LOGIN_MODAL = 'loginModal';
 
-// Register
 const REGISTER_BUTTON = 'registerButton';
 const REGISTER_IMAGE_BUTTON = 'selectImageButton';
 const REGISTER_PROFILE_IMAGE = 'profileImage';
@@ -43,6 +42,8 @@ const LoginErrorCode = {
     ErrorCodeNotConfirmed : 3
 }
 
+
+/* ************* VARIABLES ****************/
 var profileImageHref = 'assets/images/defaultProfile.png';
 
 /**
@@ -86,8 +87,8 @@ var WebManager = (function() {
 })();
 
 /**
- * Function object for adding listeners with calbacks to elements
- * @type {{add: Listener.add, eventSendMessage: Listener.eventSendMessage}}
+ * Object variable for adding listener events
+ * @type {{add: Listener.add, eventEditComment: Listener.eventEditComment, eventRemoveComment: Listener.eventRemoveComment}}
  */
 var Listener = {
 
@@ -227,6 +228,13 @@ var Listener = {
     }
 }
 
+
+/* ************* METHODS ****************/
+
+/**
+ * Creates visual errors upon an array containing validation results for registration
+ * @param errorCodes array containing error's ID
+ */
 function createRegistrationErrorsForCodes(errorCodes) {
 
     if (errorCodes.indexOf(RegistrationErrorCode.ErrorCodeUsername) != -1) {
@@ -434,6 +442,10 @@ function createRegistrationErrorsForCodes(errorCodes) {
     }
 }
 
+/**
+ * Creates visual errors upon an array containing validation results for login
+ * @param errorCodes array containing error's ID
+ */
 function createLoginErrorsForCodes(errorCodes) {
 
     if (errorCodes.indexOf(LoginErrorCode.ErrorCodeUsername) != -1) {
@@ -536,6 +548,9 @@ function createLoginErrorsForCodes(errorCodes) {
     }
 }
 
+/**
+ * Page stating point
+ */
 window.onload = function() {
 
     Listener.add(WebManager.sharedInstance().loginButton, "click", Listener.eventLogin, true);

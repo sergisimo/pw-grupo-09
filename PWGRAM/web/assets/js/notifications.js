@@ -2,7 +2,11 @@
  * Created by borjaperez on 15/5/17.
  */
 
+/* ************* CONSTANTS ****************/
 const NOTIFICATIONS = 'notifications';
+
+
+/* ************* VARIABLES ****************/
 
 /**
  * Singleton object with methods for accessing web elements
@@ -25,6 +29,12 @@ var WebManager = (function() {
     };
 })();
 
+
+/* ************* METHODS ****************/
+
+/**
+ * Page stating point
+ */
 window.onload = function() {
 
     var childCount = WebManager.sharedInstance().notificationsDiv.childElementCount;

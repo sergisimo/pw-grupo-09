@@ -2,12 +2,15 @@
  * Created by borjaperez on 13/5/17.
  */
 
+/* ************* CONSTANTS ****************/
 const COMMENTS = 'comments';
 const DELETE_COMMENT_BUTTON = 'deleteCommentButton';
 const EDIT_COMMENT_BUTTON = 'editCommentButton';
 const COMMENT_TEXT_AREA = 'commentTextArea';
 const COMMENT_GROUP = 'commentGroup';
 
+
+/* ************* VARIABLES ****************/
 var targetPost = null;
 
 /**
@@ -35,6 +38,10 @@ var WebManager = (function() {
     };
 })();
 
+/**
+ * Object variable for adding listener events
+ * @type {{add: Listener.add, eventEditComment: Listener.eventEditComment, eventRemoveComment: Listener.eventRemoveComment}}
+ */
 var Listener = {
 
     add: function (object, event, callback, capture) {
@@ -67,12 +74,21 @@ var Listener = {
     }
 }
 
+
+/* ************* METHODS ****************/
+
+/**
+ * Removes a post comment
+ */
 function removeComment() {
 
     console.log('Removing comment: ' + targetPost);
 }
 
-
+/**
+ * Validates the the format of the new comment
+ * @returns {boolean} true if format is correct, false otherwise
+ */
 function commentValidFormat() {
 
     if (WebManager.sharedInstance().commentTextArea.value.length == 0) {
@@ -89,6 +105,9 @@ function commentValidFormat() {
     }
 }
 
+/**
+ * Page stating point
+ */
 window.onload = function() {
 
     var childCount = WebManager.sharedInstance().commentDiv.childElementCount;

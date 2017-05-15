@@ -2,6 +2,7 @@
  * Created by borjaperez on 11/5/17.
  */
 
+/* ************* CONSTANTS ****************/
 const UPDATE_BUTTON = 'postButton';
 const IMAGE_BUTTON = 'selectImageButton';
 const PROFILE_IMAGE = 'postImage';
@@ -29,6 +30,8 @@ const SortType = {
 
 const SORT_TITLES = ['Posts by likes count', 'Posts by comments count', 'Posts by view count','Posts by creation date'];
 
+
+/* ************* VARIABLES ****************/
 var params = {
     'username' : null,
     'birthdate' : null,
@@ -72,8 +75,8 @@ var WebManager = (function() {
 })();
 
 /**
- * Function object for adding listeners with calbacks to elements
- * @type {{add: Listener.add, eventSendMessage: Listener.eventSendMessage}}
+ * Object variable for adding listener events
+ * @type {{add: Listener.add, eventEditComment: Listener.eventEditComment, eventRemoveComment: Listener.eventRemoveComment}}
  */
 var Listener = {
 
@@ -168,6 +171,13 @@ var Listener = {
     }
 }
 
+
+/* ************* METHODS ****************/
+
+/**
+ * Creates visual errors upon an array containing validation results for updated fields
+ * @param errorCodes array containing error's ID
+ */
 function createUpdateErrorsForCodes(errorCodes) {
 
     if (errorCodes.indexOf(UpdateErrorCode.ErrorCodeUsername) != -1) {
@@ -248,6 +258,9 @@ function createUpdateErrorsForCodes(errorCodes) {
     }
 }
 
+/**
+ * Page stating point
+ */
 window.onload = function() {
 
     try {
