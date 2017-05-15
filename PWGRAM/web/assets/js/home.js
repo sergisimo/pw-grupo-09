@@ -42,9 +42,14 @@ const LoginErrorCode = {
     ErrorCodeNotConfirmed : 3
 }
 
+const USERNAME_PATTERN = /^[a-z0-9]+$/i;
+const PASSWORD_PATTERN = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,12}$/;
+const EMAIL_PATTERN = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
 /* ************* VARIABLES ****************/
 var profileImageHref = 'assets/images/defaultProfile.png';
+
+var today;
 
 /**
  * Singleton object with methods for accessing web elements
@@ -143,14 +148,8 @@ var Listener = {
 
         var errorCodes = new Array();
 
-        var today = moment().format("YYYY-MM-DD");
-
-        var usernamePattern = /^[a-z0-9]+$/i;
-        var passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,12}$/;
-        var emailPattern = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-
         // validate username
-        if (usernamePattern.test(WebManager.sharedInstance().registerUsernameInput.value) == false ||
+        if (USERNAME_PATTERN.test(WebManager.sharedInstance().registerUsernameInput.value) == false ||
             WebManager.sharedInstance().registerUsernameInput.value.length > 20) {
             errorCodes.push(RegistrationErrorCode.ErrorCodeUsername);
         }
@@ -162,7 +161,7 @@ var Listener = {
         }
 
         // validate password
-        if (passwordPattern.test(WebManager.sharedInstance().registerPasswordInput.value) == false) {
+        if (PASSWORD_PATTERN.test(WebManager.sharedInstance().registerPasswordInput.value) == false) {
             errorCodes.push(RegistrationErrorCode.ErrorCodePassword);
         }
 
@@ -172,7 +171,7 @@ var Listener = {
         }
 
         // validate email
-        if (emailPattern.test(WebManager.sharedInstance().registerEmailInput.value) == false) {
+        if (EMAIL_PATTERN.test(WebManager.sharedInstance().registerEmailInput.value) == false) {
             errorCodes.push(RegistrationErrorCode.ErrorCodeEmail);
         }
 
@@ -225,6 +224,59 @@ var Listener = {
                 alert("not an image");
                 break;
         }
+    },
+
+    eventValidateUsername: function(event) {
+
+        event.preventDefault();
+
+        if (USERNAME_PATTERN.test(WebManager.sharedInstance().registerUsernameInput.value) == false ||
+            WebManager.sharedInstance().registerUsernameInput.value.length > 20) {
+            createUsernameIndicator(false);
+        }
+        else createUsernameIndicator(true);
+    },
+
+    eventValidateBirthdate: function(event) {
+
+        event.preventDefault();
+
+        if (moment(WebManager.sharedInstance().registerBirthdateInput.value, "YYYY-MM-DD", true).isValid() == false ||
+            moment(WebManager.sharedInstance().registerBirthdateInput.value).isAfter(today)) {
+            createBirthdateIndicator(false);
+        }
+        else {
+            createBirthdateIndicator(true);
+        }
+    },
+
+    eventValidatePassword: function(event) {
+
+        event.preventDefault();
+
+        if (PASSWORD_PATTERN.test(WebManager.sharedInstance().registerPasswordInput.value) == false) {
+            createPasswordIndicator(false);
+        }
+        else createPasswordIndicator(true);
+    },
+
+    eventValidateConfirmPassword: function(event) {
+
+        event.preventDefault();
+
+        if ((WebManager.sharedInstance().registerPasswordInput.value !== WebManager.sharedInstance().registerConfirmPasswordInput.value) ||
+            WebManager.sharedInstance().registerConfirmPasswordInput.value.length === 0) {
+            createConfirmPasswordIndicator(false);
+        }
+        else createConfirmPasswordIndicator(true);
+    },
+
+    eventValidateEmail: function(event) {
+
+        event.preventDefault();
+
+        if (EMAIL_PATTERN.test(WebManager.sharedInstance().registerEmailInput.value) == false) createEmailIndicator(false);
+        else createEmailIndicator(true);
     }
 }
 
@@ -237,115 +289,11 @@ var Listener = {
  */
 function createRegistrationErrorsForCodes(errorCodes) {
 
-    if (errorCodes.indexOf(RegistrationErrorCode.ErrorCodeUsername) != -1) {
-        WebManager.sharedInstance().registerUsernameInput.className = "form-control form-control-danger";
-        WebManager.sharedInstance().registerUsernameGroup.className = "form-group has-danger";
-
-        if (WebManager.sharedInstance().registerUsernameGroup.childElementCount == 2) {
-            var small = document.createElement('small');
-            small.className = 'form-text text-danger';
-            small.innerHTML = 'Username can only contain alphanumeric characters and cannot exceed 20 characters';
-
-            WebManager.sharedInstance().registerUsernameGroup.appendChild(small);
-        }
-    }
-    else {
-        WebManager.sharedInstance().registerUsernameInput.className = "form-control form-control-success";
-        WebManager.sharedInstance().registerUsernameGroup.className = "form-group has-success";
-
-        if (WebManager.sharedInstance().registerUsernameGroup.childElementCount == 3) {
-            var childs = WebManager.sharedInstance().registerUsernameGroup.childNodes;
-            WebManager.sharedInstance().registerUsernameGroup.removeChild(childs[childs.length - 1]);
-        }
-    }
-
-    if (errorCodes.indexOf(RegistrationErrorCode.ErrorCodeBirthdate) != -1) {
-        WebManager.sharedInstance().registerBirthdateInput.className = "form-control form-control-danger";
-        WebManager.sharedInstance().registerBirthdateGroup.className = "form-group has-danger";
-
-        if (WebManager.sharedInstance().registerBirthdateGroup.childElementCount == 2) {
-            var small = document.createElement('small');
-            small.className = 'form-text text-danger';
-            small.innerHTML = 'Birthdate format has to be YYYY-MM-DD and it cannot be a future date';
-
-            WebManager.sharedInstance().registerBirthdateGroup.appendChild(small);
-        }
-    }
-    else {
-        WebManager.sharedInstance().registerBirthdateInput.className = "form-control form-control-success";
-        WebManager.sharedInstance().registerBirthdateGroup.className = "form-group has-success";
-
-        if (WebManager.sharedInstance().registerBirthdateGroup.childElementCount == 3) {
-            var childs = WebManager.sharedInstance().registerBirthdateGroup.childNodes;
-            WebManager.sharedInstance().registerBirthdateGroup.removeChild(childs[childs.length - 1]);
-        }
-    }
-
-    if (errorCodes.indexOf(RegistrationErrorCode.ErrorCodePassword) != -1) {
-        WebManager.sharedInstance().registerPasswordInput.className = "form-control form-control-danger";
-        WebManager.sharedInstance().registerPasswordGroup.className = "form-group has-danger";
-
-        if (WebManager.sharedInstance().registerPasswordGroup.childElementCount == 2) {
-            var small = document.createElement('small');
-            small.className = 'form-text text-danger';
-            small.innerHTML = 'Password must contain between 6 and 12 characters, both uppercase and lowercase letters and at least one number';
-
-            WebManager.sharedInstance().registerPasswordGroup.appendChild(small);
-        }
-    }
-    else {
-        WebManager.sharedInstance().registerPasswordInput.className = "form-control form-control-success";
-        WebManager.sharedInstance().registerPasswordGroup.className = "form-group has-success";
-
-        if (WebManager.sharedInstance().registerPasswordGroup.childElementCount == 3) {
-            var childs = WebManager.sharedInstance().registerPasswordGroup.childNodes;
-            WebManager.sharedInstance().registerPasswordGroup.removeChild(childs[childs.length - 1]);
-        }
-    }
-
-    if (errorCodes.indexOf(RegistrationErrorCode.ErrorCodeConfirmPassword) != -1) {
-        WebManager.sharedInstance().registerConfirmPasswordInput.className = "form-control form-control-danger";
-        WebManager.sharedInstance().registerConfirmPasswordGroup.className = "form-group has-danger";
-
-        if (WebManager.sharedInstance().registerConfirmPasswordGroup.childElementCount == 2) {
-            var small = document.createElement('small');
-            small.className = 'form-text text-danger';
-            small.innerHTML = 'Content does not match typed password';
-
-            WebManager.sharedInstance().registerConfirmPasswordGroup.appendChild(small);
-        }
-    }
-    else {
-        WebManager.sharedInstance().registerConfirmPasswordInput.className = "form-control form-control-success";
-        WebManager.sharedInstance().registerConfirmPasswordGroup.className = "form-group has-success";
-
-        if (WebManager.sharedInstance().registerConfirmPasswordGroup.childElementCount == 3) {
-            var childs = WebManager.sharedInstance().registerConfirmPasswordGroup.childNodes;
-            WebManager.sharedInstance().registerConfirmPasswordGroup.removeChild(childs[childs.length - 1]);
-        }
-    }
-
-    if (errorCodes.indexOf(RegistrationErrorCode.ErrorCodeEmail) != -1) {
-        WebManager.sharedInstance().registerEmailInput.className = "form-control form-control-danger";
-        WebManager.sharedInstance().registerEmailGroup.className = "form-group has-danger";
-
-        if (WebManager.sharedInstance().registerEmailGroup.childElementCount == 2) {
-            var small = document.createElement('small');
-            small.className = 'form-text text-danger';
-            small.innerHTML = 'Wrong email format';
-
-            WebManager.sharedInstance().registerEmailGroup.appendChild(small);
-        }
-    }
-    else {
-        WebManager.sharedInstance().registerEmailInput.className = "form-control form-control-success";
-        WebManager.sharedInstance().registerEmailGroup.className = "form-group has-success";
-
-        if (WebManager.sharedInstance().registerEmailGroup.childElementCount == 3) {
-            var childs = WebManager.sharedInstance().registerEmailGroup.childNodes;
-            WebManager.sharedInstance().registerEmailGroup.removeChild(childs[childs.length - 1]);
-        }
-    }
+    createUsernameIndicator(errorCodes.indexOf(RegistrationErrorCode.ErrorCodeUsername) == -1);
+    createBirthdateIndicator(errorCodes.indexOf(RegistrationErrorCode.ErrorCodeBirthdate) == -1);
+    createPasswordIndicator(errorCodes.indexOf(RegistrationErrorCode.ErrorCodePassword) == -1);
+    createConfirmPasswordIndicator(errorCodes.indexOf(RegistrationErrorCode.ErrorCodeConfirmPassword) == -1);
+    createEmailIndicator(errorCodes.indexOf(RegistrationErrorCode.ErrorCodeEmail) == -1);
 
     if (errorCodes.length == 0) {
         var div = document.createElement('div');
@@ -439,6 +387,151 @@ function createRegistrationErrorsForCodes(errorCodes) {
         $("#registrationAlert").fadeTo(4000, 500).slideUp(500, function(){
             $("#registrationAlert").slideUp(500);
         });
+    }
+}
+
+/**
+ * Creates visual errors for username input
+ * @param validFormat boolean determining wheter there's an error or not
+ */
+function createUsernameIndicator(validFormat) {
+
+    if (!validFormat) {
+        WebManager.sharedInstance().registerUsernameInput.className = "form-control form-control-danger";
+        WebManager.sharedInstance().registerUsernameGroup.className = "form-group has-danger";
+
+        if (WebManager.sharedInstance().registerUsernameGroup.childElementCount == 2) {
+            var small = document.createElement('small');
+            small.className = 'form-text text-danger';
+            small.innerHTML = 'Username can only contain alphanumeric characters and cannot exceed 20 characters';
+
+            WebManager.sharedInstance().registerUsernameGroup.appendChild(small);
+        }
+    }
+    else {
+        WebManager.sharedInstance().registerUsernameInput.className = "form-control form-control-success";
+        WebManager.sharedInstance().registerUsernameGroup.className = "form-group has-success";
+
+        if (WebManager.sharedInstance().registerUsernameGroup.childElementCount == 3) {
+            var childs = WebManager.sharedInstance().registerUsernameGroup.childNodes;
+            WebManager.sharedInstance().registerUsernameGroup.removeChild(childs[childs.length - 1]);
+        }
+    }
+}
+
+/**
+ * Creates visual errors for birthdate input
+ * @param validFormat boolean determining wheter there's an error or not
+ */
+function createBirthdateIndicator(validFormat) {
+
+    if (!validFormat) {
+        WebManager.sharedInstance().registerBirthdateInput.className = "form-control form-control-danger";
+        WebManager.sharedInstance().registerBirthdateGroup.className = "form-group has-danger";
+
+        if (WebManager.sharedInstance().registerBirthdateGroup.childElementCount == 2) {
+            var small = document.createElement('small');
+            small.className = 'form-text text-danger';
+            small.innerHTML = 'Birthdate format has to be YYYY-MM-DD and it cannot be a future date';
+
+            WebManager.sharedInstance().registerBirthdateGroup.appendChild(small);
+        }
+    }
+    else {
+        WebManager.sharedInstance().registerBirthdateInput.className = "form-control form-control-success";
+        WebManager.sharedInstance().registerBirthdateGroup.className = "form-group has-success";
+
+        if (WebManager.sharedInstance().registerBirthdateGroup.childElementCount == 3) {
+            var childs = WebManager.sharedInstance().registerBirthdateGroup.childNodes;
+            WebManager.sharedInstance().registerBirthdateGroup.removeChild(childs[childs.length - 1]);
+        }
+    }
+}
+
+/**
+ * Creates visual errors for passowrd input
+ * @param validFormat boolean determining wheter there's an error or not
+ */
+function createPasswordIndicator(validFormat) {
+
+    if (!validFormat) {
+        WebManager.sharedInstance().registerPasswordInput.className = "form-control form-control-danger";
+        WebManager.sharedInstance().registerPasswordGroup.className = "form-group has-danger";
+
+        if (WebManager.sharedInstance().registerPasswordGroup.childElementCount == 2) {
+            var small = document.createElement('small');
+            small.className = 'form-text text-danger';
+            small.innerHTML = 'Password must contain between 6 and 12 characters, both uppercase and lowercase letters and at least one number';
+
+            WebManager.sharedInstance().registerPasswordGroup.appendChild(small);
+        }
+    }
+    else {
+        WebManager.sharedInstance().registerPasswordInput.className = "form-control form-control-success";
+        WebManager.sharedInstance().registerPasswordGroup.className = "form-group has-success";
+
+        if (WebManager.sharedInstance().registerPasswordGroup.childElementCount == 3) {
+            var childs = WebManager.sharedInstance().registerPasswordGroup.childNodes;
+            WebManager.sharedInstance().registerPasswordGroup.removeChild(childs[childs.length - 1]);
+        }
+    }
+}
+
+/**
+ * Creates visual errors for confirm password input
+ * @param validFormat boolean determining wheter there's an error or not
+ */
+function createConfirmPasswordIndicator(validFormat) {
+
+    if (!validFormat) {
+        WebManager.sharedInstance().registerConfirmPasswordInput.className = "form-control form-control-danger";
+        WebManager.sharedInstance().registerConfirmPasswordGroup.className = "form-group has-danger";
+
+        if (WebManager.sharedInstance().registerConfirmPasswordGroup.childElementCount == 2) {
+            var small = document.createElement('small');
+            small.className = 'form-text text-danger';
+            small.innerHTML = 'Content does not match typed password';
+
+            WebManager.sharedInstance().registerConfirmPasswordGroup.appendChild(small);
+        }
+    }
+    else {
+        WebManager.sharedInstance().registerConfirmPasswordInput.className = "form-control form-control-success";
+        WebManager.sharedInstance().registerConfirmPasswordGroup.className = "form-group has-success";
+
+        if (WebManager.sharedInstance().registerConfirmPasswordGroup.childElementCount == 3) {
+            var childs = WebManager.sharedInstance().registerConfirmPasswordGroup.childNodes;
+            WebManager.sharedInstance().registerConfirmPasswordGroup.removeChild(childs[childs.length - 1]);
+        }
+    }
+}
+
+/**
+ * Creates visual errors for email input
+ * @param validFormat boolean determining wheter there's an error or not
+ */
+function createEmailIndicator(validFormat) {
+
+    if (!validFormat) {
+        WebManager.sharedInstance().registerEmailInput.className = "form-control form-control-danger";
+        WebManager.sharedInstance().registerEmailGroup.className = "form-group has-danger";
+
+        if (WebManager.sharedInstance().registerEmailGroup.childElementCount == 2) {
+            var small = document.createElement('small');
+            small.className = 'form-text text-danger';
+            small.innerHTML = 'Wrong email format';
+
+            WebManager.sharedInstance().registerEmailGroup.appendChild(small);
+        }
+    }
+    else {
+        WebManager.sharedInstance().registerEmailInput.className = "form-control form-control-success";
+        WebManager.sharedInstance().registerEmailGroup.className = "form-group has-success";
+
+        if (WebManager.sharedInstance().registerEmailGroup.childElementCount == 3) {
+            var childs = WebManager.sharedInstance().registerEmailGroup.childNodes;
+            WebManager.sharedInstance().registerEmailGroup.removeChild(childs[childs.length - 1]);
+        }
     }
 }
 
@@ -553,7 +646,14 @@ function createLoginErrorsForCodes(errorCodes) {
  */
 window.onload = function() {
 
+    today = moment().format("YYYY-MM-DD");
+
     Listener.add(WebManager.sharedInstance().loginButton, "click", Listener.eventLogin, true);
     Listener.add(WebManager.sharedInstance().registerButton, "click", Listener.eventRegister, true);
     Listener.add(WebManager.sharedInstance().registerImageButton, "change", Listener.eventSelectImage, true);
+    Listener.add(WebManager.sharedInstance().registerUsernameInput, "input", Listener.eventValidateUsername, true);
+    Listener.add(WebManager.sharedInstance().registerBirthdateInput, "input", Listener.eventValidateBirthdate, true);
+    Listener.add(WebManager.sharedInstance().registerPasswordInput, "input", Listener.eventValidatePassword, true);
+    Listener.add(WebManager.sharedInstance().registerConfirmPasswordInput, "input", Listener.eventValidateConfirmPassword, true);
+    Listener.add(WebManager.sharedInstance().registerEmailInput, "input", Listener.eventValidateEmail, true);
 };
