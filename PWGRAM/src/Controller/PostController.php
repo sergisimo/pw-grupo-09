@@ -114,7 +114,7 @@ class PostController extends BaseController {
         $response->headers->set('Content-Type','text/html');
 
         if ($app['session']['active']) $response->setContent($content);
-        else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to add a post'), SitePage::AddPost);
+        else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to view your posts', SitePage::AddPost));
 
         return $response;
     }

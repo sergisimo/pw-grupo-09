@@ -59,7 +59,7 @@
                     <p>Posted by <h7 class="font-weight-bold text-primary"><a href={{ image.userProfile }}>{{ image.username }}</a></h7> {{ image.days }} days ago</p>
                 </div>
 
-               {% if app.session == true %}
+               {% if app.session.active == true %}
                    {% if image.liked == true %}
                        <div class="text-left mt-2">
                            <p><a id="postLikedAction" class="ml-1" href=''><img class="mr-2" id='postLiked' src="../../assets/images/heart-selected.png" width="25"></a><span id="likeTitle">Dislike</span></p>
@@ -103,7 +103,7 @@
                         </div>
                     {% endif %}
 
-                    {% if app.session == true and image.userCanComment == true %}
+                    {% if app.session.active == true and image.userCanComment == true %}
                         <div class="form-group mt-3" id="addCommentGroup">
                             <label for="titleInput">Post new comment:</label>
                             <div class="row">

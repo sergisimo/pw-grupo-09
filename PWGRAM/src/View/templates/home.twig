@@ -36,7 +36,7 @@
                         <p>Posted by <h7 class="font-weight-bold text-primary"><a href={{ post.userProfile }}>{{ post.username }}</a></h7> on {{ post.postDate }}</p>
                     </div>
 
-                    {% if app.session == true %}
+                    {% if app.session.active == true %}
                         {% if post.liked == true %}
                             <div class="text-left mt-2">
                                 <p><a id='postLikedAction-{{ post.id }}' class="ml-1" href=''><img class="mr-2" id='postLiked-{{ post.id }}' src="assets/images/heart-selected.png" width="25"></a><span id="likeTitle">Dislike</span></p>
@@ -52,7 +52,7 @@
                         <p class="text-muted">{{ post.likes }} likes, {{ post.visits }} visits</p>
                     </div>
 
-                    {% if app.session == true and post.userCanComment == true %}
+                    {% if app.session.active == true and post.userCanComment == true %}
                         <hr>
                         <div class="form-group mt-3" id="addCommentGroup">
                             <div class="row">
@@ -92,7 +92,7 @@
                         <p>Posted by <h7 class="font-weight-bold text-primary"><a href={{ post.userProfile }}>{{ post.username }}</a></h7> on {{ post.postDate }}</p>
                     </div>
 
-                    {% if app.session == true %}
+                    {% if app.session.active == true %}
                         {% if post.liked == true %}
                             <div class="text-left mt-2">
                                 <p><a id='postLikedAction-{{ post.id }}' class="ml-1" href=''><img class="mr-2" id='postLiked-{{ post.id }}' src="assets/images/heart-selected.png" width="25"></a><span id="likeTitle">Dislike</span></p>
@@ -116,7 +116,7 @@
                         </div>
                     {% endif %}
 
-                    {% if app.session == true and post.userCanComment == true %}
+                    {% if app.session.active == true and post.userCanComment == true %}
                         <hr>
                         <div class="form-group mt-3" id="addCommentGroup">
                             <div class="row">
