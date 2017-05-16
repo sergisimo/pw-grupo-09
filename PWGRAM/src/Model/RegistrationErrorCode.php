@@ -17,4 +17,5 @@ abstract class RegistrationErrorCode {
     const ErrorCodeEmail = 4;
     const ErrorCodeUsernameUnavailable = 5;
     const ErrorCodeEmailUnavailable = 6;
+    const ErrorCodeRegistrationSuccesful = 7;
 }

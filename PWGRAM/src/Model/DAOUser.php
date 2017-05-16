@@ -57,16 +57,21 @@ class DAOUser {
         $this->selectStatement->execute();
         $userInfo = $this->selectStatement->fetch();
 
-        $user = new User();
-        $user->setId($userInfo['id']);
-        $user->setUsername($userInfo['username']);
-        $user->setEmail($userInfo['email']);
-        $user->setBirthdate($userInfo['birthdate']);
-        $user->setPassword($userInfo['password']);
-        $user->setImgPath($userInfo['img_path']);
-        $user->setActive($userInfo['active']);
+        if ($userInfo['id'] != null) {
 
-        return $user;
+            $user = new User();
+            $user->setId($userInfo['id']);
+            $user->setUsername($userInfo['username']);
+            $user->setEmail($userInfo['email']);
+            $user->setBirthdate($userInfo['birthdate']);
+            $user->setPassword($userInfo['password']);
+            $user->setImgPath($userInfo['img_path']);
+            $user->setActive($userInfo['active']);
+
+            return $user;
+        }
+
+        return null;
     }
 
     public function getUserById(int $userID): User {
