@@ -23,6 +23,17 @@ class User {
         return false;
     }
 
+    public function toArray() {
+
+        return array(
+            'id' => $this->id,
+            'username' => $this->username,
+            'email' => $this->email,
+            'birtdate' => $this->birthdate,
+            'img_path' => $this->img_path
+        );
+    }
+
     /* ************* GETTERS & SETTERS ****************/
     public function getId(): int {
 
