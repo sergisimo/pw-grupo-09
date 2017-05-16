@@ -41,7 +41,7 @@ const LoginErrorCode = {
     ErrorCodePassword: 1,
     ErrorCodeNotFound : 2,
     ErrorCodeNotConfirmed : 3,
-    ErrorCodeLoginSuccessful : 4,
+    ErrorCodeLoginSuccessful : 4
 }
 
 const USERNAME_PATTERN = /^[a-z0-9]+$/i;
@@ -192,6 +192,7 @@ var Listener = {
              type:  'POST',
 
              success: function (response) {
+                 console.log(response);
                  createRegistrationErrorsForCodes(response);
              }
          })
@@ -634,7 +635,9 @@ function createLoginErrorsForCodes(errorCodes) {
         modal.insertBefore(div, modal.children[0]);
     }
     else if (errorCodes.indexOf(LoginErrorCode.ErrorCodeLoginSuccessful) != -1) {
+
         $('#login').modal('toggle');
+        location.reload();
     }
 }
 

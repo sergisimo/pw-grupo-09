@@ -14,4 +14,5 @@ abstract class LoginErrorCode {
     const ErrorCodePassword = 1;
     const ErrorCodeNotFound = 2;
     const ErrorCodeNotConfirmed = 3;
+    const ErrorCodeLoginSuccessful = 4;
 }

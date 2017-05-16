@@ -18,3 +18,4 @@ $app->get('/addPost','SilexApp\\Controller\\PostController::addPostAction');
 $app->post('/register','SilexApp\\Controller\\UserController::registerAction');
 $app->post('/login','SilexApp\\Controller\\UserController::loginAction');
 $app->get('/validate/{id}','SilexApp\\Controller\\UserController::validateAccountAction');
+$app->get('/test','SilexApp\\Controller\\UserController::testEmail');

@@ -26,6 +26,7 @@ class User {
     public function validateRegistration() {
 
         $errors = array();
+
         if (DAOUser::getInstance()->getUser($this->getUsername()) != null) array_push($errors, RegistrationErrorCode::ErrorCodeUsernameUnavailable);
         if (DAOUser::getInstance()->getUser($this->getEmail()) != null) array_push($errors, RegistrationErrorCode::ErrorCodeEmailUnavailable);
         if (!preg_match('/^[a-z0-9]+$/i', $this->getUsername()) || strlen($this->getUsername()) > 20) array_push($errors, RegistrationErrorCode::ErrorCodeUsername);

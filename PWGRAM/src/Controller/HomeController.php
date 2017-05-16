@@ -121,6 +121,7 @@ class HomeController extends BaseController {
         $user = new User();
         $active = true;
 
+        //$app['session']->set('id', null);
         if ($app['session']->get('id') == null) $active = false;
         else $user = $app['session']->get('user');
 

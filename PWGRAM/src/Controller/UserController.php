@@ -36,6 +36,7 @@ class UserController extends BaseController {
         $errors = $user->validateRegistration();
 
         if (count($errors) == 0) {
+
             $user->setPassword(hash('sha512', $_POST['password']));
             DAOUser::getInstance()->insertUser($user);
             $user = DAOUser::getInstance()->getUser($user->getUsername());
@@ -47,6 +48,11 @@ class UserController extends BaseController {
         $response = new JsonResponse($errors);
 
         return $response;
+    }
+
+    public function testEmail() {
+
+        $this->sendRegistrationEmail('ssimo@salleurl.edu', 1);
     }
 
     public function validateAccountAction(Application $app, Request $request) {
@@ -77,6 +83,7 @@ class UserController extends BaseController {
         else {
             $app['session']->set('id', $user->getId());
             $app['session']->set('user', $user);
+            array_push($errors, LoginErrorCode::ErrorCodeLoginSuccessful);
         }
 
         $response = new JsonResponse($errors);
@@ -291,7 +298,7 @@ class UserController extends BaseController {
 
         $mail->isSMTP();
         $mail->Host = "smtp.gmail.com";
-        $mail->SMTPDebug  = 2;
+        $mail->SMTPDebug  = 0;
         $mail->SMTPAuth = true;
         $mail->Username = 'pwgramg9@gmail.com';
         $mail->Password = 'bescompany';
