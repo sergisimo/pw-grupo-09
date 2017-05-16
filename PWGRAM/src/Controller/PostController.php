@@ -29,13 +29,16 @@ class PostController extends BaseController {
             'editable' => 'true'
         );
 
+        $user = $app['session']->get('user');
+
         $content = $app['twig']->render('post.twig', array(
-            'app' => $app,
             'page' => 'Edit post',
             'navs' => parent::createNavLinks(SitePage::MyProfile, $app),
             'brandText' => parent::brandText($app),
             'brandSrc' => parent::brandImage($app, SitePage::ThirdLevel),
-            'image' => $image
+            'image' => $image,
+            'user' => $user,
+            'count' => 2
         ));
 
         $response = new Response();
@@ -79,14 +82,17 @@ class PostController extends BaseController {
             'userCanComment' => true
         );
 
+        $user = $app['session']->get('user');
+
         $content = $app['twig']->render('post.twig', array(
-            'app' => $app,
             'page' => 'Post details',
             'navs' => parent::createNavLinks(SitePage::MyProfile, $app),
             'brandText' => parent::brandText($app),
             'brandSrc' => parent::brandImage($app, SitePage::ThirdLevel),
             'image' => $image,
-            'sessionActive' => $app['session']['active']
+            'sessionActive' => $app['session']['active'],
+            'user' => $user,
+            'count' => 2
         ));
 
         $response = new Response();
@@ -101,19 +107,22 @@ class PostController extends BaseController {
 
     public function addPostAction(Application $app) {
 
+        $user = $app['session']->get('user');
+
         $content = $app['twig']->render('post.twig', array(
-            'app' => $app,
             'page' => 'Add post',
             'navs' => parent::createNavLinks(SitePage::AddPost, $app),
             'brandText' => parent::brandText($app),
-            'brandSrc' => parent::brandImage($app, SitePage::AddPost)
+            'brandSrc' => parent::brandImage($app, SitePage::AddPost),
+            'user' => $user,
+            'count' => 2
         ));
 
         $response = new Response();
         $response->setStatusCode($response::HTTP_OK);
         $response->headers->set('Content-Type','text/html');
 
-        if ($app['session']['active']) $response->setContent($content);
+        if ($app['session']->get('id') != null) $response->setContent($content);
         else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to view your posts', SitePage::AddPost));
 
         return $response;

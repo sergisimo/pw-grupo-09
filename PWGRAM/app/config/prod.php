@@ -19,3 +19,5 @@ $app->register(new Silex\Provider\AssetServiceProvider(), array(
         'images' => array('base_urls' => array ('http://silexapp.dev/assets/img')),
     ),
 ));
+
+$app->register(new Silex\Provider\SessionServiceProvider());

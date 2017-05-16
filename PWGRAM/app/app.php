@@ -8,17 +8,7 @@
 
 use Silex\Application;
 
-$session = array(
-    'active' => false,
-    'user' => array(
-        'notifications' => array(
-            'count' => 2
-        )
-    )
-);
-
 $app = new Application();
 $app['app.name'] = 'SilexApp';
-$app['session'] = $session;
 
 return $app;

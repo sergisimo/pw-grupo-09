@@ -2,7 +2,6 @@
  * Created by borjaperez on 11/5/17.
  */
 
-/* ************* CONSTANTS ****************/
 const UPDATE_BUTTON = 'postButton';
 const IMAGE_BUTTON = 'selectImageButton';
 const PROFILE_IMAGE = 'postImage';
@@ -12,8 +11,6 @@ const BIRTHDATE_GROUP = 'birthdateGroup';
 const BIRTHDATE_INPUT = 'birthdateInput';
 const PASSWORD_GROUP = 'passwordGroup';
 const PASSWORD_INPUT = 'passwordInput';
-const SORT_DROPDOWN = 'sortDropDown';
-const SORT_TITLE = 'sortTitle';
 
 const UpdateErrorCode = {
     ErrorCodeUsername : 0,
@@ -21,27 +18,7 @@ const UpdateErrorCode = {
     ErrorCodePassword : 2
 }
 
-const SortType = {
-    SortTypeLikes : 0,
-    SortTypeComments : 1,
-    SortTypeViews : 2,
-    SortTypeDate : 3
-}
-
-const SORT_TITLES = ['Posts by likes count', 'Posts by comments count', 'Posts by view count','Posts by creation date'];
-
-
-/* ************* VARIABLES ****************/
-var params = {
-    'username' : null,
-    'birthdate' : null,
-    'password' : null,
-    'imageSrc' : null
-};
-
-var sortParams = {
-    'sortType' : SortType.SortTypeDate
-}
+var profileImageHref;
 
 /**
  * Singleton object with methods for accessing web elements
@@ -60,8 +37,6 @@ var WebManager = (function() {
         this.birthdateInput = document.getElementById(BIRTHDATE_INPUT);
         this.passwordGroup = document.getElementById(PASSWORD_GROUP);
         this.passwordInput = document.getElementById(PASSWORD_INPUT);
-        this.dropdown = document.getElementById(SORT_DROPDOWN);
-        this.sortTitle = document.getElementById(SORT_TITLE);
     }
 
     return {
@@ -75,8 +50,8 @@ var WebManager = (function() {
 })();
 
 /**
- * Object variable for adding listener events
- * @type {{add: Listener.add, eventEditComment: Listener.eventEditComment, eventRemoveComment: Listener.eventRemoveComment}}
+ * Function object for adding listeners with calbacks to elements
+ * @type {{add: Listener.add, eventSendMessage: Listener.eventSendMessage}}
  */
 var Listener = {
 
@@ -109,7 +84,7 @@ var Listener = {
         }
 
         // validate password
-        if (WebManager.sharedInstance().passwordInput.value.length > 0 && passwordPattern.test(WebManager.sharedInstance().passwordInput.value) == false) {
+        if (passwordPattern.test(WebManager.sharedInstance().passwordInput.value) == false) {
             errorCodes.push(UpdateErrorCode.ErrorCodePassword);
         }
 
@@ -117,9 +92,12 @@ var Listener = {
 
         if (errorCodes.length > 0) return;
 
-        if (WebManager.sharedInstance().passwordInput.value.length > 0) {
-            params['password'] = WebManager.sharedInstance().passwordInput.value;
-        }
+        var params = {
+            'username' : WebManager.sharedInstance().usernameInput.value,
+            'birthdate' : WebManager.sharedInstance().birthdateInput.value,
+            'password' : WebManager.sharedInstance().passwordInput.value,
+            'profileImage' : profileImageHref
+        };
 
         console.log(params);
 
@@ -158,26 +136,9 @@ var Listener = {
                 alert("not an image");
                 break;
         }
-    },
-
-    eventChangeSortType: function(event) {
-
-        event.preventDefault();
-
-        var newSortType = event.srcElement.id.split('-')[1];
-        sortParams['sortType'] = newSortType;
-
-        WebManager.sharedInstance().sortTitle.innerHTML = SORT_TITLES[newSortType];
     }
 }
 
-
-/* ************* METHODS ****************/
-
-/**
- * Creates visual errors upon an array containing validation results for updated fields
- * @param errorCodes array containing error's ID
- */
 function createUpdateErrorsForCodes(errorCodes) {
 
     if (errorCodes.indexOf(UpdateErrorCode.ErrorCodeUsername) != -1) {
@@ -224,32 +185,21 @@ function createUpdateErrorsForCodes(errorCodes) {
         }
     }
 
-    if (WebManager.sharedInstance().passwordInput.value.length > 0) {
-        if (errorCodes.indexOf(UpdateErrorCode.ErrorCodePassword) != -1) {
-            WebManager.sharedInstance().passwordInput.className = "form-control form-control-danger";
-            WebManager.sharedInstance().passwordGroup.className = "form-group has-danger";
+    if (errorCodes.indexOf(UpdateErrorCode.ErrorCodePassword) != -1) {
+        WebManager.sharedInstance().passwordInput.className = "form-control form-control-danger";
+        WebManager.sharedInstance().passwordGroup.className = "form-group has-danger";
 
-            if (WebManager.sharedInstance().passwordGroup.childElementCount == 2) {
-                var small = document.createElement('small');
-                small.className = 'form-text text-danger';
-                small.innerHTML = 'Password must contain between 6 and 12 characters, both uppercase and lowercase letters and at least one number';
+        if (WebManager.sharedInstance().passwordGroup.childElementCount == 2) {
+            var small = document.createElement('small');
+            small.className = 'form-text text-danger';
+            small.innerHTML = 'Password must contain between 6 and 12 characters, both uppercase and lowercase letters and at least one number';
 
-                WebManager.sharedInstance().passwordGroup.appendChild(small);
-            }
-        }
-        else {
-            WebManager.sharedInstance().passwordInput.className = "form-control form-control-success";
-            WebManager.sharedInstance().passwordGroup.className = "form-group has-success";
-
-            if (WebManager.sharedInstance().passwordGroup.childElementCount == 3) {
-                var childs = WebManager.sharedInstance().passwordGroup.childNodes;
-                WebManager.sharedInstance().passwordGroup.removeChild(childs[childs.length - 1]);
-            }
+            WebManager.sharedInstance().passwordGroup.appendChild(small);
         }
     }
     else {
-        WebManager.sharedInstance().passwordInput.className = "form-control";
-        WebManager.sharedInstance().passwordGroup.className = "form-group";
+        WebManager.sharedInstance().passwordInput.className = "form-control form-control-success";
+        WebManager.sharedInstance().passwordGroup.className = "form-group has-success";
 
         if (WebManager.sharedInstance().passwordGroup.childElementCount == 3) {
             var childs = WebManager.sharedInstance().passwordGroup.childNodes;
@@ -258,26 +208,10 @@ function createUpdateErrorsForCodes(errorCodes) {
     }
 }
 
-/**
- * Page stating point
- */
 window.onload = function() {
 
-    try {
-        for (var i = 0; i < WebManager.sharedInstance().dropdown.childElementCount; i++) {
-            var a = WebManager.sharedInstance().dropdown.children[i];
-            Listener.add(a, "click", Listener.eventChangeSortType, true);
-        }
-    }
-    catch (err) {}
+    Listener.add(WebManager.sharedInstance().updateButton, "click", Listener.eventUpdateInfo, true);
+    Listener.add(WebManager.sharedInstance().imageButton, "change", Listener.eventSelectImage, true);
 
-    try {
-        Listener.add(WebManager.sharedInstance().updateButton, "click", Listener.eventUpdateInfo, true);
-        Listener.add(WebManager.sharedInstance().imageButton, "change", Listener.eventSelectImage, true);
-
-        params['username'] = WebManager.sharedInstance().usernameInput.value;
-        params['birthdate'] = WebManager.sharedInstance().birthdateInput.value;
-        params['imageSrc'] = WebManager.sharedInstance().profileImage.src;
-    }
-    catch (err) {}
+    profileImageHref = WebManager.sharedInstance().profileImage.src;
 };

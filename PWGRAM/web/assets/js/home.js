@@ -192,7 +192,7 @@ var Listener = {
              type:  'POST',
 
              success: function (response) {
-                createRegistrationErrorsForCodes(response);
+                 createRegistrationErrorsForCodes(response);
              }
          })
     },

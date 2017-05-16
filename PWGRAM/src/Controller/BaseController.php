@@ -58,7 +58,7 @@ class BaseController {
             case SitePage::Home:
                 $links['home']['currentPage'] = 1;
 
-                if ($app['session']['active']) {
+                if ($app['session']->get('id') != null) {
                     unset($links['login']);
                     unset($links['register']);
                 }
@@ -102,7 +102,7 @@ class BaseController {
                 unset($links['login']);
                 unset($links['register']);
 
-                if (!$app['session']['active']) {
+                if ($app['session']->get('id') == null) {
                     unset($links['addPost']);
                     unset($links['myPosts']);
                     unset($links['myComents']);
@@ -117,26 +117,30 @@ class BaseController {
 
     protected function brandText(Application $app) {
 
-        if ($app['session']['active']) return 'bperezme';
+        if ($app['session']->get('id') != null) return $app['session']->get('user')->getUsername();
         else return 'PWGram';
     }
 
     protected function brandImage(Application $app, $sourcePage) {
 
         $noSessionBrandSource = 'assets/images/brand.png';
-        $sessionBrandSource = 'assets/images/defaultProfileBrand.png';
+        $sessionBrandSource = '';
 
         if ($sourcePage == SitePage::SecondLevel) {
             $noSessionBrandSource = '../assets/images/brand.png';
-            $sessionBrandSource = '../assets/images/defaultProfileBrand.png';
+            $sessionBrandSource = '..';
         }
         else if ($sourcePage == SitePage::ThirdLevel) {
             $noSessionBrandSource = '../../assets/images/brand.png';
-            $sessionBrandSource = '../../assets/images/defaultProfileBrand.png';
+            $sessionBrandSource = '../..';
         }
 
-        if ($app['session']['active']) return $sessionBrandSource;
-        else return $noSessionBrandSource;
+        if ($app['session']->get('id') != null) {
+            if ($app['session']->get('user')->getImgPath() == 'assets/images/defaultProfile.png') $sessionBrandSource = $sessionBrandSource . 'assets/images/defaultProfileBrand.png';
+            else $sessionBrandSource = $sessionBrandSource .   $app['session']->get('user')->getImgPath();
+
+            return $sessionBrandSource;
+        } else return $noSessionBrandSource;
     }
 
     protected function deniedContent(Application $app, $message, $sourcePage) {

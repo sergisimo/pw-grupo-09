@@ -11,6 +11,7 @@ namespace SilexApp\Controller;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Response;
 use SilexApp\Model\SitePage;
+use SilexApp\Model\User;
 
 class HomeController extends BaseController {
 
@@ -117,14 +118,23 @@ class HomeController extends BaseController {
             )
         );
 
+        $user = new User();
+        $active = true;
+
+        if ($app['session']->get('id') == null) $active = false;
+        else $user = $app['session']->get('user');
+
+
         $content = $app['twig']->render('home.twig', array(
-            'app' => $app,
             'page' => 'Home',
             'sectionTitle' => 'Last Posts',
             'navs' => parent::createNavLinks(SitePage::Home, $app),
             'brandText' => parent::brandText($app),
             'brandSrc' => parent::brandImage($app, SitePage::Home),
-            'posts' => $posts
+            'posts' => $posts,
+            'active' => $active,
+            'user' => $user,
+            'count' => 2
         ));
 
         $response = new Response();

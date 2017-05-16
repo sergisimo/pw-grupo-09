@@ -38,9 +38,10 @@ class UserController extends BaseController {
         if (count($errors) == 0) {
             $user->setPassword(hash('sha512', $_POST['password']));
             DAOUser::getInstance()->insertUser($user);
+            $user = DAOUser::getInstance()->getUser($user->getUsername());
             array_push($errors, RegistrationErrorCode::ErrorCodeRegistrationSuccesful);
 
-            $this->sendRegistrationEmail($user->getEmail(), $user->getUsername(), $user->getId());
+            $this->sendRegistrationEmail($user->getEmail(), $user->getId());
         }
 
         $response = new JsonResponse($errors);
@@ -57,14 +58,14 @@ class UserController extends BaseController {
 
         DAOUser::getInstance()->updateUser($user);
 
-        $app['session']['active'] = true;
-        $app['session']['user'] = $user;
+        $app['session']->set('id', $user->getId());
+        $app['session']->set('user', $user);
 
         $response = new RedirectResponse('/');
         return $response;
     }
 
-    public function loginAction() {
+    public function loginAction(Application $app) {
 
         $errors = array();
 
@@ -73,6 +74,10 @@ class UserController extends BaseController {
         if ($user == null) array_push($errors, LoginErrorCode::ErrorCodeNotFound);
         else if (!$user->validatePassword($_POST['password'])) array_push($errors, LoginErrorCode::ErrorCodeNotFound);
         else if (!$user->getActive()) array_push($errors, LoginErrorCode::ErrorCodeNotConfirmed);
+        else {
+            $app['session']->set('id', $user->getId());
+            $app['session']->set('user', $user);
+        }
 
         $response = new JsonResponse($errors);
 
@@ -81,27 +86,29 @@ class UserController extends BaseController {
 
     public function myProfileAction(Application $app) {
 
+        $userInfo = $app['session']->get('user');
+
         $user = array(
-            'username' => 'bperezme',
-            'birthdate' => '1995-10-03',
-            'profileImage' => 'assets/images/defaultProfile.png',
+            'username' => $userInfo->getUsername(),
+            'birthdate' => $userInfo->getBirthDate(),
+            'profileImage' => $userInfo->getImgPath(),
             'selfUser' => 'true'
         );
 
         $content = $app['twig']->render('profile.twig', array(
-            'app' => $app,
             'page' => 'My profile',
             'navs' => parent::createNavLinks(SitePage::MyProfile, $app),
             'brandText' => parent::brandText($app),
             'brandSrc' => parent::brandImage($app, SitePage::MyProfile),
-            'user' => $user
+            'user' => $user,
+            'count' => 2
         ));
 
         $response = new Response();
         $response->setStatusCode($response::HTTP_OK);
         $response->headers->set('Content-Type','text/html');
 
-        if ($app['session']['active']) $response->setContent($content);
+        if ($app['session']->get('id') != null) $response->setContent($content);
         else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to view your profile', SitePage::MyProfile));
 
         return $response;
@@ -110,6 +117,7 @@ class UserController extends BaseController {
     public function publicProfileAction(Application $app, Request $request) {
 
         $profileId = $request->get('id');
+        $userInfo = DAOUser::getInstance()->getUserById($profileId);
 
         $posts = array(
             array(
@@ -130,22 +138,22 @@ class UserController extends BaseController {
         );
 
         $user = array(
-            'username' => 'bperezme',
-            'birthdate' => '1995-10-03',
-            'profileImage' => '../assets/images/defaultProfile.png',
-            'userId' => $profileId,
+            'username' => $userInfo->getUsername(),
+            'birthdate' => $userInfo->getBirthDate(),
+            'profileImage' => $userInfo->getImgPath(),
+            'userId' => $userInfo->getId(),
             'commentsAmount' => 1,
             'postsAmount' => 3,
             'posts' => $posts
         );
 
         $content = $app['twig']->render('profile.twig', array(
-            'app' => $app,
             'page' => $user['username'],
             'navs' => parent::createNavLinks(SitePage::MyProfile, $app),
             'brandText' => parent::brandText($app),
             'brandSrc' => parent::brandImage($app, SitePage::SecondLevel),
-            'user' => $user
+            'user' => $user,
+            'count' => 2
         ));
 
         $response = new Response();
@@ -273,20 +281,16 @@ class UserController extends BaseController {
         return $response;
     }
 
-
     /* PRIVATE METHODS */
 
-    private function sendRegistrationEmail($email, $username, $userID) {
+    private function sendRegistrationEmail($email, $userID) {
 
-        $href = '/validate/' . $userID;
+        $href = 'grup09.com/validate/' . $userID;
 
         $mail = new PHPMailer();
 
-
-        var_dump('1');
-
         $mail->isSMTP();
-        $mail->Host = 'smtp-relay.gmail.com;smtp.gmail.com;aspmx.l.google.com';
+        $mail->Host = "smtp.gmail.com";
         $mail->SMTPDebug  = 2;
         $mail->SMTPAuth = true;
         $mail->Username = 'pwgramg9@gmail.com';
@@ -294,25 +298,14 @@ class UserController extends BaseController {
         $mail->SMTPSecure = 'tls';
         $mail->Port = 587;
 
-        var_dump('2');
-
         $mail->setFrom('pwgramg9@gmail.com', 'PWGram');
-        $mail->addAddress($email, $username);
-        $mail->isHTML(false);
-
-        var_dump('3');
+        $mail->addAddress($email);
+        $mail->isHTML(true);
 
         $mail->Subject = 'Confirm your PWGram account';
-        //$mail->Body    = 'Click the following link to confirm your account <h7 class="font-weight-bold text-primary"><a href=' . $href . '>Start using PWGram!</a></h7></p>';
-        $mail->Body = 'Prova';
+        $mail->Body    = '<h1>Click the following link to confirm your account</h1><h3><a href=' . $href . '>Start using PWGram!</a></h3>';
 
-
-        if (!$mail->send()) {
-            //echo 'Message could not be sent.';
-            //echo 'Mailer Error: ' . $mail->ErrorInfo;
-        }
-        else {
-            //echo 'Message has been sent';
-        }
+        if (!$mail->send()) return $mail->ErrorInfo;
+        else return true;
     }
 }
