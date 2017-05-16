@@ -32,14 +32,16 @@ const RegistrationErrorCode = {
     ErrorCodeConfirmPassword : 3,
     ErrorCodeEmail : 4,
     ErrorCodeUsernameUnavailable : 5,
-    ErrorCodeEmailUnavailable : 6
+    ErrorCodeEmailUnavailable : 6,
+    ErrorCodeRegistrationSuccessful: 7
 }
 
 const LoginErrorCode = {
     ErrorCodeUsername : 0,
     ErrorCodePassword: 1,
     ErrorCodeNotFound : 2,
-    ErrorCodeNotConfirmed : 3
+    ErrorCodeNotConfirmed : 3,
+    ErrorCodeLoginSuccessful : 4,
 }
 
 const USERNAME_PATTERN = /^[a-z0-9]+$/i;
@@ -127,19 +129,16 @@ var Listener = {
             'password' : WebManager.sharedInstance().loginPasswordInput.value
         };
 
-        console.log(params);
-
-        $('#login').modal('toggle');
-
-        /*$.ajax({
+        $.ajax({
             data:  params,
-            url:   '../validateLogin.php',
+            url:   '../login',
             type:  'POST',
 
             success: function (response) {
+                console.log(response);
                 createLoginErrorsForCodes(response);
             }
-        })*/
+        })
     },
 
     eventRegister: function(event) {
@@ -187,17 +186,15 @@ var Listener = {
             'profileImage' : profileImageHref
         };
 
-        console.log(params);
-
-        /*$.ajax({
+        $.ajax({
              data:  params,
-             url:   URL,
+             url:  '/register',
              type:  'POST',
 
              success: function (response) {
-                console.log(response);
+                createRegistrationErrorsForCodes(response);
              }
-         })*/
+         })
     },
 
     eventSelectImage: function(event) {
@@ -295,41 +292,6 @@ function createRegistrationErrorsForCodes(errorCodes) {
     createConfirmPasswordIndicator(errorCodes.indexOf(RegistrationErrorCode.ErrorCodeConfirmPassword) == -1);
     createEmailIndicator(errorCodes.indexOf(RegistrationErrorCode.ErrorCodeEmail) == -1);
 
-    if (errorCodes.length == 0) {
-        var div = document.createElement('div');
-        div.className = 'alert alert-success alert-dismissible fade show';
-        div.setAttribute('role', 'alert');
-        div.setAttribute("id", "registrationAlert");
-
-        var button = document.createElement("button");
-        button.className = "close";
-        button.setAttribute("data-dismiss", "alert");
-        button.setAttribute("aria-label", "Close");
-
-        var span = document.createElement("span");
-        span.setAttribute("aria-hidden", "true");
-        span.innerHTML = "&times;";
-
-        var strong = document.createElement('strong');
-        strong.innerHTML = 'Registration successful! ';
-
-        var message = document.createElement('h7');
-        message.innerHTML = 'An activation link has been sent to your email account. Click the link in order to have full access to PWGram.';
-
-        var span = document.createElement('span');
-        span.appendChild(strong);
-        span.appendChild(message);
-
-        button.appendChild(span);
-        div.appendChild(button);
-        div.appendChild(span);
-
-        var modal = WebManager.sharedInstance().registrationModal;
-        modal.insertBefore(div, modal.children[0]);
-
-        return;
-    }
-
     if (errorCodes.indexOf(RegistrationErrorCode.ErrorCodeUsernameUnavailable) != -1) {
         var div = document.createElement('div');
         div.className = 'alert alert-danger alert-dismissible fade show';
@@ -387,6 +349,38 @@ function createRegistrationErrorsForCodes(errorCodes) {
         $("#registrationAlert").fadeTo(4000, 500).slideUp(500, function(){
             $("#registrationAlert").slideUp(500);
         });
+    }
+    else if (errorCodes.indexOf(RegistrationErrorCode.ErrorCodeRegistrationSuccessful) != -1) {
+        var div = document.createElement('div');
+        div.className = 'alert alert-success alert-dismissible fade show';
+        div.setAttribute('role', 'alert');
+        div.setAttribute("id", "registrationAlert");
+
+        var button = document.createElement("button");
+        button.className = "close";
+        button.setAttribute("data-dismiss", "alert");
+        button.setAttribute("aria-label", "Close");
+
+        var span = document.createElement("span");
+        span.setAttribute("aria-hidden", "true");
+        span.innerHTML = "&times;";
+
+        var strong = document.createElement('strong');
+        strong.innerHTML = 'Registration successful! ';
+
+        var message = document.createElement('h7');
+        message.innerHTML = 'An activation link has been sent to your email account. Click the link in order to have full access to PWGram.';
+
+        var span = document.createElement('span');
+        span.appendChild(strong);
+        span.appendChild(message);
+
+        button.appendChild(span);
+        div.appendChild(button);
+        div.appendChild(span);
+
+        var modal = WebManager.sharedInstance().registrationModal;
+        modal.insertBefore(div, modal.children[0]);
     }
 }
 
@@ -638,6 +632,9 @@ function createLoginErrorsForCodes(errorCodes) {
 
         var modal = WebManager.sharedInstance().loginModal;
         modal.insertBefore(div, modal.children[0]);
+    }
+    else if (errorCodes.indexOf(LoginErrorCode.ErrorCodeLoginSuccessful) != -1) {
+        $('#login').modal('toggle');
     }
 }
 

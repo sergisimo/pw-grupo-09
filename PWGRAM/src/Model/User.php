@@ -23,14 +23,14 @@ class User {
         return false;
     }
 
-    public function validateRegistration(User $user) {
+    public function validateRegistration() {
 
         $errors = array();
-        if (DAOUser::getInstance()->getUser($user->getUsername()) == null) array_push($errors, RegistrationErrorCode::ErrorCodeUsernameUnavailable);
-        if (DAOUser::getInstance()->getUser($user->getEmail()) == null) array_push($errors, RegistrationErrorCode::ErrorCodeEmailUnavailable);
-        if (!preg_match('/^[a-z0-9]+$/i', $user->getUsername()) || strlen($user->getUsername()) > 20) array_push($errors, RegistrationErrorCode::ErrorCodeUsername);
-        if (!preg_match('/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i', $user->getEmail())) array_push($errors, RegistrationErrorCode::ErrorCodeEmail);
-        if (!preg_match('/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,12}$/', $user->getPassword())) array_push($errors, RegistrationErrorCode::ErrorCodePassword);
+        if (DAOUser::getInstance()->getUser($this->getUsername()) != null) array_push($errors, RegistrationErrorCode::ErrorCodeUsernameUnavailable);
+        if (DAOUser::getInstance()->getUser($this->getEmail()) != null) array_push($errors, RegistrationErrorCode::ErrorCodeEmailUnavailable);
+        if (!preg_match('/^[a-z0-9]+$/i', $this->getUsername()) || strlen($this->getUsername()) > 20) array_push($errors, RegistrationErrorCode::ErrorCodeUsername);
+        if (!preg_match('/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i', $this->getEmail())) array_push($errors, RegistrationErrorCode::ErrorCodeEmail);
+        if (!preg_match('/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,12}$/', $this->getPassword())) array_push($errors, RegistrationErrorCode::ErrorCodePassword);
 
         return $errors;
     }

@@ -15,3 +15,6 @@ $app->get('/notifications','SilexApp\\Controller\\UserController::notificationsA
 $app->get('/post/edit/{id}','SilexApp\\Controller\\PostController::editPostAction');
 $app->get('/post/view/{id}','SilexApp\\Controller\\PostController::viewPostAction');
 $app->get('/addPost','SilexApp\\Controller\\PostController::addPostAction');
+$app->post('/register','SilexApp\\Controller\\UserController::registerAction');
+$app->post('/login','SilexApp\\Controller\\UserController::loginAction');
+$app->get('/validate/{id}','SilexApp\\Controller\\UserController::validateAccountAction');

@@ -50,7 +50,7 @@ class DAOUser {
     }
 
     /* ************* PUBLIC METHODS ****************/
-    public function getUser(string $username): User {
+    public function getUser(string $username) {
 
         $this->selectStatement->bindParam(DAOUser::USERNAME_REPLACER, $username, PDO::PARAM_STR);
         $this->selectStatement->bindParam(DAOUser::EMAIL_REPLACER, $username, PDO::PARAM_STR);

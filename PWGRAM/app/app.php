@@ -9,7 +9,7 @@
 use Silex\Application;
 
 $session = array(
-    'active' => true,
+    'active' => false,
     'user' => array(
         'notifications' => array(
             'count' => 2
