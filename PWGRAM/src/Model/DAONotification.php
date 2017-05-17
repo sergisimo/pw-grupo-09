@@ -17,11 +17,12 @@ class DAONotification {
     private const USER_NAME = 'testUser';
     private const USER_PSWD = 'bescompany';
 
-    private const SELECT_STATEMENT = 'SELECT * FROM Notification WHERE user_id = :userID && seen = 0';
+    private const SELECT_STATEMENT = 'SELECT * FROM Notification WHERE user_id = :userID AND seen = 0';
     private const INSERT_STATEMENT = 'INSERT INTO Notification (text, user_id, image_id, seen) VALUES (:text, :userID, :imageID, 0)';
-    private const UPDATE_STATEMENT = 'UPDATE Notification SET text = :text WHERE user_id = :userID && image_id = :imageID';
+    private const UPDATE_STATEMENT = 'UPDATE Notification SET text = :text WHERE user_id = :userID AND image_id = :imageID AND text != "isLike"';
     private const UPDATE_SEEN_STATEMENT = 'UPDATE Notification SET seen = 1 WHERE id = :notificationID';
-    private const DELETE_STATEMENT = 'DELETE FROM Notification WHERE user_id = :userID && image_id = :imageID';
+    private const DELETE_STATEMENT = 'DELETE FROM Notification WHERE user_id = :userID AND image_id = :imageID AND text = "isLike"';
+    private const DELETE_COMMENT_STATEMENT = 'DELETE FROM Notification WHERE user_id = :userID AND image_id = :imageID AND text != "isLike"';
 
     private const NOTIFICATION_ID_REPLACER = ':notificationID';
     private const TEXT_REPLACER = ':text';
@@ -35,6 +36,7 @@ class DAONotification {
     private $updateStatement;
     private $updateSeenStatement;
     private $deleteStatement;
+    private $deleteComment;
 
     /* ************* CONSTRUCTOR ****************/
     private function __construct() {
@@ -45,6 +47,7 @@ class DAONotification {
         $this->updateStatement = $dbConnection->prepare(DAONotification::UPDATE_STATEMENT);
         $this->updateSeenStatement = $dbConnection->prepare(DAONotification::UPDATE_SEEN_STATEMENT);
         $this->deleteStatement = $dbConnection->prepare(DAONotification::DELETE_STATEMENT);
+        $this->deleteComment = $dbConnection->prepare(DAONotification::DELETE_COMMENT_STATEMENT);
     }
 
     public static function getInstance(): DAONotification {
@@ -113,14 +116,24 @@ class DAONotification {
         $this->updateStatement->execute();
     }
 
-    public function deleteNotification(Notification $notification): void {
+    public function deleteNotification(Notification $notification, $isComment): void {
 
         $user_id = $notification->getUserId();
         $image_id = $notification->getImageId();
 
-        $this->updateSeenStatement->bindParam(DAONotification::USER_ID_REPLACER, $user_id, PDO::PARAM_INT);
-        $this->updateSeenStatement->bindParam(DAONotification::IMAGE_ID_REPLACER, $image_id, PDO::PARAM_INT);
 
-        $this->updateStatement->execute();
+        if ($isComment) {
+
+            $this->deleteComment->bindParam(DAONotification::USER_ID_REPLACER, $user_id, PDO::PARAM_INT);
+            $this->deleteComment->bindParam(DAONotification::IMAGE_ID_REPLACER, $image_id, PDO::PARAM_INT);
+
+            $this->deleteComment->execute();
+        } else {
+
+            $this->deleteStatement->bindParam(DAONotification::USER_ID_REPLACER, $user_id, PDO::PARAM_INT);
+            $this->deleteStatement->bindParam(DAONotification::IMAGE_ID_REPLACER, $image_id, PDO::PARAM_INT);
+
+            $this->deleteStatement->execute();
+        }
     }
 }

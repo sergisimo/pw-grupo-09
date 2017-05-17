@@ -9,8 +9,14 @@
 namespace SilexApp\Controller;
 
 use Silex\Application;
+use SilexApp\Model\Comment;
+use SilexApp\Model\DAOComment;
 use SilexApp\Model\DAOImage;
+use SilexApp\Model\DAOLike;
+use SilexApp\Model\DAONotification;
+use SilexApp\Model\DAOUser;
 use SilexApp\Model\Image;
+use SilexApp\Model\Like;
 use Symfony\Component\HttpFoundation\Response;
 use SilexApp\Model\SitePage;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,6 +54,9 @@ class PostController extends BaseController {
 
         $user = $app['session']->get('user');
 
+        $count = 0;
+        if ($user != null) $count = count(DAONotification::getInstance()->getNotificationsByUser($user->getId()));
+
         $content = $app['twig']->render('post.twig', array(
             'page' => 'Edit post',
             'navs' => parent::createNavLinks(SitePage::MyProfile, $app),
@@ -55,7 +64,7 @@ class PostController extends BaseController {
             'brandSrc' => parent::brandImage($app, SitePage::ThirdLevel),
             'image' => $imageAux,
             'user' => $user,
-            'count' => 2
+            'count' => $count
         ));
 
         if ($image->getUserId() != $app['session']->get('id')) $response->setContent(parent::deniedContent($app, 'The image you are trying to edit is not yours', SitePage::ThirdLevel));
@@ -66,53 +75,74 @@ class PostController extends BaseController {
 
     public function viewPostAction(Application $app, Request $request) {
 
+        $response = new Response();
+        $response->setStatusCode($response::HTTP_OK);
+        $response->headers->set('Content-Type','text/html');
+
         $imageId = $request->get('id');
-
-        $comments = array(
-            array(
-                'username' => 'bperezme',
-                'content' => 'Pff quin home més sexy!!!'
-            ),
-            array(
-                'username' => 'sanfe',
-                'content' => 'El terror de las nenas'
-            )
-        );
-
-        $image = array(
-            'title' => 'Pussy distroyer',
-            'private' => false,
-            'id' => $imageId,
-            'src' => "../../assets/images/test.JPG",
-            'editable' => false,
-            'days' => '3',
-            'likes' => '1K',
-            'visits' => '69',
-            'username' => 'bperezme',
-            'comments' => $comments,
-            'userProfile' => '/profile/1',
-            'liked' => true,
-            'userCanComment' => true
-        );
+        $image = DAOImage::getInstance()->getImage($imageId);
+        if ($image == null) {
+            $response->setContent(parent::deniedContent($app, 'The image you are trying to edit does not exist', SitePage::ThirdLevel));
+            return $response;
+        }
+        $image->setVisits($image->getVisits() + 1);
+        DAOImage::getInstance()->updateImageVisits($image);
 
         $user = $app['session']->get('user');
+        $active = false;
+        if ($app['session']->get('id') != null) $active = true;
+
+        $comments = DAOComment::getInstance()->getCommentByImageID($imageId);
+        $commentsInfo = array();
+        $userCanComment = true;
+
+        foreach ($comments as $comment) {
+
+            array_push($commentsInfo, array(
+                'username' => DAOUser::getInstance()->getUserById($comment->getUserId())->getUsername(),
+                'content' => $comment->getText()
+            ));
+
+            if ($user != null && DAOUser::getInstance()->getUserById($comment->getUserId())->getUsername() == $user->getUsername()) $userCanComment = false;
+        }
+
+
+        $private = false;
+        if ($image->getPrivate() == 1) $private = true;
+        $liked = false;
+        if ($user != null) $liked = DAOLike::getInstance()->checkIsLiked($user->getId(), $imageId);
+
+        $imageInfo = array(
+            'title' => $image->getTitle(),
+            'private' => $private,
+            'id' => $imageId,
+            'src' => '../../' . $image->getImgPath(),
+            'editable' => false,
+            'days' => $image->calculateDays(),
+            'likes' => count(DAOLike::getInstance()->getLikeByImageID($imageId)),
+            'visits' => $image->getVisits(),
+            'username' => DAOUser::getInstance()->getUserById($image->getUserId())->getUsername(),
+            'comments' => $commentsInfo,
+            'userProfile' => '/profile/' . $image->getUserId(),
+            'liked' => $liked,
+            'userCanComment' => $userCanComment
+        );
+
+        $count = 0;
+        if ($user != null) $count = count(DAONotification::getInstance()->getNotificationsByUser($user->getId()));
 
         $content = $app['twig']->render('post.twig', array(
             'page' => 'Post details',
             'navs' => parent::createNavLinks(SitePage::MyProfile, $app),
             'brandText' => parent::brandText($app),
             'brandSrc' => parent::brandImage($app, SitePage::ThirdLevel),
-            'image' => $image,
-            'sessionActive' => $app['session']['active'],
+            'image' => $imageInfo,
+            'sessionActive' => $active,
             'user' => $user,
-            'count' => 2
+            'count' => $count
         ));
 
-        $response = new Response();
-        $response->setStatusCode($response::HTTP_OK);
-        $response->headers->set('Content-Type','text/html');
-
-        if ($image['private'] == false) $response->setContent($content);
+        if ($private == false) $response->setContent($content);
         else $response->setContent(parent::deniedContent($app, 'Only public posts can be viewed', SitePage::ThirdLevel));
 
         return $response;
@@ -122,13 +152,16 @@ class PostController extends BaseController {
 
         $user = $app['session']->get('user');
 
+        $count = 0;
+        if ($user != null) $count = count(DAONotification::getInstance()->getNotificationsByUser($user->getId()));
+
         $content = $app['twig']->render('post.twig', array(
             'page' => 'Add post',
             'navs' => parent::createNavLinks(SitePage::AddPost, $app),
             'brandText' => parent::brandText($app),
             'brandSrc' => parent::brandImage($app, SitePage::AddPost),
             'user' => $user,
-            'count' => 2
+            'count' => $count
         ));
 
         $response = new Response();
@@ -196,6 +229,70 @@ class PostController extends BaseController {
         return new JsonResponse();
     }
 
+    public function deletePostAction(Application $app) {
+
+        $imageID = $_POST['id'];
+        $image = DAOImage::getInstance()->getImage($imageID);
+
+        $iconPath = explode('/', $image->getImgPath());
+
+        unlink('assets/images/posts/' . $iconPath[3]);
+        unlink('assets/images/postsIcon/' . $iconPath[3]);
+
+        DAOImage::getInstance()->deleteImage($imageID);
+
+        return new JsonResponse();
+    }
+
+    public function likePostAction(Application $app) {
+
+        $like = new Like();
+
+        $like->setImageId($_POST['imageID']);
+        $like->setUserId($app['session']->get('id'));
+
+        DAOLike::getInstance()->insertLike($like);
+
+        return new JsonResponse();
+    }
+
+    public function unlikePostAction(Application $app) {
+
+        $like = new Like();
+
+        $like->setImageId($_POST['imageID']);
+        $like->setUserId($app['session']->get('id'));
+
+        DAOLike::getInstance()->deleteLike($like);
+
+        return new JsonResponse();
+    }
+
+    public function commentPostAction(Application $app) {
+
+        $comment = new Comment();
+
+        $comment->setImageId($_POST['imageID']);
+        $comment->setText($_POST['text']);
+        $comment->setUserId($app['session']->get('id'));
+
+        DAOComment::getInstance()->insertComment($comment);
+
+        return new JsonResponse();
+    }
+
+    public function uncommentPostAction(Application $app) {
+
+        $comment = new Comment();
+
+        $comment->setImageId($_POST['imageID']);
+        $comment->setUserId($app['session']->get('id'));
+
+        DAOComment::getInstance()->deleteComment($comment);
+
+        return new JsonResponse();
+    }
+
     /* PRIVATE METHODS */
 
     private function resizeImage($file, $w, $h, $crop = FALSE, $fileType) {
@@ -242,5 +339,4 @@ class PostController extends BaseController {
 
         return $dst;
     }
-
 }

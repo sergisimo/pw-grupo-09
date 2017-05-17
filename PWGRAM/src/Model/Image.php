@@ -29,6 +29,16 @@ class Image {
         );
     }
 
+    public function calculateDays() {
+
+        $datetime1 = strtotime($this->created_at);
+        $datetime2 = strtotime(date("D M j G:i:s T Y"));
+
+        $secs = $datetime2 - $datetime1;
+
+        return floor($secs / 86400);
+    }
+
     /* ************* GETTERS & SETTERS ****************/
     public function getId(): int {
 

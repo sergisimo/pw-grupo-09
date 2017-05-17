@@ -8,7 +8,7 @@
 {% block content %}
     {{ parent() }}
 
-    {% if posts is not defined %}
+    {% if posts|length == 0 %}
         <div class="alert alert-warning" role="alert">
             You haven't posted any picture yet.
         </div>

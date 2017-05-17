@@ -11,6 +11,7 @@ namespace SilexApp\Controller;
 use PHPMailer;
 
 use Silex\Application;
+use SilexApp\Model\DAOImage;
 use SilexApp\Model\LoginErrorCode;
 use SilexApp\Model\RegistrationErrorCode;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,6 +21,7 @@ use SilexApp\Model\SitePage;
 use Symfony\Component\HttpFoundation\Request;
 use SilexApp\Model\User;
 use SilexApp\Model\DAOUser;
+use SilexApp\Model\DAONotification;
 
 class UserController extends BaseController {
 
@@ -90,11 +92,6 @@ class UserController extends BaseController {
         return $response;
     }
 
-    public function testEmail() {
-
-        $this->sendRegistrationEmail('ssimo@salleurl.edu', 1);
-    }
-
     public function validateAccountAction(Application $app, Request $request) {
 
         $id = $request->get('id');
@@ -142,13 +139,16 @@ class UserController extends BaseController {
             'selfUser' => 'true'
         );
 
+        $count = 0;
+        if ($userInfo != null) $count = count(DAONotification::getInstance()->getNotificationsByUser($userInfo->getId()));
+
         $content = $app['twig']->render('myProfile.twig', array(
             'page' => 'My profile',
             'navs' => parent::createNavLinks(SitePage::MyProfile, $app),
             'brandText' => parent::brandText($app),
             'brandSrc' => parent::brandImage($app, SitePage::MyProfile),
             'user' => $user,
-            'count' => 2
+            'count' => $count
         ));
 
         $response = new Response();
@@ -184,6 +184,9 @@ class UserController extends BaseController {
             )
         );
 
+        $count = 0;
+        if ($userInfo != null) $count = count(DAONotification::getInstance()->getNotificationsByUser($userInfo->getId()));
+
         $user = array(
             'username' => $userInfo->getUsername(),
             'birthdate' => $userInfo->getBirthDate(),
@@ -200,7 +203,7 @@ class UserController extends BaseController {
             'brandText' => parent::brandText($app),
             'brandSrc' => parent::brandImage($app, SitePage::SecondLevel),
             'user' => $user,
-            'count' => 2
+            'count' => $count
         ));
 
         $response = new Response();
@@ -213,42 +216,44 @@ class UserController extends BaseController {
 
     public function myPostsAction(Application $app) {
 
-        $posts = array(
-            array(
-                'src' => '../assets/images/test.JPG',
-                'title' => 'Pussy distroyer',
-                'postPage' => '/post/edit/1',
-                'id' => '1'
-            ),
-            array(
-                'src' => '../assets/images/test2.png',
-                'title' => 'Els fotògrafs',
-                'postPage' => '/post/edit/1',
-                'id' => '2'
-            ),
-            array(
-                'src' => '../assets/images/test3.png',
-                'title' => 'SalleFeeeest',
-                'postPage' => '/post/edit/1',
-                'id' => '3'
-            )
-        );
-
-        $content = $app['twig']->render('myPosts.twig', array(
-            'app' => $app,
-            'page' => 'My posts',
-            'posts' => $posts,
-            'navs' => parent::createNavLinks(SitePage::MyPosts, $app),
-            'brandText' => parent::brandText($app),
-            'brandSrc' => parent::brandImage($app, SitePage::MyPosts)
-        ));
-
         $response = new Response();
         $response->setStatusCode($response::HTTP_OK);
         $response->headers->set('Content-Type','text/html');
 
-        if ($app['session']['active']) $response->setContent($content);
-        else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to view your posts', SitePage::MyPosts));
+        if($app['session']->get('id') == null) {
+            $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to view your posts', SitePage::MyPosts));
+            return $response;
+        }
+
+        $user = $app['session']->get('user');
+
+        $posts = DAOImage::getInstance()->getImagesByUserID($app['session']->get('id'));
+        $postsInfo = array();
+        foreach ($posts as $post) {
+
+            array_push($postsInfo, array(
+                'src' => '../' . $post->getImgPath(),
+                'title' => $post->getTitle(),
+                'postPage' => '/post/edit/' . $post->getId(),
+                'id' => $post->getId()
+            ));
+        }
+
+
+        $count = 0;
+        if ($user != null) $count = count(DAONotification::getInstance()->getNotificationsByUser($user->getId()));
+
+        $content = $app['twig']->render('myPosts.twig', array(
+            'page' => 'My posts',
+            'posts' => $postsInfo,
+            'navs' => parent::createNavLinks(SitePage::MyPosts, $app),
+            'brandText' => parent::brandText($app),
+            'brandSrc' => parent::brandImage($app, SitePage::MyPosts),
+            'user' => $user,
+            'count' => $count
+        ));
+
+        $response->setContent($content);
 
         return $response;
     }

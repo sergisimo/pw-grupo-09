@@ -125,6 +125,8 @@ class HomeController extends BaseController {
         if ($app['session']->get('id') == null) $active = false;
         else $user = $app['session']->get('user');
 
+        $count = 0;
+        if ($user != null) $count = count(DAONotification::getInstance()->getNotificationsByUser($user->getId()));
 
         $content = $app['twig']->render('home.twig', array(
             'page' => 'Home',
@@ -135,7 +137,7 @@ class HomeController extends BaseController {
             'posts' => $posts,
             'active' => $active,
             'user' => $user,
-            'count' => 2
+            'count' => $count
         ));
 
         $response = new Response();

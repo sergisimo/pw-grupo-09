@@ -25,6 +25,7 @@ class DAOImage {
     private const INSERT_STATEMENT = 'INSERT INTO Image (user_id, title, img_path, visits, private, created_at) VALUES (:userID, :title, :img_path, 0, :private, NOW())';
     private const UPDATE_STATEMENT = 'UPDATE Image SET title = :title, img_path = :img_path, private = :private WHERE id = :imageID';
     private const UPDATE_VISIT_STATEMENT = 'UPDATE Image SET visits = :visits WHERE id = :imageID';
+    private const DELETE_STATEMENT = 'DELETE FROM Image WHERE id = :imageID';
 
     private const IMAGE_ID_REPLACER = ':imageID';
     private const USER_ID_REPLACER = ':userID';
@@ -41,6 +42,7 @@ class DAOImage {
     private $insertStatement;
     private $updateStatement;
     private $updateVisitsStatement;
+    private $deleteStatement;
 
     /* ************* CONSTRUCTOR ****************/
     private function __construct() {
@@ -52,6 +54,7 @@ class DAOImage {
         $this->insertStatement = $dbConnection->prepare(DAOImage::INSERT_STATEMENT);
         $this->updateStatement = $dbConnection->prepare(DAOImage::UPDATE_STATEMENT);
         $this->updateVisitsStatement = $dbConnection->prepare(DAOImage::UPDATE_VISIT_STATEMENT);
+        $this->deleteStatement = $dbConnection->prepare(DAOImage::DELETE_STATEMENT);
     }
 
     public static function getInstance(): DAOImage {
@@ -170,6 +173,13 @@ class DAOImage {
 
         $this->updateVisitsStatement->bindParam(DAOImage::VISITS_REPLACER, $visits, PDO::PARAM_INT);
         $this->updateVisitsStatement->bindParam(DAOImage::IMAGE_ID_REPLACER, $id, PDO::PARAM_INT);
+
+        $this->updateVisitsStatement->execute();
+    }
+
+    public function deleteImage(int $imageID) {
+
+        $this->deleteStatement->bindParam(DAOImage::IMAGE_ID_REPLACER, $imageID, PDO::PARAM_INT);
 
         $this->updateVisitsStatement->execute();
     }

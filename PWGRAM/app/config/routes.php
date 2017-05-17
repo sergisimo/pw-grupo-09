@@ -24,5 +24,10 @@ $app->post('/uploadPostImage','SilexApp\\Controller\\PostController::uploadImage
 $app->post('/uploadPost','SilexApp\\Controller\\PostController::uploadPostAction');
 $app->post('/updateUser','SilexApp\\Controller\\UserController::updateUserAction');
 $app->post('/editPost','SilexApp\\Controller\\PostController::updatePostInfoAction');
+$app->post('/deletePost','SilexApp\\Controller\\PostController::deletePostAction');
+$app->post('/likePost','SilexApp\\Controller\\PostController::likePostAction');
+$app->post('/unlikePost','SilexApp\\Controller\\PostController::unlikePostAction');
+$app->post('/commentPost','SilexApp\\Controller\\PostController::commentPostAction');
+$app->post('/uncommentPost','SilexApp\\Controller\\PostController::uncommentPostAction');
 $app->get('/test','SilexApp\\Controller\\TestController::testing');
 

@@ -3,8 +3,6 @@
 namespace SilexApp\Model;
 
 use PDO;
-use function Sodium\compare;
-
 
 class DAOComment {
 
@@ -19,6 +17,7 @@ class DAOComment {
     private const SELECT_BY_IMAGE_STATEMENT = 'SELECT * FROM Commentary WHERE image_id = :imageID';
     private const INSERT_STATEMENT = 'INSERT INTO Commentary (text, user_id, image_id) VALUES (:text, :userID, :imageID)';
     private const UPDATE_STATEMENT = 'UPDATE Commentary SET text = :text WHERE id = :commnetID';
+    private const DELETE_STATEMENT = 'DELETE FROM Commentary WHERE user_id = :userID AND image_id = :image_id';
 
     private const COMMENT_ID_REPLACER = ':commentID';
     private const TEXT_REPLACER = ':text';
@@ -32,6 +31,7 @@ class DAOComment {
     private $selectByImageIDStatement;
     private $insertStatement;
     private $updateStatement;
+    private $deleteStatement;
 
     /* ************* CONSTRUCTOR ****************/
     private function __construct() {
@@ -42,6 +42,7 @@ class DAOComment {
         $this->selectByImageIDStatement = $dbConnection->prepare(DAOComment::SELECT_BY_IMAGE_STATEMENT);
         $this->insertStatement = $dbConnection->prepare(DAOComment::INSERT_STATEMENT);
         $this->updateStatement = $dbConnection->prepare(DAOComment::UPDATE_STATEMENT);
+        $this->deleteStatement = $dbConnection->prepare(DAOComment::DELETE_STATEMENT);
     }
 
     public static function getInstance(): DAOComment {
@@ -68,9 +69,9 @@ class DAOComment {
 
     public function getCommentByUserID(int $userID) {
 
-        $this->selectStatement->bindParam(DAOComment::USER_ID_REPLACER, $userID, PDO::PARAM_INT);
-        $this->selectStatement->execute();
-        $commentInfo = $this->selectStatement->fetchAll();
+        $this->selectByUserIDStatement->bindParam(DAOComment::USER_ID_REPLACER, $userID, PDO::PARAM_INT);
+        $this->selectByUserIDStatement->execute();
+        $commentInfo = $this->selectByUserIDStatement->fetchAll();
 
 
         $comments = array();
@@ -93,9 +94,9 @@ class DAOComment {
 
     public function getCommentByImageID(int $imageID) {
 
-        $this->selectStatement->bindParam(DAOComment::IMAGE_ID_REPLACER, $imageID, PDO::PARAM_INT);
-        $this->selectStatement->execute();
-        $commentInfo = $this->selectStatement->fetchAll();
+        $this->selectByImageIDStatement->bindParam(DAOComment::IMAGE_ID_REPLACER, $imageID, PDO::PARAM_INT);
+        $this->selectByImageIDStatement->execute();
+        $commentInfo = $this->selectByImageIDStatement->fetchAll();
 
 
         $comments = array();
@@ -151,5 +152,22 @@ class DAOComment {
         $notification->setText($text);
 
         DAONotification::getInstance()->updateNotification($notification);
+    }
+
+    public function deleteComment(Comment $comment): void {
+
+        $userID = $comment->getUserId();
+        $imageID = $comment->getImageId();
+
+        $this->deleteStatement->bindParam(DAOComment::USER_ID_REPLACER, $userID, PDO::PARAM_STR);
+        $this->deleteStatement->bindParam(DAOComment::IMAGE_ID_REPLACER, $imageID, PDO::PARAM_INT);
+
+        $this->deleteStatement->execute();
+
+        $notification = new Notification();
+        $notification->setUserId($comment->getUserId());
+        $notification->setImageId($comment->getImageId());
+
+        DAONotification::getInstance()->deleteNotification($notification, true);
     }
 }

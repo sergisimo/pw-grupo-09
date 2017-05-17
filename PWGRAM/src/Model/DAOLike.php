@@ -13,10 +13,12 @@ class DAOLike {
     private const USER_NAME = 'testUser';
     private const USER_PSWD = 'bescompany';
 
-    private const SELECT_BY_USER_STATEMENT = 'SELECT * FROM Like WHERE user_id = :userID';
-    private const SELECT_BY_IMAGE_STATEMENT = 'SELECT * FROM Like WHERE image_id = :imageID';
-    private const INSERT_STATEMENT = 'INSERT INTO Like (user_id, image_id) VALUES (:userID, :imageID)';
-    private const DELETE_STATEMENT = 'DELETE FROM Like WHERE id = :commnetID';
+    private const SELECT_BY_USER_STATEMENT = 'SELECT * FROM LikeTable WHERE user_id = :userID';
+    private const SELECT_BY_IMAGE_STATEMENT = 'SELECT * FROM LikeTable WHERE image_id = :imageID';
+    private const INSERT_STATEMENT = 'INSERT INTO LikeTable (user_id, image_id) VALUES (:userID, :imageID)';
+    private const DELETE_STATEMENT = 'DELETE FROM LikeTable WHERE  user_id = :userID AND image_id = :imageID';
+    private const CHECK_LIKED_STATEMENT = 'SELECT * FROM LikeTable WHERE user_id = :userID AND image_id = :imageID';
+
 
     private const LIKE_ID_REPLACER = ':likeID';
     private const IMAGE_ID_REPLACER = ':imageID';
@@ -28,6 +30,7 @@ class DAOLike {
     private $selectByImageIDStatement;
     private $insertStatement;
     private $deleteStatement;
+    private $checkLikedStatement;
 
     /* ************* CONSTRUCTOR ****************/
     private function __construct() {
@@ -37,6 +40,7 @@ class DAOLike {
         $this->selectByImageIDStatement = $dbConnection->prepare(DAOLike::SELECT_BY_IMAGE_STATEMENT);
         $this->insertStatement = $dbConnection->prepare(DAOLike::INSERT_STATEMENT);
         $this->deleteStatement = $dbConnection->prepare(DAOLike::DELETE_STATEMENT);
+        $this->checkLikedStatement = $dbConnection->prepare(DAOLike::CHECK_LIKED_STATEMENT);
     }
 
     public static function getInstance(): DAOLike {
@@ -71,9 +75,9 @@ class DAOLike {
 
     public function getLikeByImageID(int $imageID) {
 
-        $this->selectByUserIDStatement->bindParam(DAOLike::IMAGE_ID_REPLACER, $imageID, PDO::PARAM_INT);
-        $this->selectByUserIDStatement->execute();
-        $likeInfo = $this->selectByUserIDStatement->fetchAll();
+        $this->selectByImageIDStatement->bindParam(DAOLike::IMAGE_ID_REPLACER, $imageID, PDO::PARAM_INT);
+        $this->selectByImageIDStatement->execute();
+        $likeInfo = $this->selectByImageIDStatement->fetchAll();
 
         $likes = array();
 
@@ -110,9 +114,11 @@ class DAOLike {
 
     public function deleteLike(Like $like): void {
 
-        $id = $like->getId();
+        $image_id = $like->getImageId();
+        $user_id = $like->getUserId();
 
-        $this->deleteStatement->bindParam(DAOLike::LIKE_ID_REPLACER, $id, PDO::PARAM_INT);
+        $this->deleteStatement->bindParam(DAOLike::IMAGE_ID_REPLACER, $image_id, PDO::PARAM_INT);
+        $this->deleteStatement->bindParam(DAOLike::USER_ID_REPLACER, $user_id, PDO::PARAM_INT);
 
         $this->deleteStatement->execute();
 
@@ -120,6 +126,17 @@ class DAOLike {
         $notification->setUserId($like->getUserId());
         $notification->setImageId($like->getImageId());
 
-        DAONotification::getInstance()->deleteNotification($notification);
+        DAONotification::getInstance()->deleteNotification($notification, false);
+    }
+
+    public function checkIsLiked(int $userID, int $imageID) {
+
+        $this->checkLikedStatement->bindParam(DAOLike::USER_ID_REPLACER, $userID, PDO::PARAM_INT);
+        $this->checkLikedStatement->bindParam(DAOLike::IMAGE_ID_REPLACER, $imageID, PDO::PARAM_INT);
+        $this->checkLikedStatement->execute();
+        $likeInfo = $this->checkLikedStatement->fetch();
+
+        if ($likeInfo['id'] == null) return false;
+        return true;
     }
 }
