@@ -121,7 +121,7 @@
 
             {% if image is defined %}
                 {% if image.editable == true %}
-                    <button type="submit" class="btn btn-primary btn-lg" id="postButton">Update</button>
+                    <button type="submit" class="btn btn-primary btn-lg updateButtonClass" id="postButton-{{ image.id }}">Update</button>
                 {% endif %}
             {% else %}
                 <button type="submit" class="btn btn-primary btn-lg" id="postButton">Post</button>

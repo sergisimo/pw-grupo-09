@@ -116,8 +116,6 @@ var Listener = {
         params['birthdate'] = WebManager.sharedInstance().birthdateInput.value;
         params['password'] = WebManager.sharedInstance().passwordInput.value;
 
-        console.log(params);
-
         var data = new FormData();
         data.append('file', file);
 

@@ -20,15 +20,29 @@ class PostController extends BaseController {
 
     public function editPostAction(Application $app, Request $request) {
 
-        // TODO: comprovar si id del usuari actiu coincideix amb id de usuari de la imatge. Si no coincideix, 403
+        $response = new Response();
+        $response->setStatusCode($response::HTTP_OK);
+        $response->headers->set('Content-Type','text/html');
+
+        if ($app['session']->get('id') == null) {
+            $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to edit your posts', SitePage::ThirdLevel));
+            return $response;
+        }
 
         $imageId = $request->get('id');
 
-        $image = array(
-            'title' => 'Pussy-distroyer',
-            'private' => false,
+        $image = DAOImage::getInstance()->getImage($imageId);
+
+        if ($image == null) {
+            $response->setContent(parent::deniedContent($app, 'The image you are trying to edit does not exist', SitePage::ThirdLevel));
+            return $response;
+        }
+
+        $imageAux = array(
+            'title' => $image->getTitle(),
+            'private' => $image->getPrivate(),
             'id' => $imageId,
-            'src' => "../../assets/images/test.JPG",
+            'src' => '../../' . $image->getImgPath(),
             'editable' => 'true'
         );
 
@@ -39,17 +53,13 @@ class PostController extends BaseController {
             'navs' => parent::createNavLinks(SitePage::MyProfile, $app),
             'brandText' => parent::brandText($app),
             'brandSrc' => parent::brandImage($app, SitePage::ThirdLevel),
-            'image' => $image,
+            'image' => $imageAux,
             'user' => $user,
             'count' => 2
         ));
 
-        $response = new Response();
-        $response->setStatusCode($response::HTTP_OK);
-        $response->headers->set('Content-Type','text/html');
-
-        if ($app['session']['active']) $response->setContent($content);
-        else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to edit your posts', SitePage::ThirdLevel));
+        if ($image->getUserId() != $app['session']->get('id')) $response->setContent(parent::deniedContent($app, 'The image you are trying to edit is not yours', SitePage::ThirdLevel));
+        else $response->setContent($content);
 
         return $response;
     }
@@ -164,6 +174,27 @@ class PostController extends BaseController {
         return new JsonResponse();
     }
 
+    public function updatePostInfoAction(Application $app) {
+
+        $image = DAOImage::getInstance()->getImage($_POST['id']);
+
+        if (strlen($_POST['title']) > 0) $image->setTitle($_POST['title']);
+
+        $image->setPrivate($_POST['private']);
+
+        if ($_POST['imagePath'] != null) {
+            $iconPath = explode('/', $image->getImgPath());
+
+            unlink('assets/images/posts/' . $iconPath[3]);
+            unlink('assets/images/postsIcon/' . $iconPath[3]);
+
+            $image->setImgPath('assets/images/posts/' . $_POST['imagePath']);
+        }
+
+        DAOImage::getInstance()->updateImage($image);
+
+        return new JsonResponse();
+    }
 
     /* PRIVATE METHODS */
 

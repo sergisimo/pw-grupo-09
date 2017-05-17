@@ -56,6 +56,7 @@ var WebManager = (function() {
         this.postCommentButton = document.getElementById(POST_COMMENT_BUTTON);
         this.commentInput = document.getElementById(COMMENT_INPUT);
         this.commentGroup = document.getElementById(COMMENT_GROUP);
+        this.updatePostButton = document.getElementsByClassName('updateButtonClass')[0];
     }
 
     return {
@@ -212,6 +213,56 @@ var Listener = {
         createCommentError(error);
 
         if (error) return;
+    },
+
+    eventUpdatePost: function(event) {
+
+        event.preventDefault();
+
+        var targetPostID = WebManager.sharedInstance().updatePostButton.id.split('-')[1];
+
+        params['id'] = targetPostID;
+
+        params['title'] = WebManager.sharedInstance().titleInput.value;
+
+        if (params['private']) params['private'] = 1;
+        else params['private'] = 0;
+
+        var data = new FormData();
+        data.append('file', file);
+
+        var i = Utilities.createLoadingIndicator();
+        var button = WebManager.sharedInstance().updatePostButton;
+        button.appendChild(i);
+
+        $.ajax({
+            data:  params,
+            url:   '/editPost',
+            type:  'POST',
+
+            success: function (response) {
+                console.log(response);
+
+                if (params['imagePath'] != null) {
+                    $.ajax({
+                        data:  data,
+                        url:  '/uploadPostImage',
+                        type:  'POST',
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+
+                        success: function (response) {
+                            button.removeChild(button.children[button.childElementCount - 1]);
+                            console.log(response);
+                        }
+                    })
+                }
+                else {
+                    button.removeChild(button.children[button.childElementCount - 1]);
+                }
+            }
+        });
     }
 }
 
@@ -315,7 +366,7 @@ window.onload = function() {
     }
     catch (err) {}
 
-    params['imagePath'] = WebManager.sharedInstance().postImage.src;
+    //params['imagePath'] = WebManager.sharedInstance().postImage.src;
 
     try {
         params['private'] = WebManager.sharedInstance().radioButton.checked;
@@ -331,6 +382,11 @@ window.onload = function() {
 
     try {
         Listener.add(WebManager.sharedInstance().postCommentButton, "click", Listener.eventPostComment, true);
+    }
+    catch (err) {}
+
+    try {
+        Listener.add(WebManager.sharedInstance().updatePostButton, "click", Listener.eventUpdatePost, true);
     }
     catch (err) {}
 

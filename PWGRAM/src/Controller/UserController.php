@@ -339,7 +339,7 @@ class UserController extends BaseController {
 
     private function sendRegistrationEmail($email, $userID) {
 
-        $href = 'grup09.com/validate/' . $userID;
+        $href = 'grup9.com/validate/' . $userID;
 
         $mail = new PHPMailer();
 

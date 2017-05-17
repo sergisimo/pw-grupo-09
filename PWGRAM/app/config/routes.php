@@ -23,5 +23,6 @@ $app->post('/uploadImage','SilexApp\\Controller\\UserController::uploadImageActi
 $app->post('/uploadPostImage','SilexApp\\Controller\\PostController::uploadImageAction');
 $app->post('/uploadPost','SilexApp\\Controller\\PostController::uploadPostAction');
 $app->post('/updateUser','SilexApp\\Controller\\UserController::updateUserAction');
+$app->post('/editPost','SilexApp\\Controller\\PostController::updatePostInfoAction');
 $app->get('/test','SilexApp\\Controller\\TestController::testing');
 

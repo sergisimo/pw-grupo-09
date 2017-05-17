@@ -137,7 +137,7 @@ class BaseController {
 
         if ($app['session']->get('id') != null) {
             if ($app['session']->get('user')->getImgPath() == 'assets/images/defaultProfile.png') $sessionBrandSource = $sessionBrandSource . 'assets/images/defaultProfileBrand.png';
-            else $sessionBrandSource = $sessionBrandSource .   $app['session']->get('user')->getImgPath();
+            else $sessionBrandSource = $sessionBrandSource . $app['session']->get('user')->getImgPath();
 
             return $sessionBrandSource;
         } else return $noSessionBrandSource;
@@ -151,7 +151,7 @@ class BaseController {
             ],
             'page' => 'Error 404',
             'navs' => $this->createNavLinks(SitePage::NotFound, $app),
-            'brandText' => 'PWGram',
+            'brandText' => $this->brandText($app),
             'brandSrc' => $this->brandImage($app, $sourcePage),
             'message' => $message
         ));

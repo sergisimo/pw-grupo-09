@@ -62,22 +62,26 @@ class DAOImage {
     }
 
     /* ************* PUBLIC METHODS ****************/
-    public function getImage(int $imageID): Image {
+    public function getImage(int $imageID) {
 
         $this->selectStatement->bindParam(DAOImage::IMAGE_ID_REPLACER, $imageID, PDO::PARAM_INT);
         $this->selectStatement->execute();
         $imageInfo = $this->selectStatement->fetch();
 
-        $image = new Image();
-        $image->setId($imageInfo['id']);
-        $image->setUserId($imageInfo['user_id']);
-        $image->setTitle($imageInfo['title']);
-        $image->setImgPath($imageInfo['img_path']);
-        $image->setVisits($imageInfo['visits']);
-        $image->setPrivate($imageInfo['private']);
-        $image->setCreatedAt($imageInfo['created_at']);
+        if ($imageInfo['id'] != null) {
+            $image = new Image();
+            $image->setId($imageInfo['id']);
+            $image->setUserId($imageInfo['user_id']);
+            $image->setTitle($imageInfo['title']);
+            $image->setImgPath($imageInfo['img_path']);
+            $image->setVisits($imageInfo['visits']);
+            $image->setPrivate($imageInfo['private']);
+            $image->setCreatedAt($imageInfo['created_at']);
 
-        return $image;
+            return $image;
+        }
+
+        return null;
     }
 
     public function getImages() {
