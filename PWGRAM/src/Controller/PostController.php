@@ -9,9 +9,12 @@
 namespace SilexApp\Controller;
 
 use Silex\Application;
+use SilexApp\Model\DAOImage;
+use SilexApp\Model\Image;
 use Symfony\Component\HttpFoundation\Response;
 use SilexApp\Model\SitePage;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class PostController extends BaseController {
 
@@ -127,4 +130,86 @@ class PostController extends BaseController {
 
         return $response;
     }
+
+    public function uploadImageAction() {
+
+        $sourcePath = $_FILES['file']['tmp_name'];
+        $targetPath = "assets/images/posts/" . $_FILES['file']['name'];
+        move_uploaded_file($sourcePath, $targetPath) ;
+
+        $extension = explode('.', $_FILES['file']['name'])[1];
+
+        $image = $this->resizeImage($targetPath, 400, 300, false, $extension);
+        imagejpeg($image, $targetPath);
+
+        $newTargetPath = "assets/images/postsIcon/" . $_FILES['file']['name'];
+
+        $image = $this->resizeImage($targetPath, 100, 100, false, 'jpg');
+        imagejpeg($image, $newTargetPath);
+
+        return new JsonResponse();
+    }
+
+    public function uploadPostAction(Application $app) {
+
+        $image = new Image();
+
+        $image->setUserId($app['session']->get('id'));
+        $image->setPrivate($_POST['private']);
+        $image->setTitle($_POST['title']);
+        $image->setImgPath('assets/images/posts/' . $_POST['imagePath']);
+
+        DAOImage::getInstance()->insertImage($image);
+
+        return new JsonResponse();
+    }
+
+
+    /* PRIVATE METHODS */
+
+    private function resizeImage($file, $w, $h, $crop = FALSE, $fileType) {
+
+        list($width, $height) = getimagesize($file);
+
+        $r = $width / $height;
+
+        $src = null;
+
+        /*if ($crop) {
+            if ($width > $height) $width = ceil($width - ($width * abs($r -$w / $h)));
+            else $height = ceil($height - ($height * abs($r - $w / $h)));
+
+            $newwidth = $w;
+            $newheight = $h;
+        }
+        else {
+            if ($w / $h > $r) {
+                $newwidth = $h * $r;
+                $newheight = $h;
+            }
+            else {
+                $newheight = $w / $r;
+                $newwidth = $w;
+            }
+        }*/
+
+        switch ($fileType) {
+            case 'png':
+                $src = imagecreatefrompng($file);
+                break;
+            case 'jpg':
+                $src = imagecreatefromjpeg($file);
+                break;
+            case 'gif':
+                $src = imagecreatefromgif($file);
+                break;
+        }
+
+        $dst = imagecreatetruecolor($w, $h);
+
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $w, $h, $width, $height);
+
+        return $dst;
+    }
+
 }

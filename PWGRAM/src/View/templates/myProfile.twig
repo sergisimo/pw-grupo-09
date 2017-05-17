@@ -25,6 +25,17 @@
                     <img class="card-img-top img-fluid" src={{ user.profileImage }} alt="..." id="postImage">
                 </div>
             </div>
+
+            <div class="row mt-3">
+                <div class="col-lg-3 col-xl-3 col-md-3 col-sm-2 col-3 mb-3">
+                    <form action="/logout" method="GET">
+                        <button type="submit" class="btn btn-danger btn-md" id="logoutButton">Logout</button>
+                    </form>
+                </div>
+                <div class="col-lg-3 col-xl-3 col-md-3 col-sm-4 col-2 mb-3">
+                    <button type="submit" class="btn btn-primary btn-md" id="postButton">Update information</button>
+                </div>
+            </div>
         </div>
 
         <div class="col-lg-7 col-xl-7 col-md-6 col-sm-12">
@@ -40,12 +51,8 @@
 
             <div class="form-group" id="passwordGroup">
                 <label for="titleInput">Password:</label>
-                <input type="password" class="form-control" id="passwordInput" aria-describedby="emailHelp" value={{ user.password }}>
+                <input type="password" class="form-control" id="passwordInput" aria-describedby="emailHelp">
             </div>
-
-            <button type="submit" class="btn btn-primary btn-md" id="postButton">
-                Save changes
-            </button>
         </div>
     </div>
 

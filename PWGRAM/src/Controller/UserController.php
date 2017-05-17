@@ -31,12 +31,12 @@ class UserController extends BaseController {
         $user->setPassword($_POST['password']);
         $user->setEmail($_POST['email']);
         $user->setActive(0);
-        $user->setImgPath($_POST['profileImage']);
+
+        $user->setImgPath('assets/images/profileImages/' . $_POST['imageName']);
 
         $errors = $user->validateRegistration();
 
         if (count($errors) == 0) {
-
             $user->setPassword(hash('sha512', $_POST['password']));
             DAOUser::getInstance()->insertUser($user);
             $user = DAOUser::getInstance()->getUser($user->getUsername());
@@ -44,6 +44,46 @@ class UserController extends BaseController {
 
             $this->sendRegistrationEmail($user->getEmail(), $user->getId());
         }
+
+        $response = new JsonResponse($errors);
+
+        return $response;
+    }
+
+    public function updateUserAction(Application $app) {
+
+        $userID = $app['session']->get('id');
+
+        if (isset($_POST['username']) && isset($_POST['birthdate']) && isset($_POST['password'])) {
+            $user = DAOUser::getInstance()->getUserById($userID);
+
+            if (strlen($_POST['username']) > 0) $user->setUsername($_POST['username']);
+
+            if (strlen($_POST['birthdate']) > 0) $user->setBirthdate($_POST['birthdate']);
+
+            if (strlen($_POST['password']) > 0) $user->setPassword(hash('sha512', $_POST['password']));
+
+            if ($_POST['imageName'] != null) {
+                if ($user->getImgPath() != 'assets/images/defaultProfile.png') unlink($user->getImgPath());
+                $user->setImgPath('assets/images/profileImages/' . $_POST['imageName']);
+            }
+
+            DAOUser::getInstance()->updateUser($user);
+
+            $app['session']->set('user', $user);
+
+            return new JsonResponse();
+        }
+    }
+
+    public function uploadImageAction() {
+
+        $errors = array();
+        array_push($errors, RegistrationErrorCode::ErrorCodeRegistrationSuccesful);
+
+        $sourcePath = $_FILES['file']['tmp_name'];
+        $targetPath = "assets/images/profileImages/" . $_FILES['file']['name'];
+        move_uploaded_file($sourcePath, $targetPath) ;
 
         $response = new JsonResponse($errors);
 
@@ -102,7 +142,7 @@ class UserController extends BaseController {
             'selfUser' => 'true'
         );
 
-        $content = $app['twig']->render('profile.twig', array(
+        $content = $app['twig']->render('myProfile.twig', array(
             'page' => 'My profile',
             'navs' => parent::createNavLinks(SitePage::MyProfile, $app),
             'brandText' => parent::brandText($app),
@@ -286,6 +326,13 @@ class UserController extends BaseController {
         else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to view your notifications', SitePage::Notifications));
 
         return $response;
+    }
+
+    public function logoutAction(Application $app) {
+
+        $app['session']->set('id', null);
+
+        return new RedirectResponse('/');
     }
 
     /* PRIVATE METHODS */

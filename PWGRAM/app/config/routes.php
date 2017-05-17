@@ -18,4 +18,10 @@ $app->get('/addPost','SilexApp\\Controller\\PostController::addPostAction');
 $app->post('/register','SilexApp\\Controller\\UserController::registerAction');
 $app->post('/login','SilexApp\\Controller\\UserController::loginAction');
 $app->get('/validate/{id}','SilexApp\\Controller\\UserController::validateAccountAction');
-$app->get('/test','SilexApp\\Controller\\UserController::testEmail');
+$app->get('/logout','SilexApp\\Controller\\UserController::logoutAction');
+$app->post('/uploadImage','SilexApp\\Controller\\UserController::uploadImageAction');
+$app->post('/uploadPostImage','SilexApp\\Controller\\PostController::uploadImageAction');
+$app->post('/uploadPost','SilexApp\\Controller\\PostController::uploadPostAction');
+$app->post('/updateUser','SilexApp\\Controller\\UserController::updateUserAction');
+$app->get('/test','SilexApp\\Controller\\TestController::testing');
+

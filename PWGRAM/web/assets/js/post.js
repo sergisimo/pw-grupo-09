@@ -26,13 +26,14 @@ const AddPostErrorCode = {
 /* ************* VARIABLES ****************/
 var params = {
     'title' : null,
-    'imageSrc' : null,
+    'imagePath' : null,
     'private' : null
 };
 
 var postLiked = null;
-
 var imageSelected = false;
+
+var file;
 
 /**
  * Singleton object with methods for accessing web elements
@@ -68,6 +69,21 @@ var WebManager = (function() {
 })();
 
 /**
+ * Utilities object with helper methods
+ * @type {{createAlert: Utilities.createAlert}}
+ */
+var Utilities = {
+
+    createLoadingIndicator: function() {
+
+        var i = document.createElement('i');
+        i.className = 'fa fa-spinner fa-pulse fa-2x align-middle ml-3';
+
+        return i;
+    }
+}
+
+/**
  * Object variable for adding listener events
  * @type {{add: Listener.add, eventEditComment: Listener.eventEditComment, eventRemoveComment: Listener.eventRemoveComment}}
  */
@@ -96,17 +112,39 @@ var Listener = {
 
         params['title'] = WebManager.sharedInstance().titleInput.value;
 
-        console.log(params);
+        if (params['private']) params['private'] = 1;
+        else params['private'] = 0;
 
-        /*$.ajax({
-         data:  params,
-         url:   URL,
-         type:  'POST',
+        var data = new FormData();
+        data.append('file', file);
 
-         success: function (response) {
-         console.log(response);
-         }
-         })*/
+        var i = Utilities.createLoadingIndicator();
+        var button = WebManager.sharedInstance().postImageButton;
+        button.appendChild(i);
+
+        $.ajax({
+            data:  params,
+            url:   '/uploadPost',
+            type:  'POST',
+
+            success: function (response) {
+                console.log(response);
+
+                $.ajax({
+                    data:  data,
+                    url:  '/uploadPostImage',
+                    type:  'POST',
+                    contentType: false,
+                    processData: false,
+                    cache: false,
+
+                    success: function (response) {
+                        console.log(response);
+                        button.removeChild(button.children[button.childElementCount - 1]);
+                    }
+                })
+            }
+         });
     },
 
     eventChangePrivacy: function (event) {
@@ -127,12 +165,14 @@ var Listener = {
         switch(val.substring(val.lastIndexOf('.') + 1).toLowerCase()) {
             case 'gif': case 'jpg': case 'png': {
                 var oFReader = new FileReader();
-                params['imageSrc'] = this.files[0];
+                file = this.files[0];
 
-                oFReader.readAsDataURL(params['imageSrc']);
+                oFReader.readAsDataURL(file);
+
                 oFReader.onload = function (oFREvent) {
                     WebManager.sharedInstance().postImage.src = oFREvent.target.result;
                     imageSelected = true;
+                    params['imagePath'] = file.name;
                 };
             }
 
@@ -275,7 +315,7 @@ window.onload = function() {
     }
     catch (err) {}
 
-    params['imageSrc'] = WebManager.sharedInstance().postImage.src;
+    params['imagePath'] = WebManager.sharedInstance().postImage.src;
 
     try {
         params['private'] = WebManager.sharedInstance().radioButton.checked;

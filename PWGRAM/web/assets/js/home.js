@@ -48,10 +48,13 @@ const USERNAME_PATTERN = /^[a-z0-9]+$/i;
 const PASSWORD_PATTERN = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,12}$/;
 const EMAIL_PATTERN = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
-/* ************* VARIABLES ****************/
-var profileImageHref = 'assets/images/defaultProfile.png';
+const DEFAULT_PROFILE = 'defaultProfile.png';
 
+/* ************* VARIABLES ****************/
 var today;
+var file;
+
+var params = {};
 
 /**
  * Singleton object with methods for accessing web elements
@@ -124,6 +127,10 @@ var Listener = {
 
         if (errorCodes.length > 0) return;
 
+        var i = Utilities.createLoadingIndicator();
+        var button = WebManager.sharedInstance().loginButton;
+        button.appendChild(i);
+
         var params = {
             'username' : WebManager.sharedInstance().loginUsernameInput.value,
             'password' : WebManager.sharedInstance().loginPasswordInput.value
@@ -135,7 +142,7 @@ var Listener = {
             type:  'POST',
 
             success: function (response) {
-                console.log(response);
+                button.removeChild(button.children[button.childElementCount - 1]);
                 createLoginErrorsForCodes(response);
             }
         })
@@ -178,22 +185,45 @@ var Listener = {
 
         if (errorCodes.length > 0) return;
 
-        var params = {
-            'username' : WebManager.sharedInstance().registerUsernameInput.value,
-            'birthdate' : WebManager.sharedInstance().registerBirthdateInput.value,
-            'password' : WebManager.sharedInstance().registerPasswordInput.value,
-            'email' : WebManager.sharedInstance().registerEmailInput.value,
-            'profileImage' : profileImageHref
-        };
+        var i = Utilities.createLoadingIndicator();
+        var button = WebManager.sharedInstance().registerButton;
+        button.appendChild(i);
+
+        params['username'] = WebManager.sharedInstance().registerUsernameInput.value;
+        params['birthdate'] = WebManager.sharedInstance().registerBirthdateInput.value;
+        params['password'] = WebManager.sharedInstance().registerPasswordInput.value;
+        params['email'] = WebManager.sharedInstance().registerEmailInput.value;
+
+        console.log(params);
+
+        var data = new FormData();
+        data.append('file', file);
 
         $.ajax({
-             data:  params,
-             url:  '/register',
-             type:  'POST',
+            data:  params,
+            url:  '/register',
+            type:  'POST',
 
-             success: function (response) {
-                 console.log(response);
-                 createRegistrationErrorsForCodes(response);
+            success: function (response) {
+                if (response[0] == RegistrationErrorCode.ErrorCodeRegistrationSuccessful &&  params['defaultImage'] == false) {
+                    $.ajax({
+                        data:  data,
+                        url:  '/uploadImage',
+                        type:  'POST',
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+
+                        success: function (response) {
+                            button.removeChild(button.children[button.childElementCount - 1]);
+                            createRegistrationErrorsForCodes(response);
+                        }
+                    })
+                }
+                else {
+                    button.removeChild(button.children[button.childElementCount - 1]);
+                    createRegistrationErrorsForCodes(response);
+                }
              }
          })
     },
@@ -209,11 +239,16 @@ var Listener = {
         switch(val.substring(val.lastIndexOf('.') + 1).toLowerCase()) {
             case 'gif': case 'jpg': case 'png': {
                 var oFReader = new FileReader();
-                profileImageHref = this.files[0];
 
-                oFReader.readAsDataURL(profileImageHref);
+                file = this.files[0];
+
+                oFReader.readAsDataURL(file);
+
                 oFReader.onload = function (oFREvent) {
+
                     WebManager.sharedInstance().registerProfileImage.src = oFREvent.target.result;
+                    params['imageName'] = file.name;
+                    params['defaultImage'] = false;
                 };
             }
                 break;
@@ -275,6 +310,21 @@ var Listener = {
 
         if (EMAIL_PATTERN.test(WebManager.sharedInstance().registerEmailInput.value) == false) createEmailIndicator(false);
         else createEmailIndicator(true);
+    }
+}
+
+/**
+ * Utilities object with helper methods
+ * @type {{createAlert: Utilities.createAlert}}
+ */
+var Utilities = {
+
+    createLoadingIndicator: function() {
+
+        var i = document.createElement('i');
+        i.className = 'fa fa-spinner fa-pulse fa-2x align-middle ml-3';
+
+        return i;
     }
 }
 
@@ -637,7 +687,10 @@ function createLoginErrorsForCodes(errorCodes) {
     else if (errorCodes.indexOf(LoginErrorCode.ErrorCodeLoginSuccessful) != -1) {
 
         $('#login').modal('toggle');
-        location.reload();
+
+        $("#login").on("hidden.bs.modal", function () {
+            location.reload();
+        });
     }
 }
 
@@ -647,6 +700,9 @@ function createLoginErrorsForCodes(errorCodes) {
 window.onload = function() {
 
     today = moment().format("YYYY-MM-DD");
+
+    params['imageName'] = DEFAULT_PROFILE;
+    params['defaultImage'] = true;
 
     Listener.add(WebManager.sharedInstance().loginButton, "click", Listener.eventLogin, true);
     Listener.add(WebManager.sharedInstance().registerButton, "click", Listener.eventRegister, true);

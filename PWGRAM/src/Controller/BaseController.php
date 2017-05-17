@@ -128,11 +128,11 @@ class BaseController {
 
         if ($sourcePage == SitePage::SecondLevel) {
             $noSessionBrandSource = '../assets/images/brand.png';
-            $sessionBrandSource = '..';
+            $sessionBrandSource = '../';
         }
         else if ($sourcePage == SitePage::ThirdLevel) {
             $noSessionBrandSource = '../../assets/images/brand.png';
-            $sessionBrandSource = '../..';
+            $sessionBrandSource = '../../';
         }
 
         if ($app['session']->get('id') != null) {

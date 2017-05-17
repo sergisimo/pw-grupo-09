@@ -17,8 +17,9 @@ const UpdateErrorCode = {
     ErrorCodeBirthdate : 1,
     ErrorCodePassword : 2
 }
+var file;
 
-var profileImageHref;
+var params = {};
 
 /**
  * Singleton object with methods for accessing web elements
@@ -50,6 +51,21 @@ var WebManager = (function() {
 })();
 
 /**
+ * Utilities object with helper methods
+ * @type {{createAlert: Utilities.createAlert}}
+ */
+var Utilities = {
+
+    createLoadingIndicator: function() {
+
+        var i = document.createElement('i');
+        i.className = 'fa fa-spinner fa-pulse fa-2x align-middle ml-3';
+
+        return i;
+    }
+}
+
+/**
  * Function object for adding listeners with calbacks to elements
  * @type {{add: Listener.add, eventSendMessage: Listener.eventSendMessage}}
  */
@@ -72,19 +88,19 @@ var Listener = {
         var passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,12}$/;
 
         // validate username
-        if (usernamePattern.test(WebManager.sharedInstance().usernameInput.value) == false ||
-            WebManager.sharedInstance().usernameInput.value.length > 20) {
+        if (WebManager.sharedInstance().usernameInput.value.length != 0 && (usernamePattern.test(WebManager.sharedInstance().usernameInput.value) == false ||
+            WebManager.sharedInstance().usernameInput.value.length > 20)) {
             errorCodes.push(UpdateErrorCode.ErrorCodeUsername);
         }
 
         // validate date
-        if (moment(WebManager.sharedInstance().birthdateInput.value, "YYYY-MM-DD", true).isValid() == false ||
-            moment(WebManager.sharedInstance().birthdateInput.value).isAfter(today)) {
+        if (WebManager.sharedInstance().birthdateInput.value.length != 0 && (moment(WebManager.sharedInstance().birthdateInput.value, "YYYY-MM-DD", true).isValid() == false ||
+            moment(WebManager.sharedInstance().birthdateInput.value).isAfter(today))) {
             errorCodes.push(UpdateErrorCode.ErrorCodeBirthdate);
         }
 
         // validate password
-        if (passwordPattern.test(WebManager.sharedInstance().passwordInput.value) == false) {
+        if (WebManager.sharedInstance().passwordInput.value.length != 0 && passwordPattern.test(WebManager.sharedInstance().passwordInput.value) == false) {
             errorCodes.push(UpdateErrorCode.ErrorCodePassword);
         }
 
@@ -92,24 +108,46 @@ var Listener = {
 
         if (errorCodes.length > 0) return;
 
-        var params = {
-            'username' : WebManager.sharedInstance().usernameInput.value,
-            'birthdate' : WebManager.sharedInstance().birthdateInput.value,
-            'password' : WebManager.sharedInstance().passwordInput.value,
-            'profileImage' : profileImageHref
-        };
+        var i = Utilities.createLoadingIndicator();
+        var button = WebManager.sharedInstance().updateButton;
+        button.appendChild(i);
+
+        params['username'] = WebManager.sharedInstance().usernameInput.value;
+        params['birthdate'] = WebManager.sharedInstance().birthdateInput.value;
+        params['password'] = WebManager.sharedInstance().passwordInput.value;
 
         console.log(params);
 
-        /*$.ajax({
-         data:  params,
-         url:   URL,
-         type:  'POST',
+        var data = new FormData();
+        data.append('file', file);
 
-         success: function (response) {
-         console.log(response);
-         }
-         })*/
+        $.ajax({
+            data:  params,
+            url:   '/updateUser',
+            type:  'POST',
+
+            success: function (response) {
+                if (params['imageName'] != null) {
+                    $.ajax({
+                        data:  data,
+                        url:  '/uploadImage',
+                        type:  'POST',
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+
+                        success: function (response) {
+                            button.removeChild(button.children[button.childElementCount - 1]);
+                            location.reload();
+                        }
+                    })
+                }
+                else {
+                    button.removeChild(button.children[button.childElementCount - 1]);
+                    location.reload();
+                }
+            }
+         })
     },
 
     eventSelectImage: function(event) {
@@ -123,10 +161,11 @@ var Listener = {
         switch(val.substring(val.lastIndexOf('.') + 1).toLowerCase()) {
             case 'gif': case 'jpg': case 'png': {
             var oFReader = new FileReader();
-            profileImageHref = this.files[0];
+            file = this.files[0];
 
-            oFReader.readAsDataURL(profileImageHref);
+            oFReader.readAsDataURL(file);
             oFReader.onload = function (oFREvent) {
+                params['imageName'] = file.name;
                 WebManager.sharedInstance().profileImage.src = oFREvent.target.result;
             };
         }
@@ -153,6 +192,15 @@ function createUpdateErrorsForCodes(errorCodes) {
             WebManager.sharedInstance().usernameGroup.appendChild(small);
         }
     }
+    else if (WebManager.sharedInstance().usernameInput.value.length == 0) {
+        WebManager.sharedInstance().usernameInput.className = "form-control";
+        WebManager.sharedInstance().usernameGroup.className = "form-group";
+
+        if (WebManager.sharedInstance().usernameGroup.childElementCount == 3) {
+            var childs = WebManager.sharedInstance().usernameGroup.childNodes;
+            WebManager.sharedInstance().usernameGroup.removeChild(childs[childs.length - 1]);
+        }
+    }
     else {
         WebManager.sharedInstance().usernameInput.className = "form-control form-control-success";
         WebManager.sharedInstance().usernameGroup.className = "form-group has-success";
@@ -173,6 +221,15 @@ function createUpdateErrorsForCodes(errorCodes) {
             small.innerHTML = 'Birthdate format has to be YYYY-MM-DD and it cannot be a future date';
 
             WebManager.sharedInstance().birthdateGroup.appendChild(small);
+        }
+    }
+    else if (WebManager.sharedInstance().birthdateInput.value.length == 0) {
+        WebManager.sharedInstance().birthdateInput.className = "form-control";
+        WebManager.sharedInstance().birthdateGroup.className = "form-group";
+
+        if (WebManager.sharedInstance().birthdateGroup.childElementCount == 3) {
+            var childs = WebManager.sharedInstance().birthdateGroup.childNodes;
+            WebManager.sharedInstance().birthdateGroup.removeChild(childs[childs.length - 1]);
         }
     }
     else {
@@ -197,6 +254,15 @@ function createUpdateErrorsForCodes(errorCodes) {
             WebManager.sharedInstance().passwordGroup.appendChild(small);
         }
     }
+    else if (WebManager.sharedInstance().passwordInput.value.length == 0) {
+        WebManager.sharedInstance().passwordInput.className = "form-control";
+        WebManager.sharedInstance().passwordGroup.className = "form-group";
+
+        if (WebManager.sharedInstance().passwordGroup.childElementCount == 3) {
+            var childs = WebManager.sharedInstance().passwordGroup.childNodes;
+            WebManager.sharedInstance().passwordGroup.removeChild(childs[childs.length - 1]);
+        }
+    }
     else {
         WebManager.sharedInstance().passwordInput.className = "form-control form-control-success";
         WebManager.sharedInstance().passwordGroup.className = "form-group has-success";
@@ -213,5 +279,5 @@ window.onload = function() {
     Listener.add(WebManager.sharedInstance().updateButton, "click", Listener.eventUpdateInfo, true);
     Listener.add(WebManager.sharedInstance().imageButton, "change", Listener.eventSelectImage, true);
 
-    profileImageHref = WebManager.sharedInstance().profileImage.src;
+    params['imageName'] = null;
 };
