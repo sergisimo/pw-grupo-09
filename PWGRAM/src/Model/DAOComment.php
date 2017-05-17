@@ -3,6 +3,7 @@
 namespace SilexApp\Model;
 
 use PDO;
+use function Sodium\compare;
 
 
 class DAOComment {
@@ -126,6 +127,12 @@ class DAOComment {
         $this->insertStatement->bindParam(DAOComment::IMAGE_ID_REPLACER, $image_id, PDO::PARAM_INT);
 
         $this->insertStatement->execute();
+
+        $notification = new Notification();
+        $notification->setText($text);
+        $notification->setUserId($user_id);
+        $notification->setImageId($image_id);
+        DAONotification::getInstance()->insertNotification($notification);
     }
 
     public function updateComment(Comment $comment): void {
@@ -137,5 +144,12 @@ class DAOComment {
         $this->updateStatement->bindParam(DAOComment::COMMENT_ID_REPLACER, $id, PDO::PARAM_INT);
 
         $this->updateStatement->execute();
+
+        $notification = new Notification();
+        $notification->setUserId($comment->getUserId());
+        $notification->setImageId($comment->getImageId());
+        $notification->setText($text);
+
+        DAONotification::getInstance()->updateNotification($notification);
     }
 }

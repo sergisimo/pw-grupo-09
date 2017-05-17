@@ -3,6 +3,7 @@
 namespace SilexApp\Model;
 
 use PDO;
+use function Sodium\library_version_major;
 
 class DAOLike {
 
@@ -99,6 +100,12 @@ class DAOLike {
         $this->insertStatement->bindParam(DAOLike::IMAGE_ID_REPLACER, $image_id, PDO::PARAM_INT);
 
         $this->insertStatement->execute();
+
+        $notification = new Notification();
+        $notification->setText("isLike");
+        $notification->setUserId($user_id);
+        $notification->setImageId($image_id);
+        DAONotification::getInstance()->insertNotification($notification);
     }
 
     public function deleteLike(Like $like): void {
@@ -108,5 +115,11 @@ class DAOLike {
         $this->deleteStatement->bindParam(DAOLike::LIKE_ID_REPLACER, $id, PDO::PARAM_INT);
 
         $this->deleteStatement->execute();
+
+        $notification = new Notification();
+        $notification->setUserId($like->getUserId());
+        $notification->setImageId($like->getImageId());
+
+        DAONotification::getInstance()->deleteNotification($notification);
     }
 }
