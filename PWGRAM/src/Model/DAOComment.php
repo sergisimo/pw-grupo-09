@@ -14,10 +14,11 @@ class DAOComment {
 
     private const SELECT_STATEMENT = 'SELECT * FROM Commentary WHERE id = :commentID';
     private const SELECT_BY_USER_STATEMENT = 'SELECT * FROM Commentary WHERE user_id = :userID';
-    private const SELECT_BY_IMAGE_STATEMENT = 'SELECT * FROM Commentary WHERE image_id = :imageID';
+    private const SELECT_BY_IMAGE_STATEMENT = 'SELECT * FROM Commentary WHERE image_id = :imageID ORDER BY id DESC';
     private const INSERT_STATEMENT = 'INSERT INTO Commentary (text, user_id, image_id) VALUES (:text, :userID, :imageID)';
     private const UPDATE_STATEMENT = 'UPDATE Commentary SET text = :text WHERE id = :commnetID';
     private const DELETE_STATEMENT = 'DELETE FROM Commentary WHERE user_id = :userID AND image_id = :image_id';
+    private const CHECK_CAN_COMMENT_STATEMENT = 'SELECT * FROM Commentary WHERE user_id = :userID AND image_id = :imageID';
 
     private const COMMENT_ID_REPLACER = ':commentID';
     private const TEXT_REPLACER = ':text';
@@ -32,6 +33,7 @@ class DAOComment {
     private $insertStatement;
     private $updateStatement;
     private $deleteStatement;
+    private $checkCanCommnetStatement;
 
     /* ************* CONSTRUCTOR ****************/
     private function __construct() {
@@ -43,6 +45,7 @@ class DAOComment {
         $this->insertStatement = $dbConnection->prepare(DAOComment::INSERT_STATEMENT);
         $this->updateStatement = $dbConnection->prepare(DAOComment::UPDATE_STATEMENT);
         $this->deleteStatement = $dbConnection->prepare(DAOComment::DELETE_STATEMENT);
+        $this->checkCanCommnetStatement = $dbConnection->prepare(DAOComment::CHECK_CAN_COMMENT_STATEMENT);
     }
 
     public static function getInstance(): DAOComment {
@@ -169,5 +172,16 @@ class DAOComment {
         $notification->setImageId($comment->getImageId());
 
         DAONotification::getInstance()->deleteNotification($notification, true);
+    }
+
+    public function checkCanCommnet(int $userID, int $imageID) {
+
+        $this->checkCanCommnetStatement->bindParam(DAOComment::USER_ID_REPLACER, $userID, PDO::PARAM_INT);
+        $this->checkCanCommnetStatement->bindParam(DAOComment::IMAGE_ID_REPLACER, $imageID, PDO::PARAM_INT);
+        $this->checkCanCommnetStatement->execute();
+        $commentInfo = $this->checkCanCommnetStatement->fetch();
+
+        if ($commentInfo['id'] == null) return true;
+        return false;
     }
 }

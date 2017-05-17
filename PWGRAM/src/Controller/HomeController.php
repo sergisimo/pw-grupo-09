@@ -9,6 +9,10 @@
 namespace SilexApp\Controller;
 
 use Silex\Application;
+use SilexApp\Model\DAOComment;
+use SilexApp\Model\DAOImage;
+use SilexApp\Model\DAOLike;
+use SilexApp\Model\DAOUser;
 use Symfony\Component\HttpFoundation\Response;
 use SilexApp\Model\SitePage;
 use SilexApp\Model\User;
@@ -18,113 +22,80 @@ class HomeController extends BaseController {
 
     public function indexAction(Application $app) {
 
-        $posts = array (
-            'mostViewed' => array (
-                array(
-                    'src' => '../assets/images/test.JPG',
-                    'title' => 'Pussy distroyer',
-                    'postPage' => '/post/view/1',
-                    'postDate' => '2017-05-08',
-                    'userProfile' => '/profile/1',
-                    'username' => 'bperezme',
-                    'liked' => true,
-                    'likes' => '1K',
-                    'visits' => '69',
-                    'lastComment' => array(
-                        'username' => 'sanfe',
-                        'content' => 'El terror de las nenas'
-                    ),
-                    'userCanComment' => true,
-                    'id' => 1
-                ),
-                array(
-                    'src' => '../assets/images/test2.png',
-                    'title' => 'Els fotògrafs',
-                    'postPage' => '/post/view/1',
-                    'postDate' => '2017-04-22',
-                    'userProfile' => '/profile/1',
-                    'username' => 'bperezme',
-                    'liked' => true,
-                    'likes' => '102',
-                    'visits' => '200',
-                    'lastComment' => array(
-                        'username' => 'bperezme',
-                        'content' => 'Menys aula natura i més php'
-                    ),
-                    'userCanComment' => false,
-                    'id' => 2
-                ),
-                array(
-                    'src' => '../assets/images/test3.png',
-                    'title' => 'SalleFeeeest',
-                    'postPage' => '/post/view/1',
-                    'postDate' => '2017-05-01',
-                    'userProfile' => '/profile/1',
-                    'username' => 'bperezme',
-                    'liked' => false,
-                    'likes' => '10',
-                    'visits' => '23',
-                    'userCanComment' => true,
-                    'id' => 3
-                )
-            ),
-            'mostRecent' => array (
-                array(
-                    'src' => '../assets/images/test2.png',
-                    'title' => 'Els fotògrafs',
-                    'postPage' => '/post/view/1',
-                    'postDate' => '2017-04-22',
-                    'userProfile' => '/profile/1',
-                    'username' => 'bperezme',
-                    'liked' => true,
-                    'likes' => '102',
-                    'visits' => '200',
-                    'lastComment' => array(
-                        'username' => 'bperezme',
-                        'content' => 'Menys aula natura i més php'
-                    ),
-                    'userCanComment' => false,
-                    'id' => 2
-                ),
-                array(
-                    'src' => '../assets/images/test3.png',
-                    'title' => 'SalleFeeeest',
-                    'postPage' => '/post/view/1',
-                    'postDate' => '2017-05-01',
-                    'userProfile' => '/profile/1',
-                    'username' => 'bperezme',
-                    'liked' => false,
-                    'likes' => '10',
-                    'visits' => '23',
-                    'userCanComment' => true,
-                    'id' => 3
-                ),
-                array(
-                    'src' => '../assets/images/test.JPG',
-                    'title' => 'Pussy distroyer',
-                    'postPage' => '/post/view/1',
-                    'postDate' => '2017-05-08',
-                    'userProfile' => '/profile/1',
-                    'username' => 'bperezme',
-                    'liked' => true,
-                    'likes' => '1K',
-                    'visits' => '69',
-                    'lastComment' => array(
-                        'username' => 'sanfe',
-                        'content' => 'El terror de las nenas'
-                    ),
-                    'userCanComment' => true,
-                    'id' => 1
-                )
-            )
-        );
-
         $user = null;
         $active = true;
 
-        //$app['session']->set('id', null);
         if ($app['session']->get('id') == null) $active = false;
         else $user = $app['session']->get('user');
+
+        $images = DAOImage::getInstance()->getImageByOrder(true);
+        $mostViewed = array();
+
+        foreach ($images as $image) {
+
+            $liked = false;
+            if ($user != null && DAOLike::getInstance()->checkIsLiked($user->getId(), $image->getId())) $liked = true;
+
+            $canComment = false;
+            if ($user != null && DAOComment::getInstance()->checkCanCommnet($user->getId(), $image->getId())) $canComment = true;
+
+            array_push($mostViewed, array(
+                'src' => '../' . $image->getImgPath(),
+                'title' => $image->getTitle(),
+                'postPage' => '/post/view/' . $image->getId(),
+                'postDate' => date("Y-m-d", strtotime($image->getCreatedAt())),
+                'userProfile' => '/profile/' . $image->getUserId(),
+                'username' => DAOUser::getInstance()->getUserById($image->getUserId())->getUsername(),
+                'liked' => $liked,
+                'likes' => count(DAOLike::getInstance()->getLikeByImageID($image->getId())),
+                'visits' => $image->getVisits(),
+                'lastComment' => null,
+                'userCanComment' => $canComment,
+                'id' => $image->getId()
+            ));
+        }
+
+
+        $images = DAOImage::getInstance()->getImageByOrder(false);
+        $mostRecent = array();
+
+        foreach ($images as $image) {
+
+            $liked = false;
+            if ($user != null && DAOLike::getInstance()->checkIsLiked($user->getId(), $image->getId())) $liked = true;
+
+            $canComment = false;
+            if ($user != null && DAOComment::getInstance()->checkCanCommnet($user->getId(), $image->getId())) $canComment = true;
+
+            $lastComment = null;
+            if (count(DAOComment::getInstance()->getCommentByImageID($image->getId())) != 0) {
+                $comment = DAOComment::getInstance()->getCommentByImageID($image->getId())[0];
+                $lastComment = array(
+                    'username' => DAOUser::getInstance()->getUserById($comment->getUserId())->getUsername(),
+                    'content' => $comment->getText()
+                );
+            }
+
+            array_push($mostRecent, array(
+                'src' => '../' . $image->getImgPath(),
+                'title' => $image->getTitle(),
+                'postPage' => '/post/view/' . $image->getId(),
+                'postDate' => date("Y-m-d", strtotime($image->getCreatedAt())),
+                'userProfile' => '/profile/' . $image->getUserId(),
+                'username' => DAOUser::getInstance()->getUserById($image->getUserId())->getUsername(),
+                'liked' => $liked,
+                'likes' => count(DAOLike::getInstance()->getLikeByImageID($image->getId())),
+                'visits' => $image->getVisits(),
+                'lastComment' => $lastComment,
+                'userCanComment' => $canComment,
+                'id' => $image->getId()
+            ));
+        }
+
+        $posts = array(
+            'mostViewed' => $mostViewed,
+            'mostRecent' => $mostRecent
+        );
 
         $count = 0;
         if ($user != null) $count = count(DAONotification::getInstance()->getNotificationsByUser($user->getId()));

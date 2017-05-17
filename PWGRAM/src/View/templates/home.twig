@@ -108,7 +108,7 @@
                         <p class="text-muted">{{ post.visits }} visits</p>
                     </div>
 
-                    {% if post.lastComment is defined %}
+                    {% if post.lastComment != null %}
                         <hr>
                         <div class="text-left mb-2">
                             <h7 class="font-weight-bold text-muted">{{ post.lastComment.username }}</h7>
