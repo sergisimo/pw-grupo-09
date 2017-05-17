@@ -17,7 +17,7 @@ class DAONotification {
     private const USER_NAME = 'testUser';
     private const USER_PSWD = 'bescompany';
 
-    private const SELECT_STATEMENT = 'SELECT * FROM Notification WHERE user_id = :userID AND seen = 0';
+    private const SELECT_STATEMENT = 'SELECT Notification.id, Notification.text, Notification.user_id, Notification.image_id FROM Notification, Image WHERE Notification.image_id = Image.id AND Image.user_id = :userID AND Notification.seen = 0';
     private const INSERT_STATEMENT = 'INSERT INTO Notification (text, user_id, image_id, seen) VALUES (:text, :userID, :imageID, 0)';
     private const UPDATE_STATEMENT = 'UPDATE Notification SET text = :text WHERE user_id = :userID AND image_id = :imageID AND text != "isLike"';
     private const UPDATE_SEEN_STATEMENT = 'UPDATE Notification SET seen = 1 WHERE id = :notificationID';

@@ -8,7 +8,7 @@
 {% block content %}
     {{ parent() }}
 
-    {% if comments is not defined %}
+    {% if comments|length == 0 %}
         <div class="alert alert-warning" role="alert">
             You haven't posted any comment yet.
         </div>

@@ -12,7 +12,9 @@ use PHPMailer;
 
 use Silex\Application;
 use SilexApp\Model\DAOImage;
+use SilexApp\Model\Image;
 use SilexApp\Model\LoginErrorCode;
+use SilexApp\Model\Notification;
 use SilexApp\Model\RegistrationErrorCode;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -22,6 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 use SilexApp\Model\User;
 use SilexApp\Model\DAOUser;
 use SilexApp\Model\DAONotification;
+use SilexApp\Model\DAOComment;
 
 class UserController extends BaseController {
 
@@ -163,26 +166,32 @@ class UserController extends BaseController {
 
     public function publicProfileAction(Application $app, Request $request) {
 
+        $response = new Response();
+        $response->setStatusCode($response::HTTP_OK);
+        $response->headers->set('Content-Type','text/html');
+
         $profileId = $request->get('id');
         $userInfo = DAOUser::getInstance()->getUserById($profileId);
 
-        $posts = array(
-            array(
-                'src' => '../assets/images/test.JPG',
-                'title' => 'Pussy distroyer',
-                'postPage' => '/post/view/1'
-            ),
-            array(
-                'src' => '../assets/images/test2.png',
-                'title' => 'Els fotògrafs',
-                'postPage' => '/post/view/1'
-            ),
-            array(
-                'src' => '../assets/images/test3.png',
-                'title' => 'SalleFeeest',
-                'postPage' => '/post/view/1'
-            )
-        );
+        if ($userInfo == null) {
+            $response->setContent(parent::deniedContent($app, 'The user you are trying to view does not exist', SitePage::MyProfile));
+            return $response;
+        }
+
+
+        $images = DAOImage::getInstance()->getImagesByUserID($profileId);
+        $imagesInfo = array();
+
+        foreach ($images as $image) {
+
+            array_push($imagesInfo,
+                array(
+                    'src' => '../' . $image->getImgPath(),
+                    'title' => $image->getTitle(),
+                    'postPage' => '/post/view/' . $image->getId()
+                )
+            );
+        }
 
         $count = 0;
         if ($userInfo != null) $count = count(DAONotification::getInstance()->getNotificationsByUser($userInfo->getId()));
@@ -192,9 +201,9 @@ class UserController extends BaseController {
             'birthdate' => $userInfo->getBirthDate(),
             'profileImage' => $userInfo->getImgPath(),
             'userId' => $userInfo->getId(),
-            'commentsAmount' => 1,
-            'postsAmount' => 3,
-            'posts' => $posts
+            'commentsAmount' => count(DAOComment::getInstance()->getCommentByUserID($profileId)),
+            'postsAmount' => count(DAOImage::getInstance()->getImagesByUserID($profileId)),
+            'posts' => $imagesInfo
         );
 
         $content = $app['twig']->render('profile.twig', array(
@@ -206,9 +215,6 @@ class UserController extends BaseController {
             'count' => $count
         ));
 
-        $response = new Response();
-        $response->setStatusCode($response::HTTP_OK);
-        $response->headers->set('Content-Type','text/html');
         $response->setContent($content);
 
         return $response;
@@ -260,75 +266,91 @@ class UserController extends BaseController {
 
     public function myCommentsAction(Application $app) {
 
-        $comments = array(
-            array(
-                'imageSrc' => 'assets/images/test_thubnail.JPG',
-                'content' => 'Pff quin home més sexy!!!',
-                'id' => 0
-            ),
-            array(
-                'imageSrc' => 'assets/images/test2_thubnail.png',
-                'content' => 'Menys aula natura i més php',
-                'id' => 1
-            )
-        );
-
-        $content = $app['twig']->render('myComments.twig', array(
-            'app' => $app,
-            'page' => 'My comments',
-            'navs' => parent::createNavLinks(SitePage::MyComments, $app),
-            'brandText' => parent::brandText($app),
-            'brandSrc' => parent::brandImage($app, SitePage::MyComments),
-            'comments' => $comments
-        ));
-
         $response = new Response();
         $response->setStatusCode($response::HTTP_OK);
         $response->headers->set('Content-Type','text/html');
 
-        if ($app['session']['active']) $response->setContent($content);
-        else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to view your comments', SitePage::MyComments));
+        if ($app['session']->get('id') == null) {
+            $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to view your comments', SitePage::MyComments));
+            return $response;
+        }
+
+        $user = $app['session']->get('user');
+
+        $comments = DAOComment::getInstance()->getCommentByUserID($user->getId());
+        $commentsInfo = array();
+
+        foreach ($comments as $comment) {
+
+            array_push($commentsInfo, array(
+                'imageSrc' => Image::transformImagePath(DAOImage::getInstance()->getImage($comment->getImageId())->getImgPath()),
+                'content' => $comment->getText(),
+                'id' => $comment->getId()
+            ));
+        }
+
+        $count = 0;
+        if ($user != null) $count = count(DAONotification::getInstance()->getNotificationsByUser($user->getId()));
+
+        $content = $app['twig']->render('myComments.twig', array(
+            'page' => 'My comments',
+            'navs' => parent::createNavLinks(SitePage::MyComments, $app),
+            'brandText' => parent::brandText($app),
+            'brandSrc' => parent::brandImage($app, SitePage::MyComments),
+            'comments' => $commentsInfo,
+            'user' => $user,
+            'count' => $count
+        ));
+
+        $response->setContent($content);
 
         return $response;
     }
 
     public function notificationsAction(Application $app) {
 
-        $notifications = array(
-            array(
-                'id' => 1,
-                'imageSrc' => 'assets/images/test_thubnail.JPG',
-                'comment' => 'Pff quin home més sexy!!!',
-                'postName' => 'Pussy distroyer',
-                'postPage' => '/post/view/1',
-                'sourceUserProfile' => 'profile/1',
-                'sourceUsername' => 'sanfe'
-            ),
-            array(
-                'id' => 2,
-                'imageSrc' => 'assets/images/test2_thubnail.png',
-                'postName' => 'Els fotògrafs',
-                'postPage' => '/post/view/1',
-                'sourceUserProfile' => 'profile/1',
-                'sourceUsername' => 'sanfe'
-            )
-        );
-
-        $content = $app['twig']->render('notifications.twig', array(
-            'app' => $app,
-            'page' => 'Notifications',
-            'navs' => parent::createNavLinks(SitePage::Notifications, $app),
-            'brandText' => parent::brandText($app),
-            'brandSrc' => parent::brandImage($app, SitePage::Notifications),
-            'notifications' => $notifications
-        ));
-
         $response = new Response();
         $response->setStatusCode($response::HTTP_OK);
         $response->headers->set('Content-Type','text/html');
 
-        if ($app['session']['active']) $response->setContent($content);
-        else $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to view your notifications', SitePage::Notifications));
+        if ($app['session']->get('id') == null) {
+            $response->setContent(parent::deniedContent($app, 'You must be authenticated in order to view your comments', SitePage::Notifications));
+            return $response;
+        }
+
+        $user = $app['session']->get('user');
+
+        $notifications = DAONotification::getInstance()->getNotificationsByUser($user->getId());
+        $notificationsInfo = array();
+
+        foreach ($notifications as $notification) {
+
+            array_push($notificationsInfo, array(
+                'id' => $notification->getId(),
+                'imageSrc' => Image::transformImagePath(DAOImage::getInstance()->getImage($notification->getImageId())->getImgPath()),
+                'comment' => $notification->getText(),
+                'postName' => DAOImage::getInstance()->getImage($notification->getImageId())->getTitle(),
+                'postPage' => '/post/view/' . DAOImage::getInstance()->getImage($notification->getImageId())->getId(),
+                'sourceUserProfile' => 'profile/' . $notification->getUserId(),
+                'sourceUsername' => DAOUser::getInstance()->getUserById($notification->getUserId())->getUsername()
+            ));
+        }
+
+        $count = 0;
+        if ($user != null) $count = count(DAONotification::getInstance()->getNotificationsByUser($user->getId()));
+
+        $content = $app['twig']->render('notifications.twig', array(
+
+            'page' => 'Notifications',
+            'navs' => parent::createNavLinks(SitePage::Notifications, $app),
+            'brandText' => parent::brandText($app),
+            'brandSrc' => parent::brandImage($app, SitePage::Notifications),
+            'notifications' => $notificationsInfo,
+            'user' => $user,
+            'count' => $count
+        ));
+
+        $response->setContent($content);
 
         return $response;
     }
@@ -338,6 +360,14 @@ class UserController extends BaseController {
         $app['session']->set('id', null);
 
         return new RedirectResponse('/');
+    }
+
+    public function setNotificationSeenAction() {
+
+        $notification = new Notification();
+        $notification->setId($_POST['notificationID']);
+
+        DAONotification::getInstance()->updateSeenNotification($notification);
     }
 
     /* PRIVATE METHODS */

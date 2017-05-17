@@ -74,22 +74,26 @@ class DAOUser {
         return null;
     }
 
-    public function getUserById(int $userID): User {
+    public function getUserById(int $userID) {
 
         $this->selectByIdStatement->bindParam(DAOUser::USER_ID_REPLACER, $userID, PDO::PARAM_INT);
         $this->selectByIdStatement->execute();
         $userInfo = $this->selectByIdStatement->fetch();
 
-        $user = new User();
-        $user->setId($userInfo['id']);
-        $user->setUsername($userInfo['username']);
-        $user->setEmail($userInfo['email']);
-        $user->setBirthdate($userInfo['birthdate']);
-        $user->setPassword($userInfo['password']);
-        $user->setImgPath($userInfo['img_path']);
-        $user->setActive($userInfo['active']);
+        if ($userInfo['id'] != null) {
+            $user = new User();
+            $user->setId($userInfo['id']);
+            $user->setUsername($userInfo['username']);
+            $user->setEmail($userInfo['email']);
+            $user->setBirthdate($userInfo['birthdate']);
+            $user->setPassword($userInfo['password']);
+            $user->setImgPath($userInfo['img_path']);
+            $user->setActive($userInfo['active']);
 
-        return $user;
+            return $user;
+        }
+
+        return null;
     }
 
     public function insertUser(User $user): void {

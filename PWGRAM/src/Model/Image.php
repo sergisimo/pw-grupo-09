@@ -39,6 +39,13 @@ class Image {
         return floor($secs / 86400);
     }
 
+    public static function transformImagePath($path) {
+
+        $imageName = explode('/', $path)[3];
+
+        return 'assets/images/postsIcon/' . $imageName;
+    }
+
     /* ************* GETTERS & SETTERS ****************/
     public function getId(): int {
 

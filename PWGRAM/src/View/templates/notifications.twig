@@ -8,7 +8,7 @@
 {% block content %}
     {{ parent() }}
 
-    {% if notifications is not defined %}
+    {% if notifications|length == 0 %}
         <div class="alert alert-warning" role="alert">
             You don't have any unread notification.
         </div>
@@ -19,10 +19,10 @@
             {% for notification in notifications %}
                 <div class="media">
                     <div class="media-left">
-                        <img class="rounded media-object" src={{ notification.imageSrc }} alt="...">
+                        <img class="rounded media-object" src='{{ notification.imageSrc }}' alt="...">
                     </div>
                     <div class="media-body ml-3">
-                        {% if notification.comment is defined %}
+                        {% if notification.comment != "isLike" %}
                             <div class="text-left">
                                 <p class="mb-2"><h7 class="font-weight-bold text-primary"><a href={{ notification.sourceUserProfile }}>{{ notification.sourceUsername }}</a></h7> commented on your post
                                     <h7 class="font-weight-bold text-primary"><a href={{ notification.postPage }}>{{ notification.postName }}</a></h7></p>

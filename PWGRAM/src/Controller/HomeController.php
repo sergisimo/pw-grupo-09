@@ -12,6 +12,7 @@ use Silex\Application;
 use Symfony\Component\HttpFoundation\Response;
 use SilexApp\Model\SitePage;
 use SilexApp\Model\User;
+use SilexApp\Model\DAONotification;
 
 class HomeController extends BaseController {
 
@@ -118,7 +119,7 @@ class HomeController extends BaseController {
             )
         );
 
-        $user = new User();
+        $user = null;
         $active = true;
 
         //$app['session']->set('id', null);
