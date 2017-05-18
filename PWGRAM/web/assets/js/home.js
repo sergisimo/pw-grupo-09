@@ -9,6 +9,8 @@ const USERNAME_INPUT = 'usernameInput';
 const PASSWORD_GROUP = 'passwordGroup';
 const PASSWORD_INPUT = 'passwordInput';
 const LOGIN_MODAL = 'loginModal';
+const LOAD_MORE_VIEWED = 'loadMoreViewedButton';
+const LOAD_MORE_RECENT = 'loadMoreRecentButton';
 
 const REGISTER_BUTTON = 'registerButton';
 const REGISTER_IMAGE_BUTTON = 'selectImageButton';
@@ -54,6 +56,9 @@ const DEFAULT_PROFILE = 'defaultProfile.png';
 var today;
 var file;
 
+var mostRecentCount = 5;
+var mostViewedCount = 5;
+
 var params = {};
 
 /**
@@ -84,6 +89,8 @@ var WebManager = (function() {
         this.registerEmailGroup = document.getElementById(REGISTER_EMAIL_GROUP);
         this.registerEmailInput = document.getElementById(REGISTER_EMAIL_INPUT);
         this.registrationModal = document.getElementById(REGISTRATION_MODAL);
+        this.loadMoreRecentButton = document.getElementById(LOAD_MORE_RECENT);
+        this.loadMoreViewedButton = document.getElementById(LOAD_MORE_VIEWED);
     }
 
     return {
@@ -318,15 +325,18 @@ var Listener = {
 
         var error = false;
 
-        var postID = event.target.id.split('-')[1];
+        var postID = event.target.id.split('-')[2];
 
-        var commentInput = document.getElementById('commentInput-' + postID);
+        var section = event.target.id.split('-')[0];
 
+        console.log(section);
+
+        var commentInput = document.getElementById(section + '-commentInput-' + postID);
 
         if (commentInput.value.length == 0) error = true;
         else error = false;
 
-        createCommentError(error, postID);
+        createCommentError(error, postID, section);
 
         if (error) return;
 
@@ -387,6 +397,54 @@ var Listener = {
             }
         });
     },
+
+    eventLoadMoreRecent: function(event) {
+
+        event.preventDefault();
+
+        var params = {
+            'count' : mostRecentCount
+        };
+
+        var i = Utilities.createLoadingIndicator();
+        var button = WebManager.sharedInstance().loadMoreRecentButton;
+        button.appendChild(i);
+
+        $.ajax({
+            data:  params,
+            url:   '/getMoreMostRecent',
+            type:  'POST',
+
+            success: function (response) {
+                button.removeChild(button.children[button.childElementCount - 1]);
+                appendMostRecent(response);
+            }
+        });
+    },
+
+    eventLoadMoreViewed: function(event) {
+
+        event.preventDefault();
+
+        var params = {
+            'count' : mostViewedCount
+        };
+
+        var i = Utilities.createLoadingIndicator();
+        var button = WebManager.sharedInstance().loadMoreViewedButton;
+        button.appendChild(i);
+
+        $.ajax({
+            data:  params,
+            url:   '/getMoreMostViews',
+            type:  'POST',
+
+            success: function (response) {
+                button.removeChild(button.children[button.childElementCount - 1]);
+                appendMostViewed(response);
+            }
+        });
+    }
 }
 
 /**
@@ -406,6 +464,283 @@ var Utilities = {
 
 
 /* ************* METHODS ****************/
+
+function appendMostViewed(posts) {
+
+    console.log(posts);
+
+    var active = posts['active'];
+
+    var col = "<div class=\"col-lg-4 col-md-6 col-sm-12 mb-4\">$CARD$$POSTED_INFO$$LIKE_ACTION$$INFO$$ADD_COMMENT$</div>";
+    var card = "<div class=\"card mb-3\">$ROW$$IMAGE$</div>";
+    var row = "<div class=\"row\">$COL2$</div>";
+    var col2 = "<div class=\"col\">$CARD_HEADER$</div>";
+    var cardHeader = "<div class=\"card-header card-info text-white\">$CARD_TITLE$</div>";
+
+    //
+
+    var imageContainer = "<div class=\"text-center\">$IMAGE$</div>";
+    var image = "<img class=\"card-img-top img-fluid\" src=\"$IMG_SRC$\" alt=\"...\" id=\"postImage\">";
+
+    //
+
+    var imagePostedInfoContainer = "<div class=\"text-left mt-2\">$POSTED_INFO$</div>";
+    var imagePostedInfo = "<p>Posted by <h7 class=\"font-weight-bold text-primary\"><a href=\"$USER_PROFILE$\">$USERNAME$</a></h7> on $POST_DATE$</p>";
+
+    //
+
+    var imageLikeContainer = "<div class=\"text-left mt-2\">$LIKE_ACTION$</div>";
+    var unlikeImage = "<p><a id=\"postLikedAction-$POST_ID$\" class=\"ml-1 likeAction\" href=''><img class=\"mr-2\" id=\"postLiked-$POST_ID$\" src=\"assets/images/heart-selected.png\" width=\"25\"></a><span id=\"likeTitle\">Dislike</span></p>";
+    var likeImage = "<p><a id=\"postLikedAction-$POST_ID$\" class=\"ml-1 unlikeAction\" href=''><img class=\"mr-2\" id=\"postLiked-$POST_ID$\" src=\"assets/images/heart.png\" width=\"25\"></a><span id=\"likeTitle\">Like</span></p>";
+
+    //
+
+    var imageInfoContainer = "<div class=\"text-left\">$INFO$</div>";
+    var imageInfo = "<p class=\"text-muted\">$LIKES$ like(s), $VISITS$ visit(s)</p>";
+
+    //
+
+    var commentContainer = "<hr><div class=\"form-group mt-3\" id=\"top-addCommentGroup-$POST_ID$\">$POST_CONTENT$</div>";
+    var commentRow = "<div class=\"row\"><div class=\"col-sm-9 mb-2\">$INPUT$</div><div class=\"col-sm-2 float-right\">$BUTTON$</div></div>";
+
+    var input = "<input type=\"email\" class=\"form-control\" id=\"top-commentInput-$POST_ID$\" aria-describedby=\"emailHelp\" placeholder=\"Type comment\">";
+    var button = "<button type=\"submit\" class=\"btn btn-primary btn-md postButton\" id=\"top-postCommentButton-$POST_ID$\">Post</button>";
+
+    for (var i = 0; i < posts['posts'].length; i++) {
+        var cardTitle = "<h7><a href=" + posts['posts'][i]['postPage'] + ">" + posts['posts'][i]['title'] + "</a></h7>";
+
+        var src = posts['posts'][i]['src'].replace(' ', '/');
+
+        var imageAux = image.replace('$IMG_SRC$', src);
+        var imageContainerAux = imageContainer.replace('$IMAGE$', imageAux);
+
+        var imagePostedInfoAux = imagePostedInfo.replace('$USER_PROFILE$', posts['posts'][i]['userProfile']);
+        imagePostedInfoAux = imagePostedInfoAux.replace('$USERNAME$', posts['posts'][i]['username']);
+        imagePostedInfoAux = imagePostedInfoAux.replace('$POST_DATE$', posts['posts'][i]['postDate']);
+
+        var imagePostedInfoContainerAux = imagePostedInfoContainer.replace('$POSTED_INFO$', imagePostedInfoAux);
+
+        cardHeader = cardHeader.replace('$CARD_TITLE$', cardTitle);
+        col2 = col2.replace('$CARD_HEADER$', cardHeader);
+        row = row.replace('$COL2$', col2);
+        card = card.replace('$ROW$', row);
+        card = card.replace('$IMAGE$', imageContainerAux);
+        col = col.replace('$CARD$', card);
+        col = col.replace('$POSTED_INFO$', imagePostedInfoContainerAux);
+
+        if (active && posts['posts'][i]['liked'] == true) {
+            var unlikeImageAux = unlikeImage.replace('$POST_ID$', posts['posts'][i]['id']).replace('$POST_ID$', posts['posts'][i]['id']);
+
+            var imageLikeContainerAux = imageLikeContainer.replace('$LIKE_ACTION$', unlikeImageAux);
+            col = col.replace('$LIKE_ACTION$', imageLikeContainerAux);
+        }
+        else if (active && posts['posts'][i]['liked'] == false) {
+            var likeImageAux = likeImage.replace('$POST_ID$', posts['posts'][i]['id']).replace('$POST_ID$', posts['posts'][i]['id']);
+            var imageLikeContainerAux = imageLikeContainer.replace('$LIKE_ACTION$', likeImageAux);
+            col = col.replace('$LIKE_ACTION$', imageLikeContainerAux);
+        }
+
+        var imageInfoAux = imageInfo.replace('$LIKES$', posts['posts'][i]['likes']);
+        imageInfoAux = imageInfoAux.replace('$VISITS$', posts['posts'][i]['visits']);
+
+        var imageInfoContainerAux = imageInfoContainer.replace('$INFO$', imageInfoAux);
+
+        col = col.replace('$INFO$', imageInfoContainerAux);
+
+        if (active && posts['posts'][i]['userCanComment']) {
+            var buttonAux = button.replace('$POST_ID$', posts['posts'][i]['id']);
+            var inputAux = input.replace('$POST_ID$', posts['posts'][i]['id']);
+            var commentRowAux = commentRow.replace('$INPUT$', inputAux);
+            commentRowAux = commentRowAux.replace('$BUTTON$', buttonAux);
+            var commentContainerAux = commentContainer.replace('$POST_CONTENT$', commentRowAux);
+            commentContainerAux = commentContainerAux.replace('$POST_ID$', posts['posts'][i]['id']);
+
+            col = col.replace('$ADD_COMMENT$', commentContainerAux);
+        }
+        else {
+            col = col.replace('$ADD_COMMENT$', '');
+        }
+
+        $( "#mostViewedDiv" ).append(col);
+    }
+
+    if (posts['allLoaded']) {
+        WebManager.sharedInstance().loadMoreViewedButton.parentNode.removeChild(WebManager.sharedInstance().loadMoreViewedButton);
+    }
+    else {
+        mostViewedCount += 5;
+    }
+
+    try {
+        var likeActions = document.getElementsByClassName('likeAction');
+
+        for (var i = 0; i < likeActions.length; i++) {
+            Listener.add(likeActions[i], "click", Listener.eventUnlikePost, true);
+        }
+    }
+    catch (err) {}
+
+    try {
+        var likeActions = document.getElementsByClassName('unlikeAction');
+
+        for (var i = 0; i < likeActions.length; i++) {
+            Listener.add(likeActions[i], "click", Listener.eventLikePost, true);
+        }
+    }
+    catch (err) {}
+
+    try {
+        var postButtons = document.getElementsByClassName('postButton');
+
+        for (var i = 0; i < postButtons.length; i++) {
+            Listener.add(postButtons[i], "click", Listener.eventPostComment, true);
+        }
+    }
+    catch (err) {}
+}
+
+function appendMostRecent(posts) {
+
+    console.log(posts);
+
+    var active = posts['active'];
+
+    var col = "<div class=\"col-lg-4 col-md-6 col-sm-12 mb-4\">$CARD$$POSTED_INFO$$LIKE_ACTION$$INFO$$LAST_COMMENT$$ADD_COMMENT$</div>";
+    var card = "<div class=\"card mb-3\">$ROW$$IMAGE$</div>";
+    var row = "<div class=\"row\">$COL2$</div>";
+    var col2 = "<div class=\"col\">$CARD_HEADER$</div>";
+    var cardHeader = "<div class=\"card-header card-info text-white\">$CARD_TITLE$</div>";
+
+    //
+
+    var imageContainer = "<div class=\"text-center\">$IMAGE$</div>";
+    var image = "<img class=\"card-img-top img-fluid\" src=\"$IMG_SRC$\" alt=\"...\" id=\"postImage\">";
+
+    //
+
+    var imagePostedInfoContainer = "<div class=\"text-left mt-2\">$POSTED_INFO$</div>";
+    var imagePostedInfo = "<p>Posted by <h7 class=\"font-weight-bold text-primary\"><a href=\"$USER_PROFILE$\">$USERNAME$</a></h7> on $POST_DATE$</p>";
+
+    //
+
+    var imageLikeContainer = "<div class=\"text-left mt-2\">$LIKE_ACTION$</div>";
+    var unlikeImage = "<p><a id=\"postLikedAction-$POST_ID$\" class=\"ml-1 likeAction\" href=''><img class=\"mr-2\" id=\"postLiked-$POST_ID$\" src=\"assets/images/heart-selected.png\" width=\"25\"></a><span id=\"likeTitle\">Dislike</span></p>";
+    var likeImage = "<p><a id=\"postLikedAction-$POST_ID$\" class=\"ml-1 unlikeAction\" href=''><img class=\"mr-2\" id=\"postLiked-$POST_ID$\" src=\"assets/images/heart.png\" width=\"25\"></a><span id=\"likeTitle\">Like</span></p>";
+
+    //
+
+    var imageInfoContainer = "<div class=\"text-left\">$INFO$</div>";
+    var imageInfo = "<p class=\"text-muted\">$LIKES$ like(s)</p>";
+
+    //
+
+    var lastCommentContainer = "<hr><div class=\"text-left mb-2\"><h7 class=\"font-weight-bold text-muted\">$COMMENT_USERNAME$</h7><q>$COMMENT_CONTENT$</q></div>";
+
+    //
+
+    var commentContainer = "<hr><div class=\"form-group mt-3\" id=\"bottom-addCommentGroup-$POST_ID$\">$POST_CONTENT$</div>";
+    var commentRow = "<div class=\"row\"><div class=\"col-sm-9 mb-2\">$INPUT$</div><div class=\"col-sm-2 float-right\">$BUTTON$</div></div>";
+
+    var input = "<input type=\"email\" class=\"form-control\" id=\"bottom-commentInput-$POST_ID$\" aria-describedby=\"emailHelp\" placeholder=\"Type comment\">";
+    var button = "<button type=\"submit\" class=\"btn btn-primary btn-md postButton\" id=\"bottom-postCommentButton-$POST_ID$\">Post</button>";
+
+    for (var i = 0; i < posts['posts'].length; i++) {
+        var cardTitle = "<h7><a href=" + posts['posts'][i]['postPage'] + ">" + posts['posts'][i]['title'] + "</a></h7>";
+
+        var src = posts['posts'][i]['src'].replace(' ', '/');
+
+        var imageAux = image.replace('$IMG_SRC$', src);
+        var imageContainerAux = imageContainer.replace('$IMAGE$', imageAux);
+
+        var imagePostedInfoAux = imagePostedInfo.replace('$USER_PROFILE$', posts['posts'][i]['userProfile']);
+        imagePostedInfoAux = imagePostedInfoAux.replace('$USERNAME$', posts['posts'][i]['username']);
+        imagePostedInfoAux = imagePostedInfoAux.replace('$POST_DATE$', posts['posts'][i]['postDate']);
+
+        var imagePostedInfoContainerAux = imagePostedInfoContainer.replace('$POSTED_INFO$', imagePostedInfoAux);
+
+        cardHeader = cardHeader.replace('$CARD_TITLE$', cardTitle);
+        col2 = col2.replace('$CARD_HEADER$', cardHeader);
+        row = row.replace('$COL2$', col2);
+        card = card.replace('$ROW$', row);
+        card = card.replace('$IMAGE$', imageContainerAux);
+        col = col.replace('$CARD$', card);
+        col = col.replace('$POSTED_INFO$', imagePostedInfoContainerAux);
+
+        if (active && posts['posts'][i]['liked'] == true) {
+            var unlikeImageAux = unlikeImage.replace('$POST_ID$', posts['posts'][i]['id']).replace('$POST_ID$', posts['posts'][i]['id']);
+
+            var imageLikeContainerAux = imageLikeContainer.replace('$LIKE_ACTION$', unlikeImageAux);
+            col = col.replace('$LIKE_ACTION$', imageLikeContainerAux);
+        }
+        else if (active && posts['posts'][i]['liked'] == false) {
+            var likeImageAux = likeImage.replace('$POST_ID$', posts['posts'][i]['id']).replace('$POST_ID$', posts['posts'][i]['id']);
+            var imageLikeContainerAux = imageLikeContainer.replace('$LIKE_ACTION$', likeImageAux);
+            col = col.replace('$LIKE_ACTION$', imageLikeContainerAux);
+        }
+
+        var imageInfoAux = imageInfo.replace('$LIKES$', posts['posts'][i]['likes']);
+
+        var imageInfoContainerAux = imageInfoContainer.replace('$INFO$', imageInfoAux);
+
+        col = col.replace('$INFO$', imageInfoContainerAux);
+
+        if (posts['posts'][i]['lastComment'] != null) {
+            var lastCommentContainerAux = lastCommentContainer.replace('$COMMENT_USERNAME$', posts['posts'][i]['lastComment']['username']);
+            lastCommentContainerAux = lastCommentContainerAux.replace('$COMMENT_CONTENT$', posts['posts'][i]['lastComment']['content']);
+            col = col.replace('$LAST_COMMENT$', lastCommentContainerAux);
+        }
+
+        if (active && posts['posts'][i]['userCanComment']) {
+            var buttonAux = button.replace('$POST_ID$', posts['posts'][i]['id']);
+            var inputAux = input.replace('$POST_ID$', posts['posts'][i]['id']);
+            var commentRowAux = commentRow.replace('$INPUT$', inputAux);
+            commentRowAux = commentRowAux.replace('$BUTTON$', buttonAux);
+            var commentContainerAux = commentContainer.replace('$POST_CONTENT$', commentRowAux);
+            commentContainerAux = commentContainerAux.replace('$POST_ID$', posts['posts'][i]['id']);
+
+            col = col.replace('$ADD_COMMENT$', commentContainerAux);
+        }
+        else {
+            col = col.replace('$ADD_COMMENT$', '');
+        }
+
+        $( "#mostRecentDiv" ).append(col);
+    }
+
+    if (posts['allLoaded']) {
+        WebManager.sharedInstance().loadMoreRecentButton.parentNode.removeChild(WebManager.sharedInstance().loadMoreRecentButton);
+    }
+    else {
+        mostViewedCount += 5;
+    }
+
+    try {
+        var likeActions = document.getElementsByClassName('likeAction');
+
+        for (var i = 0; i < likeActions.length; i++) {
+            Listener.add(likeActions[i], "click", Listener.eventUnlikePost, true);
+        }
+    }
+    catch (err) {}
+
+    try {
+        var likeActions = document.getElementsByClassName('unlikeAction');
+
+        for (var i = 0; i < likeActions.length; i++) {
+            Listener.add(likeActions[i], "click", Listener.eventLikePost, true);
+        }
+    }
+    catch (err) {}
+
+    try {
+        var postButtons = document.getElementsByClassName('postButton');
+
+        for (var i = 0; i < postButtons.length; i++) {
+            Listener.add(postButtons[i], "click", Listener.eventPostComment, true);
+        }
+    }
+    catch (err) {}
+}
 
 /**
  * Creates visual errors upon an array containing validation results for registration
@@ -770,10 +1105,10 @@ function createLoginErrorsForCodes(errorCodes) {
     }
 }
 
-function createCommentError(error, postID) {
+function createCommentError(error, postID, section) {
 
-    var commentGroup = document.getElementById('addCommentGroup-' + postID);
-    var commentInput = document.getElementById('commentInput-' + postID);
+    var commentGroup = document.getElementById(section + '-addCommentGroup-' + postID);
+    var commentInput = document.getElementById(section + '-commentInput-' + postID);
 
     if (error) {
         commentInput.className = "form-control form-control-danger";
@@ -828,6 +1163,12 @@ window.onload = function() {
         for (var i = 0; i < likeActions.length; i++) {
             Listener.add(likeActions[i], "click", Listener.eventLikePost, true);
         }
+    }
+    catch (err) {}
+
+    try {
+        Listener.add(WebManager.sharedInstance().loadMoreRecentButton, "click", Listener.eventLoadMoreRecent, true);
+        Listener.add(WebManager.sharedInstance().loadMoreViewedButton, "click", Listener.eventLoadMoreViewed, true);
     }
     catch (err) {}
 };

@@ -15,8 +15,8 @@ use SilexApp\Model\DAOLike;
 use SilexApp\Model\DAOUser;
 use Symfony\Component\HttpFoundation\Response;
 use SilexApp\Model\SitePage;
-use SilexApp\Model\User;
 use SilexApp\Model\DAONotification;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class HomeController extends BaseController {
 
@@ -127,6 +127,8 @@ class HomeController extends BaseController {
         $user = null;
         if ($app['session']->get('id') != null) $user = $app['session']->get('user');
 
+        $active = $user != null;
+
         $images = DAOImage::getInstance()->getImageByOrder(true);
         $mostViewed = array();
 
@@ -139,7 +141,7 @@ class HomeController extends BaseController {
             if ($user != null && DAOComment::getInstance()->checkCanCommnet($user->getId(), $images[$i]->getId())) $canComment = true;
 
             array_push($mostViewed, array(
-                'src' => '../' . $images[$i]->getImgPath(),
+                'src' => $images[$i]->getImgPath(),
                 'title' => $images[$i]->getTitle(),
                 'postPage' => '/post/view/' . $images[$i]->getId(),
                 'postDate' => date("Y-m-d", strtotime($images[$i]->getCreatedAt())),
@@ -159,7 +161,8 @@ class HomeController extends BaseController {
 
         $response = array(
             'posts' => $mostViewed,
-            'allLoaded' => $completed
+            'allLoaded' => $completed,
+            'active' => $active
         );
 
         return new JsonResponse($response);
@@ -171,6 +174,8 @@ class HomeController extends BaseController {
 
         $user = null;
         if ($app['session']->get('id') != null) $user = $app['session']->get('user');
+
+        $active = $user != null;
 
         $images = DAOImage::getInstance()->getImageByOrder(false);
         $mostViewed = array();
@@ -193,7 +198,7 @@ class HomeController extends BaseController {
             }
 
             array_push($mostViewed, array(
-                'src' => '../' . $images[$i]->getImgPath(),
+                'src' => $images[$i]->getImgPath(),
                 'title' => $images[$i]->getTitle(),
                 'postPage' => '/post/view/' . $images[$i]->getId(),
                 'postDate' => date("Y-m-d", strtotime($images[$i]->getCreatedAt())),
@@ -213,7 +218,8 @@ class HomeController extends BaseController {
 
         $response = array(
             'posts' => $mostViewed,
-            'allLoaded' => $completed
+            'allLoaded' => $completed,
+            'active' => $active
         );
 
         return new JsonResponse($response);

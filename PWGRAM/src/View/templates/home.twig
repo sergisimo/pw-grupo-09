@@ -15,123 +15,247 @@
     {% else %}
         <h1 id="sectionTitle" class="display-4 my-4 text-muted">Most viewed posts</h1>
 
-        <div class="row mt-4">
-            {% for post in posts.mostViewed %}
-                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
-                    <div class="card mb-3">
-                        <div class="row">
-                            <div class="col">
-                                <div class="card-header card-info text-white">
-                                    <h7><a href={{ post.postPage }}>{{ post.title }}</a></h7>
+        <div class="row mt-4" id="mostViewedDiv">
+            {% if posts.mostViewed|length > 5 %}
+                {% for i in 0..4 %}
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                        <div class="card mb-3">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="card-header card-info text-white">
+                                        <h7><a href={{ posts.mostViewed[loop.index - 1].postPage }}>{{ posts.mostViewed[loop.index - 1].title }}</a></h7>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="text-center">
-                            <img class="card-img-top img-fluid" src={{ post.src }} alt="..." id="postImage">
-                        </div>
-                    </div>
-
-                    <div class="text-left mt-2">
-                        <p>Posted by <h7 class="font-weight-bold text-primary"><a href={{ post.userProfile }}>{{ post.username }}</a></h7> on {{ post.postDate }}</p>
-                    </div>
-
-                    {% if active == true %}
-                        {% if post.liked == true %}
-                            <div class="text-left mt-2">
-                                <p><a id='postLikedAction-{{ post.id }}' class="ml-1 likeAction" href=''><img class="mr-2" id='postLiked-{{ post.id }}' src="assets/images/heart-selected.png" width="25"></a><span id="likeTitle">Dislike</span></p>
+                            <div class="text-center">
+                                <img class="card-img-top img-fluid" src={{ posts.mostViewed[loop.index - 1].src }} alt="..." id="postImage">
                             </div>
-                        {% else %}
-                            <div class="text-left mt-2">
-                                <p><a id='postLikedAction-{{ post.id }}' class="ml-1 unlikeAction" href=''><img class="mr-2" id='postLiked-{{ post.id }}' src="assets/images/heart.png" width="25"></a><span id="likeTitle">Like</span></p>
+                        </div>
+
+                        <div class="text-left mt-2">
+                            <p>Posted by <h7 class="font-weight-bold text-primary"><a href={{ posts.mostViewed[loop.index - 1].userProfile }}>{{ posts.mostViewed[loop.index - 1].username }}</a></h7> on {{ posts.mostViewed[loop.index - 1].postDate }}</p>
+                        </div>
+
+                        {% if active == true %}
+                            {% if posts.mostViewed[loop.index - 1].liked == true %}
+                                <div class="text-left mt-2">
+                                    <p><a id='postLikedAction-{{ posts.mostViewed[loop.index - 1].id }}' class="ml-1 likeAction" href=''><img class="mr-2" id='postLiked-{{ posts.mostViewed[loop.index - 1].id }}' src="assets/images/heart-selected.png" width="25"></a><span id="likeTitle">Dislike</span></p>
+                                </div>
+                            {% else %}
+                                <div class="text-left mt-2">
+                                    <p><a id='postLikedAction-{{ posts.mostViewed[loop.index - 1].id }}' class="ml-1 unlikeAction" href=''><img class="mr-2" id='postLiked-{{ posts.mostViewed[loop.index - 1].id }}' src="assets/images/heart.png" width="25"></a><span id="likeTitle">Like</span></p>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+
+                        <div class="text-left">
+                            <p class="text-muted">{{ posts.mostViewed[loop.index - 1].likes }} like(s), {{ posts.mostViewed[loop.index - 1].visits }} visit(s)</p>
+                        </div>
+
+                        {% if active == true and posts.mostViewed[loop.index - 1].userCanComment == true %}
+                            <hr>
+                            <div class="form-group mt-3" id="top-addCommentGroup-{{ posts.mostViewed[loop.index - 1].id }}">
+                                <div class="row">
+                                    <div class="col-sm-9 mb-2">
+                                        <input type="email" class="form-control" id='top-commentInput-{{ posts.mostViewed[loop.index - 1].id }}' aria-describedby="emailHelp" placeholder="Type comment">
+                                    </div>
+                                    <div class="col-sm-2 float-right">
+                                        <button type="submit" class="btn btn-primary btn-md postButton" id='top-postCommentButton-{{ posts.mostViewed[loop.index - 1].id }}'>Post</button>
+                                    </div>
+                                </div>
                             </div>
                         {% endif %}
-                    {% endif %}
-
-                    <div class="text-left">
-                        <p class="text-muted">{{ post.likes }} like(s), {{ post.visits }} visit(s)</p>
                     </div>
-
-                    {% if active == true and post.userCanComment == true %}
-                        <hr>
-                        <div class="form-group mt-3" id="addCommentGroup-{{ post.id }}">
+                {% endfor %}
+            {% else %}
+                {% for post in posts.mostViewed %}
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                        <div class="card mb-3">
                             <div class="row">
-                                <div class="col-sm-9 mb-2">
-                                    <input type="email" class="form-control" id='commentInput-{{ post.id }}' aria-describedby="emailHelp" placeholder="Type comment">
-                                </div>
-                                <div class="col-sm-2 float-right">
-                                    <button type="submit" class="btn btn-primary btn-md postButton" id='postCommentButton-{{ post.id }}'>Post</button>
+                                <div class="col">
+                                    <div class="card-header card-info text-white">
+                                        <h7><a href={{ post.postPage }}>{{ post.title }}</a></h7>
+                                    </div>
                                 </div>
                             </div>
+
+                            <div class="text-center">
+                                <img class="card-img-top img-fluid" src={{ post.src }} alt="..." id="postImage">
+                            </div>
                         </div>
-                    {% endif %}
-                </div>
-            {% endfor %}
+
+                        <div class="text-left mt-2">
+                            <p>Posted by <h7 class="font-weight-bold text-primary"><a href={{ post.userProfile }}>{{ post.username }}</a></h7> on {{ post.postDate }}</p>
+                        </div>
+
+                        {% if active == true %}
+                            {% if post.liked == true %}
+                                <div class="text-left mt-2">
+                                    <p><a id='postLikedAction-{{ post.id }}' class="ml-1 likeAction" href=''><img class="mr-2" id='postLiked-{{ post.id }}' src="assets/images/heart-selected.png" width="25"></a><span id="likeTitle">Dislike</span></p>
+                                </div>
+                            {% else %}
+                                <div class="text-left mt-2">
+                                    <p><a id='postLikedAction-{{ post.id }}' class="ml-1 unlikeAction" href=''><img class="mr-2" id='postLiked-{{ post.id }}' src="assets/images/heart.png" width="25"></a><span id="likeTitle">Like</span></p>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+
+                        <div class="text-left">
+                            <p class="text-muted">{{ post.likes }} like(s), {{ post.visits }} visit(s)</p>
+                        </div>
+
+                        {% if active == true and post.userCanComment == true %}
+                            <hr>
+                            <div class="form-group mt-3" id="top-addCommentGroup-{{ post.id }}">
+                                <div class="row">
+                                    <div class="col-sm-9 mb-2">
+                                        <input type="email" class="form-control" id='top-commentInput-{{ post.id }}' aria-describedby="emailHelp" placeholder="Type comment">
+                                    </div>
+                                    <div class="col-sm-2 float-right">
+                                        <button type="submit" class="btn btn-primary btn-md postButton" id='top-postCommentButton-{{ post.id }}'>Post</button>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% endif %}
         </div>
+
+        {% if posts.mostRecent | length > 5 %}
+            <button type="submit" class="btn btn-primary btn-md mb-4" id="loadMoreViewedButton">Load more</button>
+        {% endif %}
 
         <h1 id="sectionTitle" class="display-4 my-4 text-muted">Most recent posts</h1>
 
-        <div class="row mt-4">
-            {% for post in posts.mostRecent %}
-                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
-                    <div class="card mb-3">
-                        <div class="row">
-                            <div class="col">
-                                <div class="card-header card-info text-white">
-                                    <h7><a href={{ post.postPage }}>{{ post.title }}</a></h7>
+        <div class="row mt-4" id="mostRecentDiv">
+            {% if posts.mostRecent|length > 5 %}
+                {% for i in 0..4 %}
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                        <div class="card mb-3">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="card-header card-info text-white">
+                                        <h7><a href={{ posts.mostRecent[loop.index - 1].postPage }}>{{ posts.mostRecent[loop.index - 1].title }}</a></h7>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="text-center">
-                            <img class="card-img-top img-fluid" src={{ post.src }} alt="..." id="postImage">
-                        </div>
-                    </div>
-
-                    <div class="text-left mt-2">
-                        <p>Posted by <h7 class="font-weight-bold text-primary"><a href={{ post.userProfile }}>{{ post.username }}</a></h7> on {{ post.postDate }}</p>
-                    </div>
-
-                    {% if active == true %}
-                        {% if post.liked == true %}
-                            <div class="text-left mt-2">
-                                <p><a id='postLikedAction-{{ post.id }}' class="ml-1 likeAction" href=''><img class="mr-2" id='postLiked-{{ post.id }}' src="assets/images/heart-selected.png" width="25"></a><span id="likeTitle">Dislike</span></p>
+                            <div class="text-center">
+                                <img class="card-img-top img-fluid" src={{ posts.mostRecent[loop.index - 1].src }} alt="..." id="postImage">
                             </div>
-                        {% else %}
-                            <div class="text-left mt-2">
-                                <p><a id='postLikedAction-{{ post.id }}' class="ml-1 unlikeAction" href=''><img class="mr-2" id='postLiked-{{ post.id }}' src="assets/images/heart.png" width="25"></a><span id="likeTitle">Like</span></p>
+                        </div>
+
+                        <div class="text-left mt-2">
+                            <p>Posted by <h7 class="font-weight-bold text-primary"><a href={{ posts.mostRecent[loop.index - 1].userProfile }}>{{ posts.mostRecent[loop.index - 1].username }}</a></h7> on {{ posts.mostRecent[loop.index - 1].postDate }}</p>
+                        </div>
+
+                        {% if active == true %}
+                            {% if posts.mostRecent[loop.index - 1].liked == true %}
+                                <div class="text-left mt-2">
+                                    <p><a id='postLikedAction-{{ posts.mostRecent[loop.index - 1].id }}' class="ml-1 likeAction" href=''><img class="mr-2" id='postLiked-{{ posts.mostRecent[loop.index - 1].id }}' src="assets/images/heart-selected.png" width="25"></a><span id="likeTitle">Dislike</span></p>
+                                </div>
+                            {% else %}
+                                <div class="text-left mt-2">
+                                    <p><a id='postLikedAction-{{ posts.mostRecent[loop.index - 1].id }}' class="ml-1 unlikeAction" href=''><img class="mr-2" id='postLiked-{{ posts.mostRecent[loop.index - 1].id }}' src="assets/images/heart.png" width="25"></a><span id="likeTitle">Like</span></p>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+
+                        <div class="text-left">
+                            <p class="text-muted">{{ posts.mostRecent[loop.index - 1].likes }} like(s)</p>
+                        </div>
+
+                        {% if posts.mostRecent[loop.index - 1].lastComment != null %}
+                            <hr>
+                            <div class="text-left mb-2">
+                                <h7 class="font-weight-bold text-muted">{{ posts.mostRecent[loop.index - 1].lastComment.username }}</h7>
+                                <q>{{ posts.mostRecent[loop.index - 1].lastComment.content }}</q>
                             </div>
                         {% endif %}
-                    {% endif %}
 
-                    <div class="text-left">
-                        <p class="text-muted">{{ post.likes }} like(s)</p>
-                    </div>
-
-                    {% if post.lastComment != null %}
-                        <hr>
-                        <div class="text-left mb-2">
-                            <h7 class="font-weight-bold text-muted">{{ post.lastComment.username }}</h7>
-                            <q>{{ post.lastComment.content }}</q>
-                        </div>
-                    {% endif %}
-
-                    {% if active == true and post.userCanComment == true %}
-                        <hr>
-                        <div class="form-group mt-3" id="addCommentGroup-{{ post.id }}">
-                            <div class="row">
-                                <div class="col-sm-9 mb-2">
-                                    <input type="email" class="form-control" id="commentInput-{{ post.id }}" aria-describedby="emailHelp" placeholder="Type comment">
-                                </div>
-                                <div class="col-sm-2 float-right">
-                                    <button type="submit" class="btn btn-primary btn-md postButton" id='postCommentButton-{{ post.id }}'>Post</button>
+                        {% if active == true and posts.mostRecent[loop.index - 1].userCanComment == true %}
+                            <hr>
+                            <div class="form-group mt-3" id="bottom-addCommentGroup-{{ posts.mostRecent[loop.index - 1].id }}">
+                                <div class="row">
+                                    <div class="col-sm-9 mb-2">
+                                        <input type="email" class="form-control" id="bottom-commentInput-{{ posts.mostRecent[loop.index - 1].id }}" aria-describedby="emailHelp" placeholder="Type comment">
+                                    </div>
+                                    <div class="col-sm-2 float-right">
+                                        <button type="submit" class="btn btn-primary btn-md postButton" id='bottom-postCommentButton-{{ posts.mostRecent[loop.index - 1].id }}'>Post</button>
+                                    </div>
                                 </div>
                             </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                {% for post in posts.mostRecent %}
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                        <div class="card mb-3">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="card-header card-info text-white">
+                                        <h7><a href={{ post.postPage }}>{{ post.title }}</a></h7>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <img class="card-img-top img-fluid" src={{ post.src }} alt="..." id="postImage">
+                            </div>
                         </div>
-                    {% endif %}
-                </div>
-            {% endfor %}
+
+                        <div class="text-left mt-2">
+                            <p>Posted by <h7 class="font-weight-bold text-primary"><a href={{ post.userProfile }}>{{ post.username }}</a></h7> on {{ post.postDate }}</p>
+                        </div>
+
+                        {% if active == true %}
+                            {% if post.liked == true %}
+                                <div class="text-left mt-2">
+                                    <p><a id='postLikedAction-{{ post.id }}' class="ml-1 likeAction" href=''><img class="mr-2" id='postLiked-{{ post.id }}' src="assets/images/heart-selected.png" width="25"></a><span id="likeTitle">Dislike</span></p>
+                                </div>
+                            {% else %}
+                                <div class="text-left mt-2">
+                                    <p><a id='postLikedAction-{{ post.id }}' class="ml-1 unlikeAction" href=''><img class="mr-2" id='postLiked-{{ post.id }}' src="assets/images/heart.png" width="25"></a><span id="likeTitle">Like</span></p>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+
+                        <div class="text-left">
+                            <p class="text-muted">{{ post.likes }} like(s)</p>
+                        </div>
+
+                        {% if post.lastComment != null %}
+                            <hr>
+                            <div class="text-left mb-2">
+                                <h7 class="font-weight-bold text-muted">{{ post.lastComment.username }}</h7>
+                                <q>{{ post.lastComment.content }}</q>
+                            </div>
+                        {% endif %}
+
+                        {% if active == true and post.userCanComment == true %}
+                            <hr>
+                            <div class="form-group mt-3" id="bottom-addCommentGroup-{{ post.id }}">
+                                <div class="row">
+                                    <div class="col-sm-9 mb-2">
+                                        <input type="email" class="form-control" id="bottom-commentInput-{{ post.id }}" aria-describedby="emailHelp" placeholder="Type comment">
+                                    </div>
+                                    <div class="col-sm-2 float-right">
+                                        <button type="submit" class="btn btn-primary btn-md postButton" id='bottom-postCommentButton-{{ post.id }}'>Post</button>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% endif %}
         </div>
+
+        {% if posts.mostRecent | length > 5 %}
+            <button type="submit" class="btn btn-primary btn-md mb-4" id="loadMoreRecentButton">Load more</button>
+        {% endif %}
     {% endif %}
 
     <div id="login" class="modal fade">

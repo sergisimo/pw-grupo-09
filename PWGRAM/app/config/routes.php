@@ -31,8 +31,8 @@ $app->post('/commentPost','SilexApp\\Controller\\PostController::commentPostActi
 $app->post('/uncommentPost','SilexApp\\Controller\\PostController::uncommentPostAction');
 $app->post('/editComment','SilexApp\\Controller\\PostController::editCommentPostAction');
 $app->post('/getMoreComments','SilexApp\\Controller\\PostController::getMoreComments');
-$app->post('/getMoreMostViews','SilexApp\\Controller\\PostController::getMoreMostViewedImages');
-$app->post('/getMoreMostRecent','SilexApp\\Controller\\PostController::getMoreMostRecentImages');
+$app->post('/getMoreMostViews','SilexApp\\Controller\\HomeController::getMoreMostViewedImages');
+$app->post('/getMoreMostRecent','SilexApp\\Controller\\HomeController::getMoreMostRecentImages');
 $app->post('/notificationSeen','SilexApp\\Controller\\UserController::setNotificationSeenAction');
 $app->get('/test','SilexApp\\Controller\\TestController::testing');
 
