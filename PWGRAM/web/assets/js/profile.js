@@ -32,16 +32,6 @@ const SORT_TITLES = ['Posts by likes count', 'Posts by comments count', 'Posts b
 
 
 /* ************* VARIABLES ****************/
-var params = {
-    'username' : null,
-    'birthdate' : null,
-    'password' : null,
-    'imageSrc' : null
-};
-
-var sortParams = {
-    'sortType' : SortType.SortTypeDate
-}
 
 /**
  * Singleton object with methods for accessing web elements
@@ -85,89 +75,16 @@ var Listener = {
         object.addEventListener(event, callback, capture);
     },
 
-    eventUpdateInfo: function(event) {
-
-        event.preventDefault();
-
-        var errorCodes = new Array();
-
-        var today = moment().format("YYYY-MM-DD");
-
-        var usernamePattern = /^[a-z0-9]+$/i;
-        var passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,12}$/;
-
-        // validate username
-        if (usernamePattern.test(WebManager.sharedInstance().usernameInput.value) == false ||
-            WebManager.sharedInstance().usernameInput.value.length > 20) {
-            errorCodes.push(UpdateErrorCode.ErrorCodeUsername);
-        }
-
-        // validate date
-        if (moment(WebManager.sharedInstance().birthdateInput.value, "YYYY-MM-DD", true).isValid() == false ||
-            moment(WebManager.sharedInstance().birthdateInput.value).isAfter(today)) {
-            errorCodes.push(UpdateErrorCode.ErrorCodeBirthdate);
-        }
-
-        // validate password
-        if (WebManager.sharedInstance().passwordInput.value.length > 0 && passwordPattern.test(WebManager.sharedInstance().passwordInput.value) == false) {
-            errorCodes.push(UpdateErrorCode.ErrorCodePassword);
-        }
-
-        createUpdateErrorsForCodes(errorCodes);
-
-        if (errorCodes.length > 0) return;
-
-        if (WebManager.sharedInstance().passwordInput.value.length > 0) {
-            params['password'] = WebManager.sharedInstance().passwordInput.value;
-        }
-
-        console.log(params);
-
-        /*$.ajax({
-         data:  params,
-         url:   URL,
-         type:  'POST',
-
-         success: function (response) {
-         console.log(response);
-         }
-         })*/
-    },
-
-    eventSelectImage: function(event) {
-
-        event.preventDefault();
-
-        var val = $(this).val();
-
-        if (!val) return;
-
-        switch(val.substring(val.lastIndexOf('.') + 1).toLowerCase()) {
-            case 'gif': case 'jpg': case 'png': {
-            var oFReader = new FileReader();
-            profileImageHref = this.files[0];
-
-            oFReader.readAsDataURL(profileImageHref);
-            oFReader.onload = function (oFREvent) {
-                WebManager.sharedInstance().profileImage.src = oFREvent.target.result;
-            };
-        }
-            break;
-            default:
-                $(this).val('');
-                alert("not an image");
-                break;
-        }
-    },
-
     eventChangeSortType: function(event) {
 
         event.preventDefault();
 
         var newSortType = event.srcElement.id.split('-')[1];
-        sortParams['sortType'] = newSortType;
 
-        WebManager.sharedInstance().sortTitle.innerHTML = SORT_TITLES[newSortType];
+        var currentLocation = window.location.href;
+        currentLocation = currentLocation.substr(0, currentLocation.length - 1) + newSortType;
+
+        window.location.href = currentLocation;
     }
 }
 
@@ -180,21 +97,14 @@ var Listener = {
  */
 window.onload = function() {
 
-    try {
-        for (var i = 0; i < WebManager.sharedInstance().dropdown.childElementCount; i++) {
+    var currentLocation = window.location.href;
+
+    var sortType = currentLocation.substring(currentLocation.length - 1);
+
+    WebManager.sharedInstance().sortTitle.innerHTML = SORT_TITLES[sortType];
+
+    for (var i = 0; i < WebManager.sharedInstance().dropdown.childElementCount; i++) {
             var a = WebManager.sharedInstance().dropdown.children[i];
             Listener.add(a, "click", Listener.eventChangeSortType, true);
         }
-    }
-    catch (err) {}
-
-    try {
-        Listener.add(WebManager.sharedInstance().updateButton, "click", Listener.eventUpdateInfo, true);
-        Listener.add(WebManager.sharedInstance().imageButton, "change", Listener.eventSelectImage, true);
-
-        params['username'] = WebManager.sharedInstance().usernameInput.value;
-        params['birthdate'] = WebManager.sharedInstance().birthdateInput.value;
-        params['imageSrc'] = WebManager.sharedInstance().profileImage.src;
-    }
-    catch (err) {}
 };

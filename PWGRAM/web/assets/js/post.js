@@ -16,6 +16,7 @@ const LIKE_TITLE = 'likeTitle';
 const POST_COMMENT_BUTTON = 'postCommentButton';
 const COMMENT_INPUT = 'commentInput';
 const COMMENT_GROUP = 'addCommentGroup';
+const LOAD_MORE_BUTTON = 'loadMoreButton';
 
 const AddPostErrorCode = {
     ErrorCodeImage : 0,
@@ -34,6 +35,8 @@ var postLiked = null;
 var imageSelected = false;
 var postID = null;
 var file;
+
+var commentsCount = 0;
 
 /**
  * Singleton object with methods for accessing web elements
@@ -57,6 +60,7 @@ var WebManager = (function() {
         this.commentInput = document.getElementById(COMMENT_INPUT);
         this.commentGroup = document.getElementById(COMMENT_GROUP);
         this.updatePostButton = document.getElementsByClassName('updateButtonClass')[0];
+        this.loadMoreButton = document.getElementById(LOAD_MORE_BUTTON);
     }
 
     return {
@@ -299,11 +303,57 @@ var Listener = {
                 }
             }
         });
+    },
+
+    eventLoadMore: function(event) {
+
+        event.preventDefault();
+
+        var params = {
+            'count' : commentsCount
+        };
+
+        return;
+
+        $.ajax({
+            data:  params,
+            url:   '',
+            type:  'POST',
+
+            success: function (response) {
+                appendComments(response);
+            }
+        });
     }
 }
 
 
 /* ************* METHODS ****************/
+
+function appendComments(comments) {
+
+    var commentsDiv = document.getElementById('commentsGroup');
+
+    for (var i = 0; i < comments['comments'].length; i++) {
+        var h7 = document.createElement('h7');
+        h7.className = 'font-weight-bold text-muted';
+        h7.innerHTML = comments['comments'][i]['username'];
+
+        var p = document.createElement('p');
+        p.innerHTML = comments['comments'][i]['content'];
+
+        var div = document.createElement('div');
+        div.className = 'text-left mb-2';
+        div.appendChild(h7);
+        div.appendChild(p);
+
+        commentsDiv.appendChild(div);
+    }
+
+    if (comments['allLoaded']) {
+        WebManager.sharedInstance().loadMoreButton.parentNode.removeChild(WebManager.sharedInstance().loadMoreButton);
+    }
+}
 
 /**
  * Creates visual errors upon an array containing validation results for the new post
@@ -443,5 +493,8 @@ window.onload = function() {
     }
     catch (err) {}
 
-    console.log(params);
+    try {
+        Listener.add(WebManager.sharedInstance().loadMoreButton, "click", Listener.eventLoadMore, true);
+    }
+    catch (err) {}
 };

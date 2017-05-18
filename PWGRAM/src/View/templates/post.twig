@@ -85,9 +85,9 @@
                     <small id="emailHelp" class="form-text text-muted">Choose a title that best describes your image.</small>
                 </div>
             {% else %}
-                <div id="commentsGroup">
+                <div>
                     {% if image.comments is defined and image.comments|length %}
-                        <div class="bs-callout bs-callout-info">
+                        <div class="bs-callout bs-callout-info" id="commentsGroup">
                             <h4>Comments</h4>
                             <hr>
                             {% for comment in image.comments %}
@@ -97,6 +97,8 @@
                                 </div>
                             {% endfor %}
                         </div>
+
+                        <button type="submit" class="btn btn-primary btn-md mt-3" id="loadMoreButton">Load more</button>
                     {% else %}
                         <div class="alert alert-warning" role="alert">
                             No comments have been added yet.
