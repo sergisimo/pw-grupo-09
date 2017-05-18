@@ -123,7 +123,7 @@ class PostController extends BaseController {
             'visits' => $image->getVisits(),
             'username' => DAOUser::getInstance()->getUserById($image->getUserId())->getUsername(),
             'comments' => $commentsInfo,
-            'userProfile' => '/profile/' . $image->getUserId(),
+            'userProfile' => '/profile/' . $image->getUserId() . '/3',
             'liked' => $liked,
             'userCanComment' => $userCanComment
         );

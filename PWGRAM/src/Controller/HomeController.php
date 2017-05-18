@@ -44,7 +44,7 @@ class HomeController extends BaseController {
                 'title' => $image->getTitle(),
                 'postPage' => '/post/view/' . $image->getId(),
                 'postDate' => date("Y-m-d", strtotime($image->getCreatedAt())),
-                'userProfile' => '/profile/' . $image->getUserId(),
+                'userProfile' => '/profile/' . $image->getUserId() . '/3',
                 'username' => DAOUser::getInstance()->getUserById($image->getUserId())->getUsername(),
                 'liked' => $liked,
                 'likes' => count(DAOLike::getInstance()->getLikeByImageID($image->getId())),

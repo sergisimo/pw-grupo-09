@@ -12,6 +12,7 @@ use PHPMailer;
 
 use Silex\Application;
 use SilexApp\Model\DAOImage;
+use SilexApp\Model\DAOLike;
 use SilexApp\Model\Image;
 use SilexApp\Model\LoginErrorCode;
 use SilexApp\Model\Notification;
@@ -171,6 +172,7 @@ class UserController extends BaseController {
         $response->headers->set('Content-Type','text/html');
 
         $profileId = $request->get('id');
+        $order = $request->get('order');
         $userInfo = DAOUser::getInstance()->getUserById($profileId);
 
         if ($userInfo == null) {
@@ -186,12 +188,21 @@ class UserController extends BaseController {
 
             array_push($imagesInfo,
                 array(
-                    'src' => '../' . $image->getImgPath(),
+                    'src' => '../../' . $image->getImgPath(),
                     'title' => $image->getTitle(),
-                    'postPage' => '/post/view/' . $image->getId()
+                    'postPage' => '/post/view/' . $image->getId(),
+                    'date' => $image->getCreatedAt(),
+                    'visits' => $image->getVisits(),
+                    'numLikes' => count(DAOLike::getInstance()->getLikeByImageID($image->getId())),
+                    'numComments' => count(DAOComment::getInstance()->getCommentByImageID($image->getId()))
                 )
             );
         }
+
+        if ($order == 0) usort($imagesInfo, array($this, 'compareLikes'));
+        else if ($order == 1) usort($imagesInfo, array($this, 'compareComments'));
+        else if ($order == 2) usort($imagesInfo, array($this, 'compareVisits'));
+        else usort($imagesInfo, array($this, 'compareDates'));
 
         $count = 0;
         if ($userInfo != null) $count = count(DAONotification::getInstance()->getNotificationsByUser($userInfo->getId()));
@@ -210,7 +221,7 @@ class UserController extends BaseController {
             'page' => $user['username'],
             'navs' => parent::createNavLinks(SitePage::MyProfile, $app),
             'brandText' => parent::brandText($app),
-            'brandSrc' => parent::brandImage($app, SitePage::SecondLevel),
+            'brandSrc' => parent::brandImage($app, SitePage::ThirdLevel),
             'user' => $user,
             'count' => $count
         ));
@@ -331,7 +342,7 @@ class UserController extends BaseController {
                 'comment' => strip_tags($notification->getText()),
                 'postName' => DAOImage::getInstance()->getImage($notification->getImageId())->getTitle(),
                 'postPage' => '/post/view/' . DAOImage::getInstance()->getImage($notification->getImageId())->getId(),
-                'sourceUserProfile' => 'profile/' . $notification->getUserId(),
+                'sourceUserProfile' => 'profile/' . $notification->getUserId() . '/3',
                 'sourceUsername' => DAOUser::getInstance()->getUserById($notification->getUserId())->getUsername()
             ));
         }
@@ -398,5 +409,21 @@ class UserController extends BaseController {
 
         if (!$mail->send()) return $mail->ErrorInfo;
         else return true;
+    }
+
+    function compareLikes($a, $b) {
+        return strnatcmp($b['numLikes'], $a['numLikes']);
+    }
+
+   function compareComments($a, $b) {
+       return strnatcmp($b['numComments'], $a['numComments']);
+    }
+
+    function compareVisits($a, $b) {
+        return strnatcmp($b['visits'], $a['visits']);
+    }
+
+    function compareDates($a, $b) {
+        return strnatcmp($b['date'], $a['date']);
     }
 }
