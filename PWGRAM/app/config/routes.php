@@ -29,6 +29,7 @@ $app->post('/likePost','SilexApp\\Controller\\PostController::likePostAction');
 $app->post('/unlikePost','SilexApp\\Controller\\PostController::unlikePostAction');
 $app->post('/commentPost','SilexApp\\Controller\\PostController::commentPostAction');
 $app->post('/uncommentPost','SilexApp\\Controller\\PostController::uncommentPostAction');
+$app->post('/editPost','SilexApp\\Controller\\PostController::editCommentPostAction');
 $app->post('/notificationSeen','SilexApp\\Controller\\UserController::setNotificationSeenAction');
 $app->get('/test','SilexApp\\Controller\\TestController::testing');
 

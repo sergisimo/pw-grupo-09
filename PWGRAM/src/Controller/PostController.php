@@ -281,13 +281,25 @@ class PostController extends BaseController {
         return new JsonResponse();
     }
 
-    public function uncommentPostAction(Application $app) {
+    public function uncommentPostAction() {
 
         $comment = new Comment();
 
         $comment->setId($_POST['imageID']);
 
         DAOComment::getInstance()->deleteComment($comment);
+
+        return new JsonResponse();
+    }
+
+    public function editCommentPostAction() {
+
+        $comment = new Comment();
+
+        $comment->setId($_POST['commentID']);
+        $comment->setText($_POST['text']);
+
+        DAOComment::getInstance()->updateComment($comment);
 
         return new JsonResponse();
     }
