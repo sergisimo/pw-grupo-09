@@ -106,7 +106,6 @@ class PostController extends BaseController {
             if ($user != null && DAOUser::getInstance()->getUserById($comment->getUserId())->getUsername() == $user->getUsername()) $userCanComment = false;
         }
 
-
         $private = false;
         if ($image->getPrivate() == 1) $private = true;
         $liked = false;
@@ -302,6 +301,30 @@ class PostController extends BaseController {
         DAOComment::getInstance()->updateComment($comment);
 
         return new JsonResponse();
+    }
+
+    public function getMoreComments() {
+
+        $number = $_POST['count'];
+        $comments = DAOComment::getInstance()->getCommentByImageID($_POST['$imageID']);
+        $commentsInfo = array();
+
+        for ($i = $number; $i < $number + 3 && $i <= count($comments); $i++) {
+            array_push($commentsInfo, array(
+                'username' => DAOUser::getInstance()->getUserById($comments[$i]->getUserId())->getUsername(),
+                'content' => strip_tags($comments[$i]->getText())
+            ));
+        }
+
+        $completed = false;
+        if (count($comments) <= $number + 3 ) $completed = true;
+
+        $response = array(
+            'comments' => $commentsInfo,
+            'allLoaded' => $completed 
+        );
+
+        return new JsonResponse($response);
     }
 
     /* PRIVATE METHODS */

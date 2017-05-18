@@ -181,7 +181,7 @@ class UserController extends BaseController {
         }
 
 
-        $images = DAOImage::getInstance()->getImagesByUserID($profileId);
+        $images = DAOImage::getInstance()->getImagesByUserPublicID($profileId);
         $imagesInfo = array();
 
         foreach ($images as $image) {

@@ -22,6 +22,7 @@ class DAOImage {
     private const SELECT_STATEMENT = 'SELECT * FROM Image WHERE id = :imageID';
     private const SELECT_ALL_STATEMENT = 'SELECT * FROM Image';
     private const SELECT_BY_USER_STATEMENT = 'SELECT * FROM Image WHERE user_id = :userID';
+    private const SELECT_BY_USER_PUBLIC_STATEMENT = 'SELECT * FROM Image WHERE user_id = :userID AND private = 0';
     private const SELECT_ALL_ORDERED_DATE_STATEMENT = 'SELECT * FROM Image WHERE private = 0 ORDER BY created_at DESC';
     private const SELECT_ALL_ORDERED_VISITS_STATEMENT = 'SELECT * FROM Image WHERE private = 0 ORDER BY visits DESC';
     private const INSERT_STATEMENT = 'INSERT INTO Image (user_id, title, img_path, visits, private, created_at) VALUES (:userID, :title, :img_path, 0, :private, NOW())';
@@ -41,6 +42,7 @@ class DAOImage {
     private $selectStatement;
     private $selectAllStatement;
     private $selectByUserIDStatement;
+    private $selectByUserPublicIDStatement;
     private $selectAllByOrderDateStatement;
     private $selectAllByOrderVisitsStatement;
     private $insertStatement;
@@ -55,6 +57,7 @@ class DAOImage {
         $this->selectStatement = $dbConnection->prepare(DAOImage::SELECT_STATEMENT);
         $this->selectAllStatement = $dbConnection->prepare(DAOImage::SELECT_ALL_STATEMENT);
         $this->selectByUserIDStatement = $dbConnection->prepare(DAOImage::SELECT_BY_USER_STATEMENT);
+        $this->selectByUserPublicIDStatement = $dbConnection->prepare(DAOImage::SELECT_BY_USER_PUBLIC_STATEMENT);
         $this->selectAllByOrderDateStatement = $dbConnection->prepare(DAOImage::SELECT_ALL_ORDERED_DATE_STATEMENT);
         $this->selectAllByOrderVisitsStatement = $dbConnection->prepare(DAOImage::SELECT_ALL_ORDERED_VISITS_STATEMENT);
         $this->insertStatement = $dbConnection->prepare(DAOImage::INSERT_STATEMENT);
@@ -122,6 +125,31 @@ class DAOImage {
         $this->selectByUserIDStatement->bindParam(DAOImage::USER_ID_REPLACER, $userID, PDO::PARAM_INT);
         $this->selectByUserIDStatement->execute();
         $imageInfo = $this->selectByUserIDStatement->fetchAll();
+
+        $images = array();
+
+        foreach ($imageInfo as $image) {
+
+            $imageAux = new Image();
+            $imageAux->setId($image['id']);
+            $imageAux->setUserId($image['user_id']);
+            $imageAux->setTitle($image['title']);
+            $imageAux->setImgPath($image['img_path']);
+            $imageAux->setVisits($image['visits']);
+            $imageAux->setPrivate($image['private']);
+            $imageAux->setCreatedAt($image['created_at']);
+
+            array_push($images, $imageAux);
+        }
+
+        return $images;
+    }
+
+    public function getImagesByUserPublicID(int $userID) {
+
+        $this->selectByUserPublicIDStatement->bindParam(DAOImage::USER_ID_REPLACER, $userID, PDO::PARAM_INT);
+        $this->selectByUserPublicIDStatement->execute();
+        $imageInfo = $this->selectByUserPublicIDStatement->fetchAll();
 
         $images = array();
 
