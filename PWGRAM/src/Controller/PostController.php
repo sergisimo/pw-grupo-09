@@ -175,156 +175,187 @@ class PostController extends BaseController {
 
     public function uploadImageAction() {
 
-        $sourcePath = $_FILES['file']['tmp_name'];
-        $targetPath = "assets/images/posts/" . $_FILES['file']['name'];
-        move_uploaded_file($sourcePath, $targetPath) ;
+        if (isset($_FILES['file'])) {
+            $sourcePath = $_FILES['file']['tmp_name'];
+            $targetPath = "assets/images/posts/" . $_FILES['file']['name'];
+            move_uploaded_file($sourcePath, $targetPath) ;
 
-        $extension = explode('.', $_FILES['file']['name'])[1];
+            $extension = explode('.', $_FILES['file']['name'])[1];
 
-        $image = $this->resizeImage($targetPath, 400, 300, false, $extension);
-        imagejpeg($image, $targetPath);
+            $image = $this->resizeImage($targetPath, 400, 300, false, $extension);
+            imagejpeg($image, $targetPath);
 
-        $newTargetPath = "assets/images/postsIcon/" . $_FILES['file']['name'];
+            $newTargetPath = "assets/images/postsIcon/" . $_FILES['file']['name'];
 
-        $image = $this->resizeImage($targetPath, 100, 100, false, 'jpg');
-        imagejpeg($image, $newTargetPath);
+            $image = $this->resizeImage($targetPath, 100, 100, false, 'jpg');
+            imagejpeg($image, $newTargetPath);
+        }
 
         return new JsonResponse();
     }
 
     public function uploadPostAction(Application $app) {
 
-        $image = new Image();
+        if (isset($_POST['private']) && $app['session']->get('id') != null && isset($_POST['title']) && isset($_POST['imagePath'])) {
+            $image = new Image();
 
-        $image->setUserId($app['session']->get('id'));
-        $image->setPrivate($_POST['private']);
-        $image->setTitle($_POST['title']);
-        $image->setImgPath('assets/images/posts/' . $_POST['imagePath']);
+            $image->setUserId($app['session']->get('id'));
+            $image->setPrivate($_POST['private']);
+            $image->setTitle($_POST['title']);
+            $image->setImgPath('assets/images/posts/' . $_POST['imagePath']);
 
-        DAOImage::getInstance()->insertImage($image);
+            DAOImage::getInstance()->insertImage($image);
+        }
 
         return new JsonResponse();
     }
 
-    public function updatePostInfoAction(Application $app) {
+    public function updatePostInfoAction() {
 
-        $image = DAOImage::getInstance()->getImage($_POST['id']);
+        if (isset($_POST['id']) && isset($_POST['title']) && isset($_POST['private']) && isset($_POST['imagePath'])) {
 
-        if (strlen($_POST['title']) > 0) $image->setTitle($_POST['title']);
+            $image = DAOImage::getInstance()->getImage($_POST['id']);
 
-        $image->setPrivate($_POST['private']);
+            if (strlen($_POST['title']) > 0) $image->setTitle($_POST['title']);
 
-        if ($_POST['imagePath'] != null) {
+            $image->setPrivate($_POST['private']);
+
+            if ($_POST['imagePath'] != null) {
+                $iconPath = explode('/', $image->getImgPath());
+
+                unlink('assets/images/posts/' . $iconPath[3]);
+                unlink('assets/images/postsIcon/' . $iconPath[3]);
+
+                $image->setImgPath('assets/images/posts/' . $_POST['imagePath']);
+            }
+
+            DAOImage::getInstance()->updateImage($image);
+        }
+
+        return new JsonResponse();
+    }
+
+    public function deletePostAction() {
+
+        if (isset($_POST['id'])) {
+
+            $imageID = $_POST['id'];
+            $image = DAOImage::getInstance()->getImage($imageID);
+
             $iconPath = explode('/', $image->getImgPath());
 
             unlink('assets/images/posts/' . $iconPath[3]);
             unlink('assets/images/postsIcon/' . $iconPath[3]);
 
-            $image->setImgPath('assets/images/posts/' . $_POST['imagePath']);
+            DAOImage::getInstance()->deleteImage($imageID);
         }
-
-        DAOImage::getInstance()->updateImage($image);
-
-        return new JsonResponse();
-    }
-
-    public function deletePostAction(Application $app) {
-
-        $imageID = $_POST['id'];
-        $image = DAOImage::getInstance()->getImage($imageID);
-
-        $iconPath = explode('/', $image->getImgPath());
-
-        unlink('assets/images/posts/' . $iconPath[3]);
-        unlink('assets/images/postsIcon/' . $iconPath[3]);
-
-        DAOImage::getInstance()->deleteImage($imageID);
 
         return new JsonResponse();
     }
 
     public function likePostAction(Application $app) {
 
-        $like = new Like();
+        if (isset($_POST['imageID']) && $app['session']->get('id') != null) {
 
-        $like->setImageId($_POST['imageID']);
-        $like->setUserId($app['session']->get('id'));
+            $like = new Like();
 
-        DAOLike::getInstance()->insertLike($like);
+            $like->setImageId($_POST['imageID']);
+            $like->setUserId($app['session']->get('id'));
+
+            DAOLike::getInstance()->insertLike($like);
+        }
 
         return new JsonResponse();
     }
 
     public function unlikePostAction(Application $app) {
 
-        $like = new Like();
+        if (isset($_POST['imageID']) && $app['session']->get('id') != null) {
 
-        $like->setImageId($_POST['imageID']);
-        $like->setUserId($app['session']->get('id'));
+            $like = new Like();
 
-        DAOLike::getInstance()->deleteLike($like);
+            $like->setImageId($_POST['imageID']);
+            $like->setUserId($app['session']->get('id'));
+
+            DAOLike::getInstance()->deleteLike($like);
+        }
 
         return new JsonResponse();
     }
 
     public function commentPostAction(Application $app) {
 
-        $comment = new Comment();
+        if (isset($_POST['imageID']) && isset($_POST['text']) && $app['session']->get('id') != null) {
 
-        $comment->setImageId($_POST['imageID']);
-        $comment->setText($_POST['text']);
-        $comment->setUserId($app['session']->get('id'));
+            $comment = new Comment();
 
-        DAOComment::getInstance()->insertComment($comment);
+            $comment->setImageId($_POST['imageID']);
+            $comment->setText($_POST['text']);
+            $comment->setUserId($app['session']->get('id'));
+
+            DAOComment::getInstance()->insertComment($comment);
+        }
 
         return new JsonResponse();
     }
 
     public function uncommentPostAction() {
 
-        $comment = new Comment();
+        if (isset($_POST['imageID'])) {
 
-        $comment->setId($_POST['imageID']);
+            $comment = new Comment();
 
-        DAOComment::getInstance()->deleteComment($comment);
+            $comment->setId($_POST['imageID']);
+
+            DAOComment::getInstance()->deleteComment($comment);
+        }
 
         return new JsonResponse();
     }
 
-    public function editCommentPostAction() {
+    public function editCommentPostAction(Application $app) {
 
-        $comment = new Comment();
+        if (isset($_POST['commentID']) && isset($_POST['text']) && $app['session']->get('id') != null) {
 
-        $comment->setId($_POST['commentID']);
-        $comment->setText($_POST['text']);
+            $comment = new Comment();
 
-        DAOComment::getInstance()->updateComment($comment);
+            $comment->setId($_POST['commentID']);
+            $comment->setText($_POST['text']);
+
+            DAOComment::getInstance()->updateComment($comment);
+        }
+
 
         return new JsonResponse();
     }
 
     public function getMoreComments() {
 
-        $number = $_POST['count'];
-        $comments = DAOComment::getInstance()->getCommentByImageID($_POST['imageID']);
-        $commentsInfo = array();
+        if (isset($_POST['count'])) {
 
-        for ($i = $number; $i < $number + 3 && $i < count($comments); $i++) {
-            array_push($commentsInfo, array(
-                'username' => DAOUser::getInstance()->getUserById($comments[$i]->getUserId())->getUsername(),
-                'content' => strip_tags($comments[$i]->getText())
-            ));
+            $number = $_POST['count'];
+            $comments = DAOComment::getInstance()->getCommentByImageID($_POST['imageID']);
+            $commentsInfo = array();
+
+            for ($i = $number; $i < $number + 3 && $i < count($comments); $i++) {
+                array_push($commentsInfo, array(
+                    'username' => DAOUser::getInstance()->getUserById($comments[$i]->getUserId())->getUsername(),
+                    'content' => strip_tags($comments[$i]->getText())
+                ));
+            }
+
+            $completed = false;
+            if (count($comments) <= $number + 3 ) $completed = true;
+
+            $response = array(
+                'comments' => $commentsInfo,
+                'allLoaded' => $completed
+            );
+
+            return new JsonResponse($response);
         }
 
-        $completed = false;
-        if (count($comments) <= $number + 3 ) $completed = true;
-
-        $response = array(
-            'comments' => $commentsInfo,
-            'allLoaded' => $completed 
-        );
-
-        return new JsonResponse($response);
+        return new JsonResponse();
     }
 
     /* PRIVATE METHODS */
@@ -333,27 +364,7 @@ class PostController extends BaseController {
 
         list($width, $height) = getimagesize($file);
 
-        $r = $width / $height;
-
         $src = null;
-
-        /*if ($crop) {
-            if ($width > $height) $width = ceil($width - ($width * abs($r -$w / $h)));
-            else $height = ceil($height - ($height * abs($r - $w / $h)));
-
-            $newwidth = $w;
-            $newheight = $h;
-        }
-        else {
-            if ($w / $h > $r) {
-                $newwidth = $h * $r;
-                $newheight = $h;
-            }
-            else {
-                $newheight = $w / $r;
-                $newwidth = $w;
-            }
-        }*/
 
         switch ($fileType) {
             case 'png':

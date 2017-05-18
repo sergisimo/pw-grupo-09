@@ -122,106 +122,114 @@ class HomeController extends BaseController {
 
     public function getMoreMostViewedImages(Application $app) {
 
-        $number = $_POST['count'];
+        if (isset($_POST['count'])) {
+            $number = $_POST['count'];
 
-        $user = null;
-        if ($app['session']->get('id') != null) $user = $app['session']->get('user');
+            $user = null;
+            if ($app['session']->get('id') != null) $user = $app['session']->get('user');
 
-        $active = $user != null;
+            $active = $user != null;
 
-        $images = DAOImage::getInstance()->getImageByOrder(true);
-        $mostViewed = array();
+            $images = DAOImage::getInstance()->getImageByOrder(true);
+            $mostViewed = array();
 
-        for ($i = $number; $i < $number + 3 && $i < count($images); $i++) {
+            for ($i = $number; $i < $number + 3 && $i < count($images); $i++) {
 
-            $liked = false;
-            if ($user != null && DAOLike::getInstance()->checkIsLiked($user->getId(), $images[$i]->getId())) $liked = true;
+                $liked = false;
+                if ($user != null && DAOLike::getInstance()->checkIsLiked($user->getId(), $images[$i]->getId())) $liked = true;
 
-            $canComment = false;
-            if ($user != null && DAOComment::getInstance()->checkCanCommnet($user->getId(), $images[$i]->getId())) $canComment = true;
+                $canComment = false;
+                if ($user != null && DAOComment::getInstance()->checkCanCommnet($user->getId(), $images[$i]->getId())) $canComment = true;
 
-            array_push($mostViewed, array(
-                'src' => $images[$i]->getImgPath(),
-                'title' => $images[$i]->getTitle(),
-                'postPage' => '/post/view/' . $images[$i]->getId(),
-                'postDate' => date("Y-m-d", strtotime($images[$i]->getCreatedAt())),
-                'userProfile' => '/profile/' . $images[$i]->getUserId() . '/3',
-                'username' => DAOUser::getInstance()->getUserById($images[$i]->getUserId())->getUsername(),
-                'liked' => $liked,
-                'likes' => count(DAOLike::getInstance()->getLikeByImageID($images[$i]->getId())),
-                'visits' => $images[$i]->getVisits(),
-                'lastComment' => null,
-                'userCanComment' => $canComment,
-                'id' => $images[$i]->getId()
-            ));
+                array_push($mostViewed, array(
+                    'src' => $images[$i]->getImgPath(),
+                    'title' => $images[$i]->getTitle(),
+                    'postPage' => '/post/view/' . $images[$i]->getId(),
+                    'postDate' => date("Y-m-d", strtotime($images[$i]->getCreatedAt())),
+                    'userProfile' => '/profile/' . $images[$i]->getUserId() . '/3',
+                    'username' => DAOUser::getInstance()->getUserById($images[$i]->getUserId())->getUsername(),
+                    'liked' => $liked,
+                    'likes' => count(DAOLike::getInstance()->getLikeByImageID($images[$i]->getId())),
+                    'visits' => $images[$i]->getVisits(),
+                    'lastComment' => null,
+                    'userCanComment' => $canComment,
+                    'id' => $images[$i]->getId()
+                ));
+            }
+
+            $completed = false;
+            if (count($images) <= $number + 3 ) $completed = true;
+
+            $response = array(
+                'posts' => $mostViewed,
+                'allLoaded' => $completed,
+                'active' => $active
+            );
+
+            return new JsonResponse($response);
         }
 
-        $completed = false;
-        if (count($images) <= $number + 3 ) $completed = true;
-
-        $response = array(
-            'posts' => $mostViewed,
-            'allLoaded' => $completed,
-            'active' => $active
-        );
-
-        return new JsonResponse($response);
+        return new JsonResponse();
     }
 
     public function getMoreMostRecentImages(Application $app) {
 
-        $number = $_POST['count'];
+        if (isset($_POST['count'])) {
+            $number = $_POST['count'];
 
-        $user = null;
-        if ($app['session']->get('id') != null) $user = $app['session']->get('user');
+            $user = null;
+            if ($app['session']->get('id') != null) $user = $app['session']->get('user');
 
-        $active = $user != null;
+            $active = $user != null;
 
-        $images = DAOImage::getInstance()->getImageByOrder(false);
-        $mostViewed = array();
+            $images = DAOImage::getInstance()->getImageByOrder(false);
+            $mostViewed = array();
 
-        for ($i = $number; $i < $number + 3 && $i < count($images); $i++) {
+            for ($i = $number; $i < $number + 3 && $i < count($images); $i++) {
 
-            $liked = false;
-            if ($user != null && DAOLike::getInstance()->checkIsLiked($user->getId(), $images[$i]->getId())) $liked = true;
+                $liked = false;
+                if ($user != null && DAOLike::getInstance()->checkIsLiked($user->getId(), $images[$i]->getId())) $liked = true;
 
-            $canComment = false;
-            if ($user != null && DAOComment::getInstance()->checkCanCommnet($user->getId(), $images[$i]->getId())) $canComment = true;
+                $canComment = false;
+                if ($user != null && DAOComment::getInstance()->checkCanCommnet($user->getId(), $images[$i]->getId())) $canComment = true;
 
-            $lastComment = null;
-            if (count(DAOComment::getInstance()->getCommentByImageID($images[$i]->getId())) != 0) {
-                $comment = DAOComment::getInstance()->getCommentByImageID($images[$i]->getId())[0];
-                $lastComment = array(
-                    'username' => DAOUser::getInstance()->getUserById($comment->getUserId())->getUsername(),
-                    'content' => strip_tags($comment->getText())
-                );
+                $lastComment = null;
+                if (count(DAOComment::getInstance()->getCommentByImageID($images[$i]->getId())) != 0) {
+                    $comment = DAOComment::getInstance()->getCommentByImageID($images[$i]->getId())[0];
+                    $lastComment = array(
+                        'username' => DAOUser::getInstance()->getUserById($comment->getUserId())->getUsername(),
+                        'content' => strip_tags($comment->getText())
+                    );
+                }
+
+                array_push($mostViewed, array(
+                    'src' => $images[$i]->getImgPath(),
+                    'title' => $images[$i]->getTitle(),
+                    'postPage' => '/post/view/' . $images[$i]->getId(),
+                    'postDate' => date("Y-m-d", strtotime($images[$i]->getCreatedAt())),
+                    'userProfile' => '/profile/' . $images[$i]->getUserId() . '/3',
+                    'username' => DAOUser::getInstance()->getUserById($images[$i]->getUserId())->getUsername(),
+                    'liked' => $liked,
+                    'likes' => count(DAOLike::getInstance()->getLikeByImageID($images[$i]->getId())),
+                    'visits' => $images[$i]->getVisits(),
+                    'lastComment' => $lastComment,
+                    'userCanComment' => $canComment,
+                    'id' => $images[$i]->getId()
+                ));
             }
 
-            array_push($mostViewed, array(
-                'src' => $images[$i]->getImgPath(),
-                'title' => $images[$i]->getTitle(),
-                'postPage' => '/post/view/' . $images[$i]->getId(),
-                'postDate' => date("Y-m-d", strtotime($images[$i]->getCreatedAt())),
-                'userProfile' => '/profile/' . $images[$i]->getUserId() . '/3',
-                'username' => DAOUser::getInstance()->getUserById($images[$i]->getUserId())->getUsername(),
-                'liked' => $liked,
-                'likes' => count(DAOLike::getInstance()->getLikeByImageID($images[$i]->getId())),
-                'visits' => $images[$i]->getVisits(),
-                'lastComment' => $lastComment,
-                'userCanComment' => $canComment,
-                'id' => $images[$i]->getId()
-            ));
+            $completed = false;
+            if (count($images) <= $number + 3 ) $completed = true;
+
+            $response = array(
+                'posts' => $mostViewed,
+                'allLoaded' => $completed,
+                'active' => $active
+            );
+
+            return new JsonResponse($response);
         }
 
-        $completed = false;
-        if (count($images) <= $number + 3 ) $completed = true;
-
-        $response = array(
-            'posts' => $mostViewed,
-            'allLoaded' => $completed,
-            'active' => $active
-        );
-
-        return new JsonResponse($response);
+        return new JsonResponse();
     }
 }

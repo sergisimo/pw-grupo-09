@@ -31,36 +31,40 @@ class UserController extends BaseController {
 
     public function registerAction() {
 
-        $user = new User();
-        $user->setUsername($_POST['username']);
-        $user->setBirthdate($_POST['birthdate']);
-        $user->setPassword($_POST['password']);
-        $user->setEmail($_POST['email']);
-        $user->setActive(0);
+        if (isset($_POST['username']) && isset($_POST['birthdate']) && isset($_POST['password']) && isset($_POST['email']) && isset($_POST['imageName'])) {
 
-        $user->setImgPath('assets/images/profileImages/' . $_POST['imageName']);
+            $user = new User();
+            $user->setUsername($_POST['username']);
+            $user->setBirthdate($_POST['birthdate']);
+            $user->setPassword($_POST['password']);
+            $user->setEmail($_POST['email']);
+            $user->setActive(0);
 
-        $errors = $user->validateRegistration();
+            $user->setImgPath('assets/images/profileImages/' . $_POST['imageName']);
 
-        if (count($errors) == 0) {
-            $user->setPassword(hash('sha512', $_POST['password']));
-            DAOUser::getInstance()->insertUser($user);
-            $user = DAOUser::getInstance()->getUser($user->getUsername());
-            array_push($errors, RegistrationErrorCode::ErrorCodeRegistrationSuccesful);
+            $errors = $user->validateRegistration();
 
-            $this->sendRegistrationEmail($user->getEmail(), $user->getId());
+            if (count($errors) == 0) {
+                $user->setPassword(hash('sha512', $_POST['password']));
+                DAOUser::getInstance()->insertUser($user);
+                $user = DAOUser::getInstance()->getUser($user->getUsername());
+                array_push($errors, RegistrationErrorCode::ErrorCodeRegistrationSuccesful);
+
+                $this->sendRegistrationEmail($user->getEmail(), $user->getId());
+            }
+
+            return new JsonResponse($errors);
         }
 
-        $response = new JsonResponse($errors);
 
-        return $response;
+        return new JsonResponse();
     }
 
     public function updateUserAction(Application $app) {
 
         $userID = $app['session']->get('id');
 
-        if (isset($_POST['username']) && isset($_POST['birthdate']) && isset($_POST['password'])) {
+        if (isset($_POST['username']) && isset($_POST['birthdate']) && isset($_POST['password']) && $userID != null) {
             $user = DAOUser::getInstance()->getUserById($userID);
 
             if (strlen($_POST['username']) > 0) $user->setUsername($_POST['username']);
@@ -84,31 +88,38 @@ class UserController extends BaseController {
 
     public function uploadImageAction() {
 
-        $errors = array();
-        array_push($errors, RegistrationErrorCode::ErrorCodeRegistrationSuccesful);
+        if (isset($_FILES['file'])) {
 
-        $sourcePath = $_FILES['file']['tmp_name'];
-        $targetPath = "assets/images/profileImages/" . $_FILES['file']['name'];
-        move_uploaded_file($sourcePath, $targetPath) ;
+            $errors = array();
+            array_push($errors, RegistrationErrorCode::ErrorCodeRegistrationSuccesful);
 
-        $response = new JsonResponse($errors);
+            $sourcePath = $_FILES['file']['tmp_name'];
+            $targetPath = "assets/images/profileImages/" . $_FILES['file']['name'];
+            move_uploaded_file($sourcePath, $targetPath) ;
 
-        return $response;
+            return new JsonResponse($errors);
+        }
+
+        return new JsonResponse();
     }
 
     public function validateAccountAction(Application $app, Request $request) {
 
-        $id = $request->get('id');
+        if ( $request->get('id') != null ) {
 
-        $user = DAOUser::getInstance()->getUserById($id);
-        $user->setActive(1);
+            $id = $request->get('id');
 
-        DAOUser::getInstance()->updateUser($user);
+            $user = DAOUser::getInstance()->getUserById($id);
+            $user->setActive(1);
 
-        $app['session']->set('id', $user->getId());
-        $app['session']->set('user', $user);
+            DAOUser::getInstance()->updateUser($user);
+
+            $app['session']->set('id', $user->getId());
+            $app['session']->set('user', $user);
+        }
 
         $response = new RedirectResponse('/');
+
         return $response;
     }
 
@@ -375,10 +386,13 @@ class UserController extends BaseController {
 
     public function setNotificationSeenAction() {
 
-        $notification = new Notification();
-        $notification->setId($_POST['notificationID']);
+        if (isset($_POST['notificationID'])) {
 
-        DAONotification::getInstance()->updateSeenNotification($notification);
+            $notification = new Notification();
+            $notification->setId($_POST['notificationID']);
+
+            DAONotification::getInstance()->updateSeenNotification($notification);
+        }
 
         return new JsonResponse();
     }
@@ -412,18 +426,22 @@ class UserController extends BaseController {
     }
 
     function compareLikes($a, $b) {
+
         return strnatcmp($b['numLikes'], $a['numLikes']);
     }
 
-   function compareComments($a, $b) {
+    function compareComments($a, $b) {
+
        return strnatcmp($b['numComments'], $a['numComments']);
     }
 
     function compareVisits($a, $b) {
+
         return strnatcmp($b['visits'], $a['visits']);
     }
 
     function compareDates($a, $b) {
+
         return strnatcmp($b['date'], $a['date']);
     }
 }

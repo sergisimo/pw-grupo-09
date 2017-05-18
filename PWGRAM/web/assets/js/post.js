@@ -185,7 +185,7 @@ var Listener = {
                 break;
             default:
                 $(this).val('');
-
+                alert("Only gif, jpg and png are allowed!");
                 break;
         }
     },

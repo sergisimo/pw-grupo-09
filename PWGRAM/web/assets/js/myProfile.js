@@ -170,7 +170,7 @@ var Listener = {
             break;
             default:
                 $(this).val('');
-                alert("not an image");
+                alert("Only gif, jpg and png are allowed!");
                 break;
         }
     }
