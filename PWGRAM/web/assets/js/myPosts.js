@@ -45,8 +45,25 @@ var Listener = {
 
         event.preventDefault();
 
-        $('#deletePostModal').modal('toggle');
-        removePost();
+        var params = {
+            'id' : postToDelete
+        };
+
+        $.ajax({
+            data:  params,
+            url:   '/deletePost',
+            type:  'POST',
+
+            success: function (response) {
+                console.log(response);
+
+                $('#deletePostModal').modal('toggle');
+
+                $("#deletePostModal").on("hidden.bs.modal", function () {
+                    location.reload();
+                });
+            }
+        })
     }
 }
 
@@ -54,19 +71,14 @@ var Listener = {
 /* ************* METHODS ****************/
 
 /**
- * Removes a posted image
- */
-function removePost() {
-
-    console.log('Removing post: ' + postToDelete);
-}
-
-/**
  * Page stating point
  */
 window.onload = function() {
 
-    Listener.add(WebManager.sharedInstance().removePostButton, "click", Listener.eventRemovePost, true);
+    try {
+        Listener.add(WebManager.sharedInstance().removePostButton, "click", Listener.eventRemovePost, true);
+    }
+    catch (err) {}
 
     $('#deletePostModal').on('show.bs.modal', function (e) {
         var $invoker = $(e.relatedTarget);

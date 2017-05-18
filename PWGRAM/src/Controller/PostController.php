@@ -100,7 +100,7 @@ class PostController extends BaseController {
 
             array_push($commentsInfo, array(
                 'username' => DAOUser::getInstance()->getUserById($comment->getUserId())->getUsername(),
-                'content' => $comment->getText()
+                'content' => strip_tags($comment->getText())
             ));
 
             if ($user != null && DAOUser::getInstance()->getUserById($comment->getUserId())->getUsername() == $user->getUsername()) $userCanComment = false;
@@ -285,8 +285,7 @@ class PostController extends BaseController {
 
         $comment = new Comment();
 
-        $comment->setImageId($_POST['imageID']);
-        $comment->setUserId($app['session']->get('id'));
+        $comment->setId($_POST['imageID']);
 
         DAOComment::getInstance()->deleteComment($comment);
 

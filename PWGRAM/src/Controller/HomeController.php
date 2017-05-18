@@ -72,7 +72,7 @@ class HomeController extends BaseController {
                 $comment = DAOComment::getInstance()->getCommentByImageID($image->getId())[0];
                 $lastComment = array(
                     'username' => DAOUser::getInstance()->getUserById($comment->getUserId())->getUsername(),
-                    'content' => $comment->getText()
+                    'content' => strip_tags($comment->getText())
                 );
             }
 

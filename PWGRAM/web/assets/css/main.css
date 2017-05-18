@@ -5,7 +5,14 @@
     url('../fonts/sf-ui-display-thin-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
+}
 
+@font-face {
+    font-family: 'billabong';
+    src: url('../fonts/billabong-webfont.woff') format('woff2'),
+    url('../fonts/billabong-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
 }
 
 body {
@@ -38,6 +45,11 @@ body {
 /* Navbar */
 .navbar .navbar-brand {
     color: rgba(255, 255, 255, .85);
+}
+
+.display-4 {
+    font-family: billabong;
+    font-size: 450%;
 }
 
 .navbar-brand {

@@ -5,7 +5,6 @@
 /* ************* CONSTANTS ****************/
 const NOTIFICATIONS = 'notifications';
 
-
 /* ************* VARIABLES ****************/
 
 /**
@@ -29,6 +28,41 @@ var WebManager = (function() {
     };
 })();
 
+/**
+ * Object variable for adding listener events
+ * @type {{add: Listener.add, eventEditComment: Listener.eventEditComment, eventRemoveComment: Listener.eventRemoveComment}}
+ */
+var Listener = {
+
+    add: function(object, event, callback, capture) {
+
+        object.addEventListener(event, callback, capture);
+    },
+
+    eventMarkAsSeen: function(event) {
+
+        event.preventDefault();
+
+        console.log(event.target.id);
+
+        var params = {
+            'notificationID' : event.target.id.split('-')[1]
+        };
+
+        console.log(params);
+
+        $.ajax({
+            data:  params,
+            url:   '/notificationSeen',
+            type:  'POST',
+
+            success: function (response) {
+                location.reload();
+            }
+        });
+    }
+}
+
 
 /* ************* METHODS ****************/
 
@@ -37,6 +71,15 @@ var WebManager = (function() {
  */
 window.onload = function() {
 
-    var childCount = WebManager.sharedInstance().notificationsDiv.childElementCount;
-    WebManager.sharedInstance().notificationsDiv.removeChild(WebManager.sharedInstance().notificationsDiv.children[childCount - 1]);
+    try {
+        var childCount = WebManager.sharedInstance().notificationsDiv.childElementCount;
+        WebManager.sharedInstance().notificationsDiv.removeChild(WebManager.sharedInstance().notificationsDiv.children[childCount - 1]);
+
+        var seenButtons = document.getElementsByClassName('btn-primary');
+
+        for (var i = 0; i < seenButtons.length; i++) {
+            Listener.add(seenButtons[i], "click", Listener.eventMarkAsSeen, true);
+        }
+    }
+    catch (err) {}
 };

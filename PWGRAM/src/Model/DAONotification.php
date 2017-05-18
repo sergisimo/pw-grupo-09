@@ -9,6 +9,7 @@
 namespace SilexApp\Model;
 
 use PDO;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class DAONotification {
     /* ************* CONSTANTS ****************/
@@ -113,7 +114,7 @@ class DAONotification {
 
         $this->updateSeenStatement->bindParam(DAONotification::NOTIFICATION_ID_REPLACER, $id, PDO::PARAM_INT);
 
-        $this->updateStatement->execute();
+        $this->updateSeenStatement->execute();
     }
 
     public function deleteNotification(Notification $notification, $isComment): void {

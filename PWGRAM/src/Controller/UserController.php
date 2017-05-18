@@ -284,7 +284,7 @@ class UserController extends BaseController {
 
             array_push($commentsInfo, array(
                 'imageSrc' => Image::transformImagePath(DAOImage::getInstance()->getImage($comment->getImageId())->getImgPath()),
-                'content' => $comment->getText(),
+                'content' => strip_tags($comment->getText()),
                 'id' => $comment->getId()
             ));
         }
@@ -328,7 +328,7 @@ class UserController extends BaseController {
             array_push($notificationsInfo, array(
                 'id' => $notification->getId(),
                 'imageSrc' => Image::transformImagePath(DAOImage::getInstance()->getImage($notification->getImageId())->getImgPath()),
-                'comment' => $notification->getText(),
+                'comment' => strip_tags($notification->getText()),
                 'postName' => DAOImage::getInstance()->getImage($notification->getImageId())->getTitle(),
                 'postPage' => '/post/view/' . DAOImage::getInstance()->getImage($notification->getImageId())->getId(),
                 'sourceUserProfile' => 'profile/' . $notification->getUserId(),
@@ -368,6 +368,8 @@ class UserController extends BaseController {
         $notification->setId($_POST['notificationID']);
 
         DAONotification::getInstance()->updateSeenNotification($notification);
+
+        return new JsonResponse();
     }
 
     /* PRIVATE METHODS */

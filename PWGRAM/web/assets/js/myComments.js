@@ -4,11 +4,10 @@
 
 /* ************* CONSTANTS ****************/
 const COMMENTS = 'comments';
-const DELETE_COMMENT_BUTTON = 'deleteCommentButton';
-const EDIT_COMMENT_BUTTON = 'editCommentButton';
 const COMMENT_TEXT_AREA = 'commentTextArea';
 const COMMENT_GROUP = 'commentGroup';
-
+const DELETE_BUTTON = 'deleteCommentButton';
+const EDIT_BUTTON = 'editCommentButton';
 
 /* ************* VARIABLES ****************/
 var targetPost = null;
@@ -22,10 +21,10 @@ var WebManager = (function() {
     function WebManager() {
 
         this.commentDiv = document.getElementById(COMMENTS);
-        this.removeCommentButton = document.getElementById(DELETE_COMMENT_BUTTON);
-        this.editCommentButton = document.getElementById(EDIT_COMMENT_BUTTON);
         this.commentTextArea = document.getElementById(COMMENT_TEXT_AREA);
         this.commentGroup = document.getElementById(COMMENT_GROUP);
+        this.editButton = document.getElementById(EDIT_BUTTON);
+        this.deleteButton = document.getElementById(DELETE_BUTTON);
     }
 
     return {
@@ -69,8 +68,25 @@ var Listener = {
 
         event.preventDefault();
 
-        $('#deleteCommentModal').modal('toggle');
-        removeComment();
+        var params = {
+            'imageID' : targetPost
+        };
+
+        console.log(params);
+
+        $.ajax({
+            data:  params,
+            url:   '/uncommentPost',
+            type:  'POST',
+
+            success: function (response) {
+                $('#deleteCommentModal').modal('toggle');
+
+                $("#deleteCommentModal").on("hidden.bs.modal", function () {
+                    location.reload();
+                });
+            }
+        });
     }
 }
 
@@ -110,11 +126,14 @@ function commentValidFormat() {
  */
 window.onload = function() {
 
-    var childCount = WebManager.sharedInstance().commentDiv.childElementCount;
-    WebManager.sharedInstance().commentDiv.removeChild(WebManager.sharedInstance().commentDiv.children[childCount - 1]);
+    try {
+        var childCount = WebManager.sharedInstance().commentDiv.childElementCount;
+        WebManager.sharedInstance().commentDiv.removeChild(WebManager.sharedInstance().commentDiv.children[childCount - 1]);
 
-    Listener.add(WebManager.sharedInstance().editCommentButton, "click", Listener.eventEditComment, true);
-    Listener.add(WebManager.sharedInstance().removeCommentButton, "click", Listener.eventRemoveComment, true);
+        Listener.add(WebManager.sharedInstance().editButton, "click", Listener.eventEditComment, true);
+        Listener.add(WebManager.sharedInstance().deleteButton, "click", Listener.eventRemoveComment, true);
+    }
+    catch (err) {}
 
     $('#editCommentModal').on('show.bs.modal', function (e) {
         var $invoker = $(e.relatedTarget);

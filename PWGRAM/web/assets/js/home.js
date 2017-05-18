@@ -310,7 +310,83 @@ var Listener = {
 
         if (EMAIL_PATTERN.test(WebManager.sharedInstance().registerEmailInput.value) == false) createEmailIndicator(false);
         else createEmailIndicator(true);
-    }
+    },
+
+    eventPostComment: function(event) {
+
+        event.preventDefault();
+
+        var error = false;
+
+        var postID = event.target.id.split('-')[1];
+
+        var commentInput = document.getElementById('commentInput-' + postID);
+
+
+        if (commentInput.value.length == 0) error = true;
+        else error = false;
+
+        createCommentError(error, postID);
+
+        if (error) return;
+
+        var params = {
+            'imageID' : postID,
+            'text' : commentInput.value
+        }
+
+        $.ajax({
+            data:  params,
+            url:   '/commentPost',
+            type:  'POST',
+
+            success: function (response) {
+                location.reload();
+            }
+        });
+    },
+
+    eventLikePost: function(event) {
+
+        event.preventDefault();
+
+        var postID = event.target.id.split('-')[1];
+
+        var params = {
+            'imageID' : postID
+        };
+
+        $.ajax({
+            data:  params,
+            url:   '/likePost',
+            type:  'POST',
+
+            success: function (response) {
+                location.reload();
+            }
+        });
+    },
+
+    eventUnlikePost: function(event) {
+
+        event.preventDefault();
+
+        var postID = event.target.id.split('-')[1];
+
+        var params = {
+            'imageID' : postID
+        };
+
+        $.ajax({
+            data:  params,
+            url:   '/unlikePost',
+            type:  'POST',
+
+            success: function (response) {
+                location.reload();
+            }
+        });
+    },
 }
 
 /**
@@ -694,6 +770,21 @@ function createLoginErrorsForCodes(errorCodes) {
     }
 }
 
+function createCommentError(error, postID) {
+
+    var commentGroup = document.getElementById('addCommentGroup-' + postID);
+    var commentInput = document.getElementById('commentInput-' + postID);
+
+    if (error) {
+        commentInput.className = "form-control form-control-danger";
+        commentGroup.className = "form-group has-danger";
+    }
+    else {
+        commentInput.className = "form-control form-control-success";
+        commentGroup.className = "form-group has-success";
+    }
+}
+
 /**
  * Page stating point
  */
@@ -712,4 +803,31 @@ window.onload = function() {
     Listener.add(WebManager.sharedInstance().registerPasswordInput, "input", Listener.eventValidatePassword, true);
     Listener.add(WebManager.sharedInstance().registerConfirmPasswordInput, "input", Listener.eventValidateConfirmPassword, true);
     Listener.add(WebManager.sharedInstance().registerEmailInput, "input", Listener.eventValidateEmail, true);
+
+    try {
+        var postButtons = document.getElementsByClassName('postButton');
+
+        for (var i = 0; i < postButtons.length; i++) {
+            Listener.add(postButtons[i], "click", Listener.eventPostComment, true);
+        }
+    }
+    catch (err) {}
+
+    try {
+        var likeActions = document.getElementsByClassName('likeAction');
+
+        for (var i = 0; i < likeActions.length; i++) {
+            Listener.add(likeActions[i], "click", Listener.eventUnlikePost, true);
+        }
+    }
+    catch (err) {}
+
+    try {
+        var likeActions = document.getElementsByClassName('unlikeAction');
+
+        for (var i = 0; i < likeActions.length; i++) {
+            Listener.add(likeActions[i], "click", Listener.eventLikePost, true);
+        }
+    }
+    catch (err) {}
 };

@@ -15,7 +15,7 @@ const POST_LIKED_ACTION = 'postLikedAction';
 const LIKE_TITLE = 'likeTitle';
 const POST_COMMENT_BUTTON = 'postCommentButton';
 const COMMENT_INPUT = 'commentInput';
-const COMMENT_GROUP = 'commentGroup';
+const COMMENT_GROUP = 'addCommentGroup';
 
 const AddPostErrorCode = {
     ErrorCodeImage : 0,
@@ -32,7 +32,7 @@ var params = {
 
 var postLiked = null;
 var imageSelected = false;
-
+var postID = null;
 var file;
 
 /**
@@ -142,6 +142,7 @@ var Listener = {
                     success: function (response) {
                         console.log(response);
                         button.removeChild(button.children[button.childElementCount - 1]);
+                        window.location.href = '/';
                     }
                 })
             }
@@ -191,13 +192,33 @@ var Listener = {
 
         postLiked = !postLiked;
 
+        var params = {
+            'imageID' : postID
+        }
+
         if (postLiked) {
-            WebManager.sharedInstance().postLikedImage.src = '../../assets/images/heart-selected.png';
-            WebManager.sharedInstance().likeTitle.innerText = 'Dislike';
+            $.ajax({
+                data:  params,
+                url:   '/likePost',
+                type:  'POST',
+
+                success: function (response) {
+                    location.reload();
+                    console.log(response);
+                }
+            });
         }
         else {
-            WebManager.sharedInstance().postLikedImage.src = '../../assets/images/heart.png';
-            WebManager.sharedInstance().likeTitle.innerText = 'Like';
+            $.ajax({
+                data:  params,
+                url:   '/unlikePost',
+                type:  'POST',
+
+                success: function (response) {
+                    location.reload();
+                    console.log(response);
+                }
+            });
         }
     },
 
@@ -213,6 +234,21 @@ var Listener = {
         createCommentError(error);
 
         if (error) return;
+
+        var params = {
+            'imageID' : postID,
+            'text' : WebManager.sharedInstance().commentInput.value
+        }
+
+        $.ajax({
+            data:  params,
+            url:   '/commentPost',
+            type:  'POST',
+
+            success: function (response) {
+                location.reload();
+            }
+        });
     },
 
     eventUpdatePost: function(event) {
@@ -362,9 +398,26 @@ window.onload = function() {
 
     try {
         Listener.add(WebManager.sharedInstance().postLikedAction, "click", Listener.eventLikePost, true);
-        postLiked = WebManager.sharedInstance().postLikedImage.src == 'http://www.grup9.com/assets/images/heart.png'? false : true;
+
+        if (document.getElementsByClassName('img-liked').length == 0) {
+            var likeDiv = document.getElementsByClassName('img-unliked')[0];
+
+            postID = likeDiv.className.split(' ')[2].split('-')[1];
+
+            postLiked = false;
+
+        }
+        else {
+            var likeDiv = document.getElementsByClassName('img-liked')[0];
+
+            postID = likeDiv.className.split(' ')[2].split('-')[1];
+
+            postLiked = true;
+        }
     }
     catch (err) {}
+
+    console.log(postLiked);
 
     //params['imagePath'] = WebManager.sharedInstance().postImage.src;
 

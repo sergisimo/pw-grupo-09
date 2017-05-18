@@ -217,6 +217,6 @@ class DAOImage {
 
         $this->deleteStatement->bindParam(DAOImage::IMAGE_ID_REPLACER, $imageID, PDO::PARAM_INT);
 
-        $this->updateVisitsStatement->execute();
+        $this->deleteStatement->execute();
     }
 }

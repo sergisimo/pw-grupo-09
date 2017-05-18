@@ -7,6 +7,10 @@
         <meta name="description" content="PWGRAM BES Company">
         <meta name="author" content="BES Company">
 
+        {% block favicon %}
+            <link rel="shortcut icon" href="{{ asset('favicon.png', 'images') }}" type="image/png"/>
+        {% endblock %}
+
         <title>
             {% block title %}
                 {{ page }}

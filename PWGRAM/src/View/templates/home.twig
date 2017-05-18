@@ -8,7 +8,7 @@
 {% block content %}
     {{ parent() }}
 
-    {% if posts is not defined %}
+    {% if posts is not defined or posts.mostViewed|length == 0 %}
         <div class="alert alert-warning" role="alert">
             No public pictures have been posted yet.
         </div>
@@ -39,28 +39,28 @@
                     {% if active == true %}
                         {% if post.liked == true %}
                             <div class="text-left mt-2">
-                                <p><a id='postLikedAction-{{ post.id }}' class="ml-1" href=''><img class="mr-2" id='postLiked-{{ post.id }}' src="assets/images/heart-selected.png" width="25"></a><span id="likeTitle">Dislike</span></p>
+                                <p><a id='postLikedAction-{{ post.id }}' class="ml-1 likeAction" href=''><img class="mr-2" id='postLiked-{{ post.id }}' src="assets/images/heart-selected.png" width="25"></a><span id="likeTitle">Dislike</span></p>
                             </div>
                         {% else %}
                             <div class="text-left mt-2">
-                                <p><a id='postLikedAction-{{ post.id }}' class="ml-1" href=''><img class="mr-2" id='postLiked-{{ post.id }}' src="assets/images/heart.png" width="25"></a><span id="likeTitle">Like</span></p>
+                                <p><a id='postLikedAction-{{ post.id }}' class="ml-1 unlikeAction" href=''><img class="mr-2" id='postLiked-{{ post.id }}' src="assets/images/heart.png" width="25"></a><span id="likeTitle">Like</span></p>
                             </div>
                         {% endif %}
                     {% endif %}
 
                     <div class="text-left">
-                        <p class="text-muted">{{ post.likes }} likes, {{ post.visits }} visits</p>
+                        <p class="text-muted">{{ post.likes }} like(s), {{ post.visits }} visit(s)</p>
                     </div>
 
                     {% if active == true and post.userCanComment == true %}
                         <hr>
-                        <div class="form-group mt-3" id="addCommentGroup">
+                        <div class="form-group mt-3" id="addCommentGroup-{{ post.id }}">
                             <div class="row">
                                 <div class="col-sm-9 mb-2">
                                     <input type="email" class="form-control" id='commentInput-{{ post.id }}' aria-describedby="emailHelp" placeholder="Type comment">
                                 </div>
                                 <div class="col-sm-2 float-right">
-                                    <button type="submit" class="btn btn-primary btn-md" id='postCommentButton-{{ post.id }}'>Post</button>
+                                    <button type="submit" class="btn btn-primary btn-md postButton" id='postCommentButton-{{ post.id }}'>Post</button>
                                 </div>
                             </div>
                         </div>
@@ -95,17 +95,17 @@
                     {% if active == true %}
                         {% if post.liked == true %}
                             <div class="text-left mt-2">
-                                <p><a id='postLikedAction-{{ post.id }}' class="ml-1" href=''><img class="mr-2" id='postLiked-{{ post.id }}' src="assets/images/heart-selected.png" width="25"></a><span id="likeTitle">Dislike</span></p>
+                                <p><a id='postLikedAction-{{ post.id }}' class="ml-1 likeAction" href=''><img class="mr-2" id='postLiked-{{ post.id }}' src="assets/images/heart-selected.png" width="25"></a><span id="likeTitle">Dislike</span></p>
                             </div>
                         {% else %}
                             <div class="text-left mt-2">
-                                <p><a id='postLikedAction-{{ post.id }}' class="ml-1" href=''><img class="mr-2" id='postLiked-{{ post.id }}' src="assets/images/heart.png" width="25"></a><span id="likeTitle">Like</span></p>
+                                <p><a id='postLikedAction-{{ post.id }}' class="ml-1 unlikeAction" href=''><img class="mr-2" id='postLiked-{{ post.id }}' src="assets/images/heart.png" width="25"></a><span id="likeTitle">Like</span></p>
                             </div>
                         {% endif %}
                     {% endif %}
 
                     <div class="text-left">
-                        <p class="text-muted">{{ post.visits }} visits</p>
+                        <p class="text-muted">{{ post.likes }} like(s)</p>
                     </div>
 
                     {% if post.lastComment != null %}
@@ -118,13 +118,13 @@
 
                     {% if active == true and post.userCanComment == true %}
                         <hr>
-                        <div class="form-group mt-3" id="addCommentGroup">
+                        <div class="form-group mt-3" id="addCommentGroup-{{ post.id }}">
                             <div class="row">
                                 <div class="col-sm-9 mb-2">
                                     <input type="email" class="form-control" id="commentInput-{{ post.id }}" aria-describedby="emailHelp" placeholder="Type comment">
                                 </div>
                                 <div class="col-sm-2 float-right">
-                                    <button type="submit" class="btn btn-primary btn-md" id='postCommentButton-{{ post.id }}'>Post</button>
+                                    <button type="submit" class="btn btn-primary btn-md postButton" id='postCommentButton-{{ post.id }}'>Post</button>
                                 </div>
                             </div>
                         </div>

@@ -61,18 +61,18 @@
 
                {% if sessionActive == true %}
                    {% if image.liked == true %}
-                       <div class="text-left mt-2">
+                       <div class="text-left mt-2 img-{{ image.id }} img-liked">
                            <p><a id="postLikedAction" class="ml-1" href=''><img class="mr-2" id='postLiked' src="../../assets/images/heart-selected.png" width="25"></a><span id="likeTitle">Dislike</span></p>
                        </div>
                    {% else %}
-                       <div class="text-left mt-2">
+                       <div class="text-left mt-2 img-{{ image.id }} img-unliked">
                            <p><a id="postLikedAction" class="ml-1" href=''><img class="mr-2" id="postLiked" src="../../assets/images/heart.png" width="25"></a><span id="likeTitle">Like</span></p>
                        </div>
                    {% endif %}
                {% endif %}
 
                 <div class="text-left">
-                    <p class="text-muted">{{ image.likes }} likes<br>{{ image.visits }} visits</p>
+                    <p class="text-muted">{{ image.likes }} like(s)<br>{{ image.visits }} visit(s)</p>
                 </div>
             {% endif %}
         </div>
@@ -86,7 +86,7 @@
                 </div>
             {% else %}
                 <div id="commentsGroup">
-                    {% if image.comments is defined %}
+                    {% if image.comments is defined and image.comments|length %}
                         <div class="bs-callout bs-callout-info">
                             <h4>Comments</h4>
                             <hr>
@@ -108,7 +108,7 @@
                             <label for="titleInput">Post new comment:</label>
                             <div class="row">
                                 <div class="col-lg-10 col-md-12 col-sm-10 mb-2">
-                                    <input type="email" class="form-control" id="usernameInput" aria-describedby="emailHelp" placeholder="Type comment">
+                                    <input type="email" class="form-control" id="commentInput" aria-describedby="emailHelp" placeholder="Type comment">
                                 </div>
                                 <div class="col-lg-2 col-md-2 col-sm-2 float-right">
                                     <button type="submit" class="btn btn-primary btn-md" id="postCommentButton">Post</button>
