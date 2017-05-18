@@ -36,7 +36,7 @@ var imageSelected = false;
 var postID = null;
 var file;
 
-var commentsCount = 0;
+var commentsCount = 3;
 
 /**
  * Singleton object with methods for accessing web elements
@@ -310,17 +310,17 @@ var Listener = {
         event.preventDefault();
 
         var params = {
-            'count' : commentsCount
+            'count' : commentsCount,
+            'imageID' : postID
         };
-
-        return;
 
         $.ajax({
             data:  params,
-            url:   '',
+            url:   '/getMoreComments',
             type:  'POST',
 
             success: function (response) {
+                console.log(response);
                 appendComments(response);
             }
         });
@@ -337,9 +337,9 @@ function appendComments(comments) {
     for (var i = 0; i < comments['comments'].length; i++) {
         var h7 = document.createElement('h7');
         h7.className = 'font-weight-bold text-muted';
-        h7.innerHTML = comments['comments'][i]['username'];
+        h7.innerHTML = comments['comments'][i]['username'] + ' ';
 
-        var p = document.createElement('p');
+        var p = document.createElement('q');
         p.innerHTML = comments['comments'][i]['content'];
 
         var div = document.createElement('div');
@@ -352,6 +352,9 @@ function appendComments(comments) {
 
     if (comments['allLoaded']) {
         WebManager.sharedInstance().loadMoreButton.parentNode.removeChild(WebManager.sharedInstance().loadMoreButton);
+    }
+    else {
+        commentsCount += 3;
     }
 }
 
@@ -467,8 +470,6 @@ window.onload = function() {
     }
     catch (err) {}
 
-    console.log(postLiked);
-
     //params['imagePath'] = WebManager.sharedInstance().postImage.src;
 
     try {
@@ -495,6 +496,7 @@ window.onload = function() {
 
     try {
         Listener.add(WebManager.sharedInstance().loadMoreButton, "click", Listener.eventLoadMore, true);
+        postID = window.location.href.split('/')[5];
     }
     catch (err) {}
 };

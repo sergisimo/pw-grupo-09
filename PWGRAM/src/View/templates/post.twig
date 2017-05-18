@@ -90,15 +90,26 @@
                         <div class="bs-callout bs-callout-info" id="commentsGroup">
                             <h4>Comments</h4>
                             <hr>
-                            {% for comment in image.comments %}
-                                <div class="text-left mb-2">
-                                    <h7 class="font-weight-bold text-muted">{{ comment.username }}</h7>
-                                    <q>{{ comment.content }}</q>
-                                </div>
-                            {% endfor %}
+                            {% if image.comments|length > 2 %}
+                                {% for i in 0..2 %}
+                                    <div class="text-left mb-2">
+                                        <h7 class="font-weight-bold text-muted">{{ image.comments[loop.index - 1].username }}</h7>
+                                        <q>{{ image.comments[loop.index - 1].content }}</q>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                {% for comment in image.comments %}
+                                    <div class="text-left mb-2">
+                                        <h7 class="font-weight-bold text-muted">{{ comment.username }}</h7>
+                                        <q>{{ comment.content }}</q>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
                         </div>
 
-                        <button type="submit" class="btn btn-primary btn-md mt-3" id="loadMoreButton">Load more</button>
+                        {% if image.comments | length > 3 %}
+                            <button type="submit" class="btn btn-primary btn-md mt-3" id="loadMoreButton">Load more</button>
+                        {% endif %}
                     {% else %}
                         <div class="alert alert-warning" role="alert">
                             No comments have been added yet.

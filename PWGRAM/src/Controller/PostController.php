@@ -306,10 +306,10 @@ class PostController extends BaseController {
     public function getMoreComments() {
 
         $number = $_POST['count'];
-        $comments = DAOComment::getInstance()->getCommentByImageID($_POST['$imageID']);
+        $comments = DAOComment::getInstance()->getCommentByImageID($_POST['imageID']);
         $commentsInfo = array();
 
-        for ($i = $number; $i < $number + 3 && $i <= count($comments); $i++) {
+        for ($i = $number; $i < $number + 3 && $i < count($comments); $i++) {
             array_push($commentsInfo, array(
                 'username' => DAOUser::getInstance()->getUserById($comments[$i]->getUserId())->getUsername(),
                 'content' => strip_tags($comments[$i]->getText())
