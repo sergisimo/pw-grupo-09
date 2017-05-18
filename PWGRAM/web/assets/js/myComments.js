@@ -54,13 +54,23 @@ var Listener = {
 
         if (commentValidFormat()) {
             var params = {
-                'content' : WebManager.sharedInstance().commentTextArea.value,
-                'id' : targetPost
+                'text' : WebManager.sharedInstance().commentTextArea.value,
+                'commentID' : targetPost
             };
 
-            console.log(params);
+            $.ajax({
+                data:  params,
+                url:   '/editComment',
+                type:  'POST',
 
-            $('#editCommentModal').modal('toggle');
+                success: function (response) {
+                    $('#editCommentModal').modal('toggle');
+
+                    $("#editCommentModal").on("hidden.bs.modal", function () {
+                        location.reload();
+                    });
+                }
+            });
         }
     },
 

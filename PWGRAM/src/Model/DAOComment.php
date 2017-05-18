@@ -16,7 +16,7 @@ class DAOComment {
     private const SELECT_BY_USER_STATEMENT = 'SELECT * FROM Commentary WHERE user_id = :userID';
     private const SELECT_BY_IMAGE_STATEMENT = 'SELECT * FROM Commentary WHERE image_id = :imageID ORDER BY id DESC';
     private const INSERT_STATEMENT = 'INSERT INTO Commentary (text, user_id, image_id) VALUES (:text, :userID, :imageID)';
-    private const UPDATE_STATEMENT = 'UPDATE Commentary SET text = :text WHERE id = :commnetID';
+    private const UPDATE_STATEMENT = 'UPDATE Commentary SET text = :text WHERE id = :commentID';
     private const DELETE_STATEMENT = 'DELETE FROM Commentary WHERE id = :commentID';
     private const CHECK_CAN_COMMENT_STATEMENT = 'SELECT * FROM Commentary WHERE user_id = :userID AND image_id = :imageID';
 
